@@ -1,0 +1,16 @@
+{
+    "name": "derelict-sfml2",
+    "description": "A dynamic binding to the SFML2 libraries.",
+    "homepage": "https://github.com/DerelictOrg/DerelictSFML2",
+    "license": "Boost",
+    "authors": [
+        "Mike Parker"
+    ],
+
+    "targetName": "DerelictSFML2",
+    "targetPath": "lib",
+
+    "dependencies": {
+        "derelict-util": "~master"
+    }
+}
