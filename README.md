@@ -28,4 +28,4 @@ void main() {
 }
 ```
 
-Finally, it should be noted that there are two versions of the SDL shared libraries. One is written in C++, the other in C. For DerelictSFML2, you need to use the C version of the libraries, known as CSFML. DerelictSFML2 cannot load the C++ SFML2 libraries.
+Finally, it should be noted that there are two versions of the SFML2 shared libraries. One is written in C++, the other in C. For DerelictSFML2, you need to use the C version of the libraries, known as CSFML. DerelictSFML2 cannot load the C++ SFML2 libraries.
