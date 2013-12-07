@@ -285,7 +285,7 @@ struct sfVideoMode {
 }
 
 // Window/Window.h
-enum {
+enum : uint {
     sfNone = 0,
     sfTitlebar = 1 << 0,
     sfResize = 1 << 1,
