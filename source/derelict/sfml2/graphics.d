@@ -162,7 +162,7 @@ struct sfVertex {
     sfVector2f texCoords;
 }
 
-extern( C ) nothrow {
+extern( C ) @nogc nothrow {
     // Graphics/CircleShape.h
     alias da_sfCircleShape_create = sfCircleShape* function();
     alias da_sfCircleShape_copy = sfCircleShape* function( const( sfCircleShape )* );

@@ -4,7 +4,7 @@ Boost Software License - Version 1.0 - August 17th, 2003
 
 Permission is hereby granted, free of charge, to any person or organization
 obtaining a copy of the software and accompanying documentation covered by
-this license (the "Software") to use, reproduce, display, distribute,
+this license ( the "Software") to use, reproduce, display, distribute,
 execute, and transmit the Software, and to prepare derivative works of the
 Software, and to permit third-parties to whom the Software is furnished to
 do so, all subject to the following:
@@ -31,14 +31,14 @@ private {
     import derelict.util.loader;
     import derelict.util.system;
 
-    static if( Derelict_OS_Windows )
+    static if(  Derelict_OS_Windows )
         enum libNames = "csfml-system-2.dll";
-    else static if( Derelict_OS_Mac )
+    else static if(  Derelict_OS_Mac )
         enum libNames = "libcsfml-system.2.dylib";
-    else static if( Derelict_OS_Posix )
+    else static if(  Derelict_OS_Posix )
         enum libNames = "libcsfml-system.so.2";
     else
-        static assert( 0, "Need to implement SFML2 System libNames for this operating system." );
+        static assert(  0, "Need to implement SFML2 System libNames for this operating system." );
 }
 
 // Config.h
@@ -64,11 +64,11 @@ struct sfMutex;
 struct sfThread;
 
 // System/InputStream.h
-extern(C) nothrow {
-    alias sfInputStreamReadFunc = sfInt64 function( void*,sfInt64,void* );
-    alias sfInputStreamSeekFunc = sfInt64 function( sfInt64,void* );
-    alias sfInputStreamTellFunc = sfInt64 function( void* );
-    alias sfInputStreamGetSizeFunc = sfInt64 function( void* );
+extern( C) nothrow {
+    alias sfInputStreamReadFunc = sfInt64 function(  void*,sfInt64,void* );
+    alias sfInputStreamSeekFunc = sfInt64 function(  sfInt64,void* );
+    alias sfInputStreamTellFunc = sfInt64 function(  void* );
+    alias sfInputStreamGetSizeFunc = sfInt64 function(  void* );
 }
 
 struct sfInputStream {
@@ -84,7 +84,7 @@ struct sfTime {
     sfInt64 microseconds;
 }
 
-immutable( sfTime ) sfTime_Zero;
+immutable(  sfTime ) sfTime_Zero;
 
 // System/Vector2.h
 struct sfVector2i {
@@ -109,28 +109,37 @@ struct sfVector3f {
     float z;
 }
 
-extern(C) nothrow {
-    alias da_sfClock_create = sfClock* function();
-    alias da_sfClock_copy = sfClock* function(const(sfClock)* clock);
-    alias da_sfClock_destroy = void function(sfClock* clock);
-    alias da_sfClock_getElapsedTime = sfTime function(const(sfClock*) clock);
-    alias da_sfClock_restart = sfTime function(sfClock* clock);
-    alias da_sfMutex_create = sfMutex* function();
-    alias da_sfMutex_destroy = void function(sfMutex* mutex);
-    alias da_sfMutex_lock = void function(sfMutex* mutex);
-    alias da_sfMutex_unlock = void function(sfMutex* mutex);
-    alias da_sfSleep = void function(sfTime duration);
-    alias da_sfThread_create = sfThread* function(void function(void*),void* userData);
-    alias da_sfThread_destroy = void function(sfThread* thread);
-    alias da_sfThread_launch = void function(sfThread* thread);
-    alias da_sfThread_wait = void function(sfThread* thread);
-    alias da_sfThread_terminate = void function(sfThread* thread);
-    alias da_sfTime_asSeconds = float function(sfTime time);
-    alias da_sfTime_asMilliseconds = sfInt32 function(sfTime time);
-    alias da_sfTime_asMicroseconds = sfInt64 function(sfTime time);
-    alias da_sfSeconds = sfTime function(float amount);
-    alias da_sfMilliseconds = sfTime function(sfInt32 amount);
-    alias da_sfMicroseconds = sfTime function(sfInt64 amount);
+extern( C) @nogc nothrow {
+    // System/Clock.h
+    alias da_sfClock_create = sfClock* function(  );
+    alias da_sfClock_copy = sfClock* function( const( sfClock )* );
+    alias da_sfClock_destroy = void function( sfClock* );
+    alias da_sfClock_getElapsedTime = sfTime function( const( sfClock* ));
+    alias da_sfClock_restart = sfTime function( sfClock* );
+
+    // System/Mutex.h
+    alias da_sfMutex_create = sfMutex* function(  );
+    alias da_sfMutex_destroy = void function( sfMutex* );
+    alias da_sfMutex_lock = void function( sfMutex* );
+    alias da_sfMutex_unlock = void function( sfMutex* );
+
+    // System/Sleep.h
+    alias da_sfSleep = void function( sfTime );
+
+    // System/Thread.h
+    alias da_sfThread_create = sfThread* function( void function( void* ),void* );
+    alias da_sfThread_destroy = void function( sfThread* );
+    alias da_sfThread_launch = void function( sfThread* );
+    alias da_sfThread_wait = void function( sfThread* );
+    alias da_sfThread_terminate = void function( sfThread* );
+
+    // System/Time.h
+    alias da_sfTime_asSeconds = float function( sfTime );
+    alias da_sfTime_asMilliseconds = sfInt32 function( sfTime );
+    alias da_sfTime_asMicroseconds = sfInt64 function( sfTime );
+    alias da_sfSeconds = sfTime function( float );
+    alias da_sfMilliseconds = sfTime function( sfInt32 );
+    alias da_sfMicroseconds = sfTime function( sfInt64 );
 }
 
 __gshared {
@@ -159,7 +168,7 @@ __gshared {
 
 class DerelictSFML2SystemLoader : SharedLibLoader {
     public this() {
-        super( libNames );
+        super(libNames );
     }
 
     protected override void loadSymbols() {

@@ -312,65 +312,81 @@ static if( Derelict_OS_Windows || Derelict_OS_Mac ) {
     alias c_ulong sfWindowHandle;
 }
 
-extern( C ) nothrow {
+extern( C ) @nogc nothrow {
+    // Window/Contex.h
     alias da_sfContext_create = sfContext* function();
-    alias da_sfContext_destroy = void function( sfContext* context );
-    alias da_sfContext_setActive = void function( sfContext* context,sfBool active );
-    alias da_sfJoystick_isConnected = sfBool function( uint joystick );
-    alias da_sfJoystick_getButtonCount = uint function( uint joystick );
-    alias da_sfJoystick_hasAxis = sfBool function( uint joystick, sfJoystickAxis axis );
-    alias da_sfJoystick_isButtonPressed = sfBool function( uint joystick, uint button );
-    alias da_sfJoystick_getAxisPosition = float function( uint joystick, sfJoystickAxis axis );
+    alias da_sfContext_destroy = void function( sfContext* );
+    alias da_sfContext_setActive = void function( sfContext*,sfBool );
+
+    // Window/Joystick.h
+    alias da_sfJoystick_isConnected = sfBool function( uint );
+    alias da_sfJoystick_getButtonCount = uint function( uint );
+    alias da_sfJoystick_hasAxis = sfBool function( uint, sfJoystickAxis );
+    alias da_sfJoystick_isButtonPressed = sfBool function( uint, uint );
+    alias da_sfJoystick_getAxisPosition = float function( uint, sfJoystickAxis );
     alias da_sfJoystick_update = void function();
-    alias da_sfKeyboard_isKeyPressed = sfBool function( sfKeyCode key );
-    alias da_sfMouse_isButtonPressed = sfBool function( sfMouseButton button );
-    alias da_sfMouse_getPosition = sfVector2i function( const( sfWindow )* relativeTo );
-    alias da_sfMouse_setPosition = void function( sfVector2i position,const( sfWindow )* relativeTo );
+
+    // Window/Keyboard.h
+    alias da_sfKeyboard_isKeyPressed = sfBool function( sfKeyCode );
+
+    // Window/Mouse.h
+    alias da_sfMouse_isButtonPressed = sfBool function( sfMouseButton );
+    alias da_sfMouse_getPosition = sfVector2i function( const( sfWindow )* );
+    alias da_sfMouse_setPosition = void function( sfVector2i,const( sfWindow )* );
+
+    // Window/VideoMode.h
     alias da_sfVideoMode_getDesktopMode = sfVideoMode function();
-    alias da_sfVideoMode_getFullscreenModes = const( sfVideoMode )* function( size_t* Count );
-    alias da_sfVideoMode_isValid = sfBool function( sfVideoMode mode );
-    alias da_sfWindow_create = sfWindow* function( sfVideoMode mode,const( char )* title,sfUint32 style,const( sfContextSettings )* settings );
-    alias da_sfWindow_createFromHandle = sfWindow* function( sfWindowHandle handle,const( sfContextSettings )* settings );
-    alias da_sfWindow_destroy = void function( sfWindow* window );
-    alias da_sfWindow_close = void function( sfWindow* window );
-    alias da_sfWindow_isOpen = sfBool function( const( sfWindow )* window );
-    alias da_sfWindow_getSettings = sfContextSettings function( const( sfWindow )* window );
-    alias da_sfWindow_pollEvent = sfBool function( sfWindow* window,sfEvent* event );
-    alias da_sfWindow_waitEvent = sfBool function( sfWindow* window,sfEvent* event );
-    alias da_sfWindow_getPosition = sfVector2i function( const( sfWindow )* window );
-    alias da_sfWindow_setPosition = void function( sfWindow* window,sfVector2i position );
-    alias da_sfWindow_getSize = sfVector2u function( const( sfWindow )* window );
-    alias da_sfWindow_setSize = void function( sfWindow* window,sfVector2u size );
-    alias da_sfWindow_setTitle = void function( sfWindow* window,const( char )* title );
-    alias da_sfWindow_setIcon = void function( sfWindow* window,uint width,uint height,const( sfUint8 )* pixels );
-    alias da_sfWindow_setVisible = void function( sfWindow* window,sfBool visible );
-    alias da_sfWindow_setMouseCursorVisible = void function( sfWindow* window,sfBool visible );
-    alias da_sfWindow_setVerticalSyncEnabled = void function( sfWindow* window,sfBool enabled );
-    alias da_sfWindow_setKeyRepeatEnabled = void function( sfWindow* window,sfBool enabled );
-    alias da_sfWindow_setActive = sfBool function( sfWindow* window,sfBool active );
-    alias da_sfWindow_display = void function( sfWindow* window );
-    alias da_sfWindow_setFramerateLimit = void function( sfWindow* window,uint limit );
-    alias da_sfWindow_setJoystickThreshold = void function( sfWindow* window,float threshold );
-    alias da_sfWindow_getSystemHandle = sfWindowHandle function( const( sfWindow )* window );
+    alias da_sfVideoMode_getFullscreenModes = const( sfVideoMode )* function( size_t* );
+    alias da_sfVideoMode_isValid = sfBool function( sfVideoMode );
+
+    // Window/Window.h
+    alias da_sfWindow_create = sfWindow* function( sfVideoMode,const( char )*,sfUint32,const( sfContextSettings )* );
+    alias da_sfWindow_createFromHandle = sfWindow* function( sfWindowHandle,const( sfContextSettings )* );
+    alias da_sfWindow_destroy = void function( sfWindow* );
+    alias da_sfWindow_close = void function( sfWindow* );
+    alias da_sfWindow_isOpen = sfBool function( const( sfWindow )* );
+    alias da_sfWindow_getSettings = sfContextSettings function( const( sfWindow )* );
+    alias da_sfWindow_pollEvent = sfBool function( sfWindow*,sfEvent* );
+    alias da_sfWindow_waitEvent = sfBool function( sfWindow*,sfEvent* );
+    alias da_sfWindow_getPosition = sfVector2i function( const( sfWindow )* );
+    alias da_sfWindow_setPosition = void function( sfWindow*,sfVector2i );
+    alias da_sfWindow_getSize = sfVector2u function( const( sfWindow )* );
+    alias da_sfWindow_setSize = void function( sfWindow*,sfVector2u );
+    alias da_sfWindow_setTitle = void function( sfWindow*,const( char )* );
+    alias da_sfWindow_setIcon = void function( sfWindow*,uint,uint,const( sfUint8 )* );
+    alias da_sfWindow_setVisible = void function( sfWindow*,sfBool );
+    alias da_sfWindow_setMouseCursorVisible = void function( sfWindow*,sfBool );
+    alias da_sfWindow_setVerticalSyncEnabled = void function( sfWindow*,sfBool );
+    alias da_sfWindow_setKeyRepeatEnabled = void function( sfWindow*,sfBool );
+    alias da_sfWindow_setActive = sfBool function( sfWindow*,sfBool );
+    alias da_sfWindow_display = void function( sfWindow* );
+    alias da_sfWindow_setFramerateLimit = void function( sfWindow*,uint );
+    alias da_sfWindow_setJoystickThreshold = void function( sfWindow*,float );
+    alias da_sfWindow_getSystemHandle = sfWindowHandle function( const( sfWindow )* );
 }
 
 __gshared {
     da_sfContext_create sfContext_create;
     da_sfContext_destroy sfContext_destroy;
     da_sfContext_setActive sfContext_setActive;
+
     da_sfJoystick_isConnected sfJoystick_isConnected;
     da_sfJoystick_getButtonCount sfJoystick_getButtonCount;
     da_sfJoystick_hasAxis sfJoystick_hasAxis;
     da_sfJoystick_isButtonPressed sfJoystick_isButtonPressed;
     da_sfJoystick_getAxisPosition sfJoystick_getAxisPosition;
     da_sfJoystick_update sfJoystick_update;
+
     da_sfKeyboard_isKeyPressed sfKeyboard_isKeyPressed;
+
     da_sfMouse_isButtonPressed sfMouse_isButtonPressed;
     da_sfMouse_getPosition sfMouse_getPosition;
     da_sfMouse_setPosition sfMouse_setPosition;
+
     da_sfVideoMode_getDesktopMode sfVideoMode_getDesktopMode;
     da_sfVideoMode_getFullscreenModes sfVideoMode_getFullscreenModes;
     da_sfVideoMode_isValid sfVideoMode_isValid;
+
     da_sfWindow_create sfWindow_create;
     da_sfWindow_createFromHandle sfWindow_createFromHandle;
     da_sfWindow_destroy sfWindow_destroy;

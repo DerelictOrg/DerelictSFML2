@@ -161,139 +161,154 @@ enum {
     sfSocketError
 }
 
-extern( C ) nothrow {
-    alias da_sfFtpListingResponse_destroy = void function( sfFtpListingResponse* ftpListingResponse );
-    alias da_sfFtpListingResponse_isOk = sfBool function( const( sfFtpListingResponse )* ftpListingResponse );
-    alias da_sfFtpListingResponse_getStatus = sfFtpStatus function( const( sfFtpListingResponse )* ftpListingResponse );
-    alias da_sfFtpListingResponse_getMessage = const( char )* function( const( sfFtpListingResponse )* ftpListingResponse );
-    alias da_sfFtpListingResponse_getCount = size_t function( const( sfFtpListingResponse )* ftpListingResponse );
-    alias da_sfFtpListingResponse_getName = const( char )* function( const( sfFtpListingResponse )* ftpListingResponse,size_t index );
-    alias da_sfFtpDirectoryResponse_destroy = void function( sfFtpDirectoryResponse* ftpDirectoryResponse );
-    alias da_sfFtpDirectoryResponse_isOk = sfBool function( const( sfFtpDirectoryResponse )* ftpDirectoryResponse );
-    alias da_sfFtpDirectoryResponse_getStatus = sfFtpStatus function( const( sfFtpDirectoryResponse )* ftpDirectoryResponse );
-    alias da_sfFtpDirectoryResponse_getMessage = const( char )* function( const( sfFtpDirectoryResponse )* ftpDirectoryResponse );
-    alias da_sfFtpDirectoryResponse_getDirectory = const( char )* function( const( sfFtpDirectoryResponse )* ftpDirectoryResponse );
-    alias da_sfFtpResponse_destroy = void function( sfFtpResponse* ftpResponse );
-    alias da_sfFtpResponse_isOk = sfBool function( const( sfFtpResponse )* ftpResponse );
-    alias da_sfFtpResponse_getStatus = sfFtpStatus function( const( sfFtpResponse )* ftpResponse );
-    alias da_sfFtpResponse_getMessage = const( char )* function( const( sfFtpResponse )* ftpResponse );
+extern( C ) @nogc nothrow {
+    // Network/Ftp.h
+    alias da_sfFtpListingResponse_destroy = void function( sfFtpListingResponse* );
+    alias da_sfFtpListingResponse_isOk = sfBool function( const( sfFtpListingResponse )* );
+    alias da_sfFtpListingResponse_getStatus = sfFtpStatus function( const( sfFtpListingResponse )* );
+    alias da_sfFtpListingResponse_getMessage = const( char )* function( const( sfFtpListingResponse )* );
+    alias da_sfFtpListingResponse_getCount = size_t function( const( sfFtpListingResponse )* );
+    alias da_sfFtpListingResponse_getName = const( char )* function( const( sfFtpListingResponse )*,size_t );
+    alias da_sfFtpDirectoryResponse_destroy = void function( sfFtpDirectoryResponse* );
+    alias da_sfFtpDirectoryResponse_isOk = sfBool function( const( sfFtpDirectoryResponse )* );
+    alias da_sfFtpDirectoryResponse_getStatus = sfFtpStatus function( const( sfFtpDirectoryResponse )* );
+    alias da_sfFtpDirectoryResponse_getMessage = const( char )* function( const( sfFtpDirectoryResponse )* );
+    alias da_sfFtpDirectoryResponse_getDirectory = const( char )* function( const( sfFtpDirectoryResponse )* );
+    alias da_sfFtpResponse_destroy = void function( sfFtpResponse* );
+    alias da_sfFtpResponse_isOk = sfBool function( const( sfFtpResponse )* );
+    alias da_sfFtpResponse_getStatus = sfFtpStatus function( const( sfFtpResponse )* );
+    alias da_sfFtpResponse_getMessage = const( char )* function( const( sfFtpResponse )* );
     alias da_sfFtp_create = sfFtp* function();
-    alias da_sfFtp_destroy = void function( sfFtp* ftp );
-    alias da_sfFtp_connect = sfFtpResponse* function( sfFtp* ftp,sfIpAddress server,ushort port,sfTime timeout );
-    alias da_sfFtp_loginAnonymous = sfFtpResponse* function( sfFtp* ftp );
-    alias da_sfFtp_login = sfFtpResponse* function( sfFtp* ftp,const( char )* userName,const( char )* password );
-    alias da_sfFtp_disconnect = sfFtpResponse* function( sfFtp* ftp );
-    alias da_sfFtp_keepAlive = sfFtpResponse* function( sfFtp* ftp );
-    alias da_sfFtp_getWorkingDirectory = sfFtpDirectoryResponse* function( sfFtp* ftp );
-    alias da_sfFtp_getDirectoryListing = sfFtpListingResponse* function( sfFtp* ftp,const( char )* directory );
-    alias da_sfFtp_changeDirectory = sfFtpResponse* function( sfFtp* ftp,const( char )* directory );
-    alias da_sfFtp_parentDirectory = sfFtpResponse* function( sfFtp* ftp );
-    alias da_sfFtp_createDirectory = sfFtpResponse* function( sfFtp* ftp,const( char )* name );
-    alias da_sfFtp_deleteDirectory = sfFtpResponse* function( sfFtp* ftp,const( char )* name );
-    alias da_sfFtp_renameFile = sfFtpResponse* function( sfFtp* ftp,const( char )* file,const( char )* newName );
-    alias da_sfFtp_deleteFile = sfFtpResponse* function( sfFtp* ftp,const( char )* name );
-    alias da_sfFtp_download = sfFtpResponse* function( sfFtp* ftp,const( char )* distantFile,const( char )* destPath,sfFtpTransferMode mode );
-    alias da_sfFtp_upload = sfFtpResponse* function( sfFtp* ftp,const( char )* localFile,const( char )* destPath,sfFtpTransferMode mode );
+    alias da_sfFtp_destroy = void function( sfFtp* );
+    alias da_sfFtp_connect = sfFtpResponse* function( sfFtp*,sfIpAddress,ushort,sfTime );
+    alias da_sfFtp_loginAnonymous = sfFtpResponse* function( sfFtp* );
+    alias da_sfFtp_login = sfFtpResponse* function( sfFtp*,const( char )*,const( char )* );
+    alias da_sfFtp_disconnect = sfFtpResponse* function( sfFtp* );
+    alias da_sfFtp_keepAlive = sfFtpResponse* function( sfFtp* );
+    alias da_sfFtp_getWorkingDirectory = sfFtpDirectoryResponse* function( sfFtp* );
+    alias da_sfFtp_getDirectoryListing = sfFtpListingResponse* function( sfFtp*,const( char )* );
+    alias da_sfFtp_changeDirectory = sfFtpResponse* function( sfFtp*,const( char )* );
+    alias da_sfFtp_parentDirectory = sfFtpResponse* function( sfFtp* );
+    alias da_sfFtp_createDirectory = sfFtpResponse* function( sfFtp*,const( char )* );
+    alias da_sfFtp_deleteDirectory = sfFtpResponse* function( sfFtp*,const( char )* );
+    alias da_sfFtp_renameFile = sfFtpResponse* function( sfFtp*,const( char )*,const( char )* );
+    alias da_sfFtp_deleteFile = sfFtpResponse* function( sfFtp*,const( char )* );
+    alias da_sfFtp_download = sfFtpResponse* function( sfFtp*,const( char )*,const( char )*,sfFtpTransferMode );
+    alias da_sfFtp_upload = sfFtpResponse* function( sfFtp*,const( char )*,const( char )*,sfFtpTransferMode );
+
+    // Network/Http.h
     alias da_sfHttpRequest_create = sfHttpRequest* function();
-    alias da_sfHttpRequest_destroy = void function( sfHttpRequest* httpRequest );
-    alias da_sfHttpRequest_setField = void function( sfHttpRequest* httpRequest,const( char )* field,const( char )* value );
-    alias da_sfHttpRequest_setMethod = void function( sfHttpRequest* httpRequest,sfHttpMethod method );
-    alias da_sfHttpRequest_setUri = void function( sfHttpRequest* httpRequest,const( char )* uri );
-    alias da_sfHttpRequest_setHttpVersion = void function( sfHttpRequest* httpRequest,uint major,uint minor );
-    alias da_sfHttpRequest_setBody = void function( sfHttpRequest* httpRequest,const( char )* _body );
-    alias da_sfHttpResponse_destroy = void function( sfHttpResponse* httpResponse );
-    alias da_sfHttpResponse_getField = const( char )* function( const( sfHttpResponse )* httpResponse,const( char )* field );
-    alias da_sfHttpResponse_getStatus = sfHttpStatus function( const( sfHttpResponse )* httpResponse );
-    alias da_sfHttpResponse_getMajorVersion = uint function( const( sfHttpResponse )* httpResponse );
-    alias da_sfHttpResponse_getMinorVersion = uint function( const( sfHttpResponse )* httpResponse );
-    alias da_sfHttpResponse_getBody = const( char )* function( const( sfHttpResponse )* httpResponse );
+    alias da_sfHttpRequest_destroy = void function( sfHttpRequest* );
+    alias da_sfHttpRequest_setField = void function( sfHttpRequest*,const( char )*,const( char )* );
+    alias da_sfHttpRequest_setMethod = void function( sfHttpRequest*,sfHttpMethod );
+    alias da_sfHttpRequest_setUri = void function( sfHttpRequest*,const( char )* );
+    alias da_sfHttpRequest_setHttpVersion = void function( sfHttpRequest*,uint,uint );
+    alias da_sfHttpRequest_setBody = void function( sfHttpRequest*,const( char )* );
+    alias da_sfHttpResponse_destroy = void function( sfHttpResponse* );
+    alias da_sfHttpResponse_getField = const( char )* function( const( sfHttpResponse )*,const( char )* );
+    alias da_sfHttpResponse_getStatus = sfHttpStatus function( const( sfHttpResponse )* );
+    alias da_sfHttpResponse_getMajorVersion = uint function( const( sfHttpResponse )* );
+    alias da_sfHttpResponse_getMinorVersion = uint function( const( sfHttpResponse )* );
+    alias da_sfHttpResponse_getBody = const( char )* function( const( sfHttpResponse )* );
     alias da_sfHttp_create = sfHttp* function();
-    alias da_sfHttp_destroy = void function( sfHttp* http );
-    alias da_sfHttp_setHost = void function( sfHttp* http,const( char )* host,ushort port );
-    alias da_sfHttp_sendRequest = sfHttpResponse* function( sfHttp* http,const( sfHttpRequest )* request,sfTime timeout );
-    alias da_sfIpAddress_fromString = sfIpAddress function( const( char )* address );
-    alias da_sfIpAddress_fromBytes = sfIpAddress function( sfUint8 byte0,sfUint8 byte1,sfUint8 byte2,sfUint8 byte3 );
-    alias da_sfIpAddress_fromInteger = sfIpAddress function( sfUint32 address );
-    alias da_sfIpAddress_toString = void function( sfIpAddress address,char* string );
-    alias da_sfIpAddress_toInteger = sfUint32 function( sfIpAddress address );
+    alias da_sfHttp_destroy = void function( sfHttp* );
+    alias da_sfHttp_setHost = void function( sfHttp*,const( char )*,ushort );
+    alias da_sfHttp_sendRequest = sfHttpResponse* function( sfHttp*,const( sfHttpRequest )*,sfTime );
+
+    // Network/IPAddress.h
+    alias da_sfIpAddress_fromString = sfIpAddress function( const( char )* );
+    alias da_sfIpAddress_fromBytes = sfIpAddress function( sfUint8,sfUint8,sfUint8,sfUint8 );
+    alias da_sfIpAddress_fromInteger = sfIpAddress function( sfUint32 );
+    alias da_sfIpAddress_toString = void function( sfIpAddress,char* );
+    alias da_sfIpAddress_toInteger = sfUint32 function( sfIpAddress aress );
     alias da_sfIpAddress_getLocalAddress = sfIpAddress function();
-    alias da_sfIpAddress_getPublicAddress = sfIpAddress function( sfTime timeout );
+    alias da_sfIpAddress_getPublicAddress = sfIpAddress function( sfTime );
+
+    // Network/Packet.h
     alias da_sfPacket_create = sfPacket* function();
-    alias da_sfPacket_copy = sfPacket* function( const( sfPacket )* packet );
-    alias da_sfPacket_destroy = void function( sfPacket* packet );
-    alias da_sfPacket_append = void function( sfPacket* packet,const( void )* data,size_t sizeInBytes );
-    alias da_sfPacket_clear = void function( sfPacket* packet );
-    alias da_sfPacket_getData = const( void )* function( const( sfPacket )* packet );
-    alias da_sfPacket_getDataSize = size_t function( const( sfPacket )* packet );
-    alias da_sfPacket_endOfPacket = sfBool function( const( sfPacket )* packet );
-    alias da_sfPacket_canRead = sfBool function( const( sfPacket )* packet );
-    alias da_sfPacket_readBool = sfBool function( sfPacket* packet );
-    alias da_sfPacket_readInt8 = sfInt8 function( sfPacket* packet );
-    alias da_sfPacket_readUint8 = sfUint8 function( sfPacket* packet );
-    alias da_sfPacket_readInt16 = sfInt16 function( sfPacket* packet );
-    alias da_sfPacket_readUint16 = sfUint16 function( sfPacket* packet );
-    alias da_sfPacket_readInt32 = sfInt32 function( sfPacket* packet );
-    alias da_sfPacket_readUint32 = sfUint32 function( sfPacket* packet );
-    alias da_sfPacket_readFloat = float function( sfPacket* packet );
-    alias da_sfPacket_readDouble = double function( sfPacket* packet );
-    alias da_sfPacket_readString = void function( sfPacket* packet,char* string );
-    alias da_sfPacket_readWideString = void function( sfPacket* packet,wchar* string );
-    alias da_sfPacket_writeBool = void function( sfPacket* packet, sfBool );
-    alias da_sfPacket_writeInt8 = void function( sfPacket* packet, sfInt8 );
-    alias da_sfPacket_writeUint8 = void function( sfPacket* packet, sfUint8 );
-    alias da_sfPacket_writeInt16 = void function( sfPacket* packet, sfInt16 );
-    alias da_sfPacket_writeUint16 = void function( sfPacket* packet, sfUint16 );
-    alias da_sfPacket_writeInt32 = void function( sfPacket* packet, sfInt32 );
-    alias da_sfPacket_writeUint32 = void function( sfPacket* packet, sfUint32 );
-    alias da_sfPacket_writeFloat = void function( sfPacket* packet, float );
-    alias da_sfPacket_writeDouble = void function( sfPacket* packet, double );
-    alias da_sfPacket_writeString = void function( sfPacket* packet,const( char )* string );
-    alias da_sfPacket_writeWideString = void function( sfPacket* packet,const( wchar )* string );
+    alias da_sfPacket_copy = sfPacket* function( const( sfPacket )* );
+    alias da_sfPacket_destroy = void function( sfPacket* );
+    alias da_sfPacket_append = void function( sfPacket*,const( void )*,size_t );
+    alias da_sfPacket_clear = void function( sfPacket* );
+    alias da_sfPacket_getData = const( void )* function( const( sfPacket )* );
+    alias da_sfPacket_getDataSize = size_t function( const( sfPacket )* );
+    alias da_sfPacket_endOfPacket = sfBool function( const( sfPacket )* );
+    alias da_sfPacket_canRead = sfBool function( const( sfPacket )* );
+    alias da_sfPacket_readBool = sfBool function( sfPacket* );
+    alias da_sfPacket_readInt8 = sfInt8 function( sfPacket* );
+    alias da_sfPacket_readUint8 = sfUint8 function( sfPacket* );
+    alias da_sfPacket_readInt16 = sfInt16 function( sfPacket* );
+    alias da_sfPacket_readUint16 = sfUint16 function( sfPacket* );
+    alias da_sfPacket_readInt32 = sfInt32 function( sfPacket* );
+    alias da_sfPacket_readUint32 = sfUint32 function( sfPacket* );
+    alias da_sfPacket_readFloat = float function( sfPacket* );
+    alias da_sfPacket_readDouble = double function( sfPacket* );
+    alias da_sfPacket_readString = void function( sfPacket*,char* );
+    alias da_sfPacket_readWideString = void function( sfPacket*,wchar* );
+    alias da_sfPacket_writeBool = void function( sfPacket*,sfBool );
+    alias da_sfPacket_writeInt8 = void function( sfPacket*,sfInt8 );
+    alias da_sfPacket_writeUint8 = void function( sfPacket*,sfUint8 );
+    alias da_sfPacket_writeInt16 = void function( sfPacket*,sfInt16 );
+    alias da_sfPacket_writeUint16 = void function( sfPacket*,sfUint16 );
+    alias da_sfPacket_writeInt32 = void function( sfPacket*,sfInt32 );
+    alias da_sfPacket_writeUint32 = void function( sfPacket*,sfUint32 );
+    alias da_sfPacket_writeFloat = void function( sfPacket*,float );
+    alias da_sfPacket_writeDouble = void function( sfPacket*,double );
+    alias da_sfPacket_writeString = void function( sfPacket*,const( char )* );
+    alias da_sfPacket_writeWideString = void function( sfPacket*,const( wchar )* );
+
+    // Network/SocketSelector.h
     alias da_sfSocketSelector_create = sfSocketSelector* function();
-    alias da_sfSocketSelector_copy = sfSocketSelector* function( const( sfSocketSelector )* selector );
-    alias da_sfSocketSelector_destroy = void function( sfSocketSelector* selector );
-    alias da_sfSocketSelector_addTcpListener = void function( sfSocketSelector* selector,sfTcpListener* socket );
-    alias da_sfSocketSelector_addTcpSocket = void function( sfSocketSelector* selector,sfTcpSocket* socket );
-    alias da_sfSocketSelector_addUdpSocket = void function( sfSocketSelector* selector,sfUdpSocket* socket );
-    alias da_sfSocketSelector_removeTcpListener = void function( sfSocketSelector* selector,sfTcpListener* socket );
-    alias da_sfSocketSelector_removeTcpSocket = void function( sfSocketSelector* selector,sfTcpSocket* socket );
-    alias da_sfSocketSelector_removeUdpSocket = void function( sfSocketSelector* selector,sfUdpSocket* socket );
-    alias da_sfSocketSelector_clear = void function( sfSocketSelector* selector );
-    alias da_sfSocketSelector_wait = sfBool function( sfSocketSelector* selector,sfTime timeout );
-    alias da_sfSocketSelector_isTcpListenerReady = sfBool function( const( sfSocketSelector )* selector,sfTcpListener* socket );
-    alias da_sfSocketSelector_isTcpSocketReady = sfBool function( const( sfSocketSelector )* selector,sfTcpSocket* socket );
-    alias da_sfSocketSelector_isUdpSocketReady = sfBool function( const( sfSocketSelector )* selector,sfUdpSocket* socket );
+    alias da_sfSocketSelector_copy = sfSocketSelector* function( const( sfSocketSelector )* );
+    alias da_sfSocketSelector_destroy = void function( sfSocketSelector* );
+    alias da_sfSocketSelector_addTcpListener = void function( sfSocketSelector*,sfTcpListener* );
+    alias da_sfSocketSelector_addTcpSocket = void function( sfSocketSelector*,sfTcpSocket* );
+    alias da_sfSocketSelector_addUdpSocket = void function( sfSocketSelector*,sfUdpSocket* );
+    alias da_sfSocketSelector_removeTcpListener = void function( sfSocketSelector*,sfTcpListener* );
+    alias da_sfSocketSelector_removeTcpSocket = void function( sfSocketSelector*,sfTcpSocket* );
+    alias da_sfSocketSelector_removeUdpSocket = void function( sfSocketSelector*,sfUdpSocket* );
+    alias da_sfSocketSelector_clear = void function( sfSocketSelector* );
+    alias da_sfSocketSelector_wait = sfBool function( sfSocketSelector*,sfTime );
+    alias da_sfSocketSelector_isTcpListenerReady = sfBool function( const( sfSocketSelector )*,sfTcpListener* );
+    alias da_sfSocketSelector_isTcpSocketReady = sfBool function( const( sfSocketSelector )*,sfTcpSocket* );
+    alias da_sfSocketSelector_isUdpSocketReady = sfBool function( const( sfSocketSelector )*,sfUdpSocket* );
+
+    // Network/TcpListener.h
     alias da_sfTcpListener_create = sfTcpListener* function();
-    alias da_sfTcpListener_destroy = void function( sfTcpListener* listener );
-    alias da_sfTcpListener_setBlocking = void function( sfTcpListener* listener,sfBool blocking );
-    alias da_sfTcpListener_isBlocking = sfBool function( const( sfTcpListener )* listener );
-    alias da_sfTcpListener_getLocalPort = ushort function( const( sfTcpListener )* listener );
-    alias da_sfTcpListener_listen = sfSocketStatus function( sfTcpListener* listener,ushort port );
-    alias da_sfTcpListener_accept = sfSocketStatus function( sfTcpListener* listener,sfTcpSocket** connected );
+    alias da_sfTcpListener_destroy = void function( sfTcpListener* );
+    alias da_sfTcpListener_setBlocking = void function( sfTcpListener*,sfBool );
+    alias da_sfTcpListener_isBlocking = sfBool function( const( sfTcpListener )* );
+    alias da_sfTcpListener_getLocalPort = ushort function( const( sfTcpListener )* );
+    alias da_sfTcpListener_listen = sfSocketStatus function( sfTcpListener*,ushort );
+    alias da_sfTcpListener_accept = sfSocketStatus function( sfTcpListener*,sfTcpSocket** );
+
+    // Network/TcpSocket.h
     alias da_sfTcpSocket_create = sfTcpSocket* function();
-    alias da_sfTcpSocket_destroy = void function( sfTcpSocket* socket );
-    alias da_sfTcpSocket_setBlocking = void function( sfTcpSocket* socket,sfBool blocking );
-    alias da_sfTcpSocket_isBlocking = sfBool function( const( sfTcpSocket )* socket );
-    alias da_sfTcpSocket_getLocalPort = ushort function( const( sfTcpSocket )* socket );
-    alias da_sfTcpSocket_getRemoteAddress = sfIpAddress function( const( sfTcpSocket )* socket );
-    alias da_sfTcpSocket_getRemotePort = ushort function( const( sfTcpSocket )* socket );
-    alias da_sfTcpSocket_connect = sfSocketStatus function( sfTcpSocket* socket,sfIpAddress host,ushort port,sfTime timeout );
-    alias da_sfTcpSocket_disconnect = void function( sfTcpSocket* socket );
-    alias da_sfTcpSocket_send = sfSocketStatus function( sfTcpSocket* socket,const( void )* data,size_t size );
-    alias da_sfTcpSocket_receive = sfSocketStatus function( sfTcpSocket* socket,void* data,size_t maxSize,size_t* sizeReceived );
-    alias da_sfTcpSocket_sendPacket = sfSocketStatus function( sfTcpSocket* socket,sfPacket* packet );
-    alias da_sfTcpSocket_receivePacket = sfSocketStatus function( sfTcpSocket* socket,sfPacket* packet );
+    alias da_sfTcpSocket_destroy = void function( sfTcpSocket* );
+    alias da_sfTcpSocket_setBlocking = void function( sfTcpSocket*,sfBool );
+    alias da_sfTcpSocket_isBlocking = sfBool function( const( sfTcpSocket )* );
+    alias da_sfTcpSocket_getLocalPort = ushort function( const( sfTcpSocket )* );
+    alias da_sfTcpSocket_getRemoteAddress = sfIpAddress function( const( sfTcpSocket )* );
+    alias da_sfTcpSocket_getRemotePort = ushort function( const( sfTcpSocket )* );
+    alias da_sfTcpSocket_connect = sfSocketStatus function( sfTcpSocket*,sfIpAddress,ushort,sfTime );
+    alias da_sfTcpSocket_disconnect = void function( sfTcpSocket* );
+    alias da_sfTcpSocket_send = sfSocketStatus function( sfTcpSocket*,const( void )*,size_t );
+    alias da_sfTcpSocket_receive = sfSocketStatus function( sfTcpSocket*,void*,size_t,size_t* );
+    alias da_sfTcpSocket_sendPacket = sfSocketStatus function( sfTcpSocket*,sfPacket* );
+    alias da_sfTcpSocket_receivePacket = sfSocketStatus function( sfTcpSocket*,sfPacket* );
+
+    // Network/UdpSocket.h
     alias da_sfUdpSocket_create = sfUdpSocket* function();
-    alias da_sfUdpSocket_destroy = void function( sfUdpSocket* socket );
-    alias da_sfUdpSocket_setBlocking = void function( sfUdpSocket* socket,sfBool blocking );
-    alias da_sfUdpSocket_isBlocking = sfBool function( const( sfUdpSocket )* socket );
-    alias da_sfUdpSocket_getLocalPort = short function( const( sfUdpSocket )* socket );
-    alias da_sfUdpSocket_bind = sfSocketStatus function( sfUdpSocket* socket,ushort port );
-    alias da_sfUdpSocket_unbind = void function( sfUdpSocket* socket );
-    alias da_sfUdpSocket_send = sfSocketStatus function( sfUdpSocket* socket,const( void )* data,size_t size,sfIpAddress address,ushort port );
-    alias da_sfUdpSocket_receive = sfSocketStatus function( sfUdpSocket* socket,void* data,size_t maxSize,size_t* sizeReceived,sfIpAddress* address,ushort* port );
-    alias da_sfUdpSocket_sendPacket = sfSocketStatus function( sfUdpSocket* socket,sfPacket* packet,sfIpAddress address,ushort port );
-    alias da_sfUdpSocket_receivePacket = sfSocketStatus function( sfUdpSocket* socket,sfPacket* packet,sfIpAddress* address,ushort* port );
+    alias da_sfUdpSocket_destroy = void function( sfUdpSocket* );
+    alias da_sfUdpSocket_setBlocking = void function( sfUdpSocket*,sfBool );
+    alias da_sfUdpSocket_isBlocking = sfBool function( const( sfUdpSocket )* );
+    alias da_sfUdpSocket_getLocalPort = short function( const( sfUdpSocket )* );
+    alias da_sfUdpSocket_bind = sfSocketStatus function( sfUdpSocket*,ushort );
+    alias da_sfUdpSocket_unbind = void function( sfUdpSocket* );
+    alias da_sfUdpSocket_send = sfSocketStatus function( sfUdpSocket*,const( void )*,size_t,sfIpAddress,ushort );
+    alias da_sfUdpSocket_receive = sfSocketStatus function( sfUdpSocket*,void*,size_t,size_t*,sfIpAddress*,ushort* );
+    alias da_sfUdpSocket_sendPacket = sfSocketStatus function( sfUdpSocket*,sfPacket*,sfIpAddress,ushort );
+    alias da_sfUdpSocket_receivePacket = sfSocketStatus function( sfUdpSocket*,sfPacket*,sfIpAddress*,ushort* );
     alias da_sfUdpSocket_maxDatagramSize = uint function();
 }
 
@@ -330,6 +345,7 @@ __gshared {
     da_sfFtp_deleteFile sfFtp_deleteFile;
     da_sfFtp_download sfFtp_download;
     da_sfFtp_upload sfFtp_upload;
+
     da_sfHttpRequest_create sfHttpRequest_create;
     da_sfHttpRequest_destroy sfHttpRequest_destroy;
     da_sfHttpRequest_setField sfHttpRequest_setField;
@@ -347,6 +363,7 @@ __gshared {
     da_sfHttp_destroy sfHttp_destroy;
     da_sfHttp_setHost sfHttp_setHost;
     da_sfHttp_sendRequest sfHttp_sendRequest;
+
     da_sfIpAddress_fromString sfIpAddress_fromString;
     da_sfIpAddress_fromBytes sfIpAddress_fromBytes;
     da_sfIpAddress_fromInteger sfIpAddress_fromInteger;
@@ -354,6 +371,7 @@ __gshared {
     da_sfIpAddress_toInteger sfIpAddress_toInteger;
     da_sfIpAddress_getLocalAddress sfIpAddress_getLocalAddress;
     da_sfIpAddress_getPublicAddress sfIpAddress_getPublicAddress;
+
     da_sfPacket_create sfPacket_create;
     da_sfPacket_copy sfPacket_copy;
     da_sfPacket_destroy sfPacket_destroy;
@@ -385,6 +403,7 @@ __gshared {
     da_sfPacket_writeDouble sfPacket_writeDouble;
     da_sfPacket_writeString sfPacket_writeString;
     da_sfPacket_writeWideString sfPacket_writeWideString;
+
     da_sfSocketSelector_create sfSocketSelector_create;
     da_sfSocketSelector_copy sfSocketSelector_copy;
     da_sfSocketSelector_destroy sfSocketSelector_destroy;
@@ -399,6 +418,7 @@ __gshared {
     da_sfSocketSelector_isTcpListenerReady sfSocketSelector_isTcpListenerReady;
     da_sfSocketSelector_isTcpSocketReady sfSocketSelector_isTcpSocketReady;
     da_sfSocketSelector_isUdpSocketReady sfSocketSelector_isUdpSocketReady;
+
     da_sfTcpListener_create sfTcpListener_create;
     da_sfTcpListener_destroy sfTcpListener_destroy;
     da_sfTcpListener_setBlocking sfTcpListener_setBlocking;
@@ -406,6 +426,7 @@ __gshared {
     da_sfTcpListener_getLocalPort sfTcpListener_getLocalPort;
     da_sfTcpListener_listen sfTcpListener_listen;
     da_sfTcpListener_accept sfTcpListener_accept;
+
     da_sfTcpSocket_create sfTcpSocket_create;
     da_sfTcpSocket_destroy sfTcpSocket_destroy;
     da_sfTcpSocket_setBlocking sfTcpSocket_setBlocking;
@@ -419,6 +440,7 @@ __gshared {
     da_sfTcpSocket_receive sfTcpSocket_receive;
     da_sfTcpSocket_sendPacket sfTcpSocket_sendPacket;
     da_sfTcpSocket_receivePacket sfTcpSocket_receivePacket;
+
     da_sfUdpSocket_create sfUdpSocket_create;
     da_sfUdpSocket_destroy sfUdpSocket_destroy;
     da_sfUdpSocket_setBlocking sfUdpSocket_setBlocking;

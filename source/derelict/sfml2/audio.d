@@ -77,113 +77,126 @@ extern( C ) nothrow {
 }
 
 
-extern( C ) nothrow {
-    alias da_sfListener_setGlobalVolume = void function( float volume );
+extern( C ) @nogc nothrow {
+    // Audio/Listener.h
+    alias da_sfListener_setGlobalVolume = void function( float );
     alias da_sfListener_getGlobalVolume = float function();
-    alias da_sfListener_setPosition = void function( sfVector3f position );
+    alias da_sfListener_setPosition = void function( sfVector3f );
     alias da_sfListener_getPosition = sfVector3f function();
-    alias da_sfListener_setDirection = void function( sfVector3f orientation );
+    alias da_sfListener_setDirection = void function( sfVector3f );
     alias da_sfListener_getDirection = sfVector3f function();
-    alias da_sfMusic_createFromFile = sfMusic* function( const( char )* filename );
-    alias da_sfMusic_createFromMemory = sfMusic* function( const( void )* data,size_t sizeInBytes );
-    alias da_sfMusic_createFromStream = sfMusic* function( sfInputStream* stream );
-    alias da_sfMusic_destroy = void function( sfMusic* music );
-    alias da_sfMusic_setLoop = void function( sfMusic* music,sfBool loop );
-    alias da_sfMusic_getLoop = sfBool function( const( sfMusic )* music );
-    alias da_sfMusic_getDuration = sfTime function( const( sfMusic )* music );
-    alias da_sfMusic_play = void function( sfMusic* music );
-    alias da_sfMusic_pause = void function( sfMusic* music );
-    alias da_sfMusic_stop = void function( sfMusic* music );
-    alias da_sfMusic_getChannelCount = uint function( const( sfMusic )* music );
-    alias da_sfMusic_getSampleRate = uint function( const( sfMusic )* music );
-    alias da_sfMusic_getStatus = sfSoundStatus function( const( sfMusic )* music );
-    alias da_sfMusic_getPlayingOffset = sfTime function( const( sfMusic )* music );
-    alias da_sfMusic_setPitch = void function( sfMusic* music,float pitch );
-    alias da_sfMusic_setVolume = void function( sfMusic* music,float volume );
-    alias da_sfMusic_setPosition = void function( sfMusic* music,sfVector3f position );
-    alias da_sfMusic_setRelativeToListener = void function( sfMusic* music,sfBool relative );
-    alias da_sfMusic_setMinDistance = void function( sfMusic* music,float distance );
-    alias da_sfMusic_setAttenuation = void function( sfMusic* music,float attenuation );
-    alias da_sfMusic_setPlayingOffset = void function( sfMusic* music,sfTime timeOffset );
-    alias da_sfMusic_getPitch = float function( const( sfMusic )* music );
-    alias da_sfMusic_getVolume = float function( const( sfMusic )* music );
-    alias da_sfMusic_getPosition = sfVector3f function( const( sfMusic )* music );
-    alias da_sfMusic_isRelativeToListener = sfBool function( const( sfMusic )* music );
-    alias da_sfMusic_getMinDistance = float function( const( sfMusic )* music );
-    alias da_sfMusic_getAttenuation = float function( const( sfMusic )* music );
+
+    // Audio/Music.h
+    alias da_sfMusic_createFromFile = sfMusic* function( const( char )* );
+    alias da_sfMusic_createFromMemory = sfMusic* function( const( void )*,size_t );
+    alias da_sfMusic_createFromStream = sfMusic* function( sfInputStream* );
+    alias da_sfMusic_destroy = void function( sfMusic* );
+    alias da_sfMusic_setLoop = void function( sfMusic*,sfBool );
+    alias da_sfMusic_getLoop = sfBool function( const( sfMusic )* );
+    alias da_sfMusic_getDuration = sfTime function( const( sfMusic )* );
+    alias da_sfMusic_play = void function( sfMusic* );
+    alias da_sfMusic_pause = void function( sfMusic* );
+    alias da_sfMusic_stop = void function( sfMusic* );
+    alias da_sfMusic_getChannelCount = uint function( const( sfMusic )* );
+    alias da_sfMusic_getSampleRate = uint function( const( sfMusic )* );
+    alias da_sfMusic_getStatus = sfSoundStatus function( const( sfMusic )* );
+    alias da_sfMusic_getPlayingOffset = sfTime function( const( sfMusic )* );
+    alias da_sfMusic_setPitch = void function( sfMusic*,float );
+    alias da_sfMusic_setVolume = void function( sfMusic*,float );
+    alias da_sfMusic_setPosition = void function( sfMusic*,sfVector3f );
+    alias da_sfMusic_setRelativeToListener = void function( sfMusic*,sfBool );
+    alias da_sfMusic_setMinDistance = void function( sfMusic*,float );
+    alias da_sfMusic_setAttenuation = void function( sfMusic*,float );
+    alias da_sfMusic_setPlayingOffset = void function( sfMusic*,sfTime );
+    alias da_sfMusic_getPitch = float function( const( sfMusic )* );
+    alias da_sfMusic_getVolume = float function( const( sfMusic )* );
+    alias da_sfMusic_getPosition = sfVector3f function( const( sfMusic )* );
+    alias da_sfMusic_isRelativeToListener = sfBool function( const( sfMusic )* );
+    alias da_sfMusic_getMinDistance = float function( const( sfMusic )* );
+    alias da_sfMusic_getAttenuation = float function( const( sfMusic )* );
+
+    // Audio/Sound.h
     alias da_sfSound_create = sfSound* function();
-    alias da_sfSound_copy = sfSound* function( const( sfSound )* sound );
-    alias da_sfSound_destroy = void function( sfSound* sound );
-    alias da_sfSound_play = void function( sfSound* sound );
-    alias da_sfSound_pause = void function( sfSound* sound );
-    alias da_sfSound_stop = void function( sfSound* sound );
-    alias da_sfSound_setBuffer = void function( sfSound* sound,const( sfSoundBuffer )* buffer );
-    alias da_sfSound_getBuffer = const( sfSoundBuffer )* function( const( sfSound )* sound );
-    alias da_sfSound_setLoop = void function( sfSound* sound,sfBool loop );
-    alias da_sfSound_getLoop = sfBool function( const( sfSound )* sound );
-    alias da_sfSound_getStatus = sfSoundStatus function( const( sfSound )* sound );
-    alias da_sfSound_setPitch = void function( sfSound* sound,float pitch );
-    alias da_sfSound_setVolume = void function( sfSound* sound,float volume );
-    alias da_sfSound_setPosition = void function( sfSound* sound,sfVector3f position );
-    alias da_sfSound_setRelativeToListener = void function( sfSound* sound,sfBool relative );
-    alias da_sfSound_setMinDistance = void function( sfSound* sound,float distance );
-    alias da_sfSound_setAttenuation = void function( sfSound* sound,float attenuation );
-    alias da_sfSound_setPlayingOffset = void function( sfSound* sound,sfTime timeOffset );
-    alias da_sfSound_getPitch = float function( const( sfSound )* sound );
-    alias da_sfSound_getVolume = float function( const( sfSound )* sound );
-    alias da_sfSound_getPosition = sfVector3f function( const( sfSound )* sound );
-    alias da_sfSound_isRelativeToListener = sfBool function( const( sfSound )* sound );
-    alias da_sfSound_getMinDistance = float function( const( sfSound )* sound );
-    alias da_sfSound_getAttenuation = float function( const( sfSound )* sound );
-    alias da_sfSound_getPlayingOffset = sfTime function( const( sfSound )* sound );
-    alias da_sfSoundBuffer_createFromFile = sfSoundBuffer* function( const( char )* filename );
-    alias da_sfSoundBuffer_createFromMemory = sfSoundBuffer* function( const( void )* data,size_t sizeInBytes );
-    alias da_sfSoundBuffer_createFromStream = sfSoundBuffer* function( sfInputStream* stream );
-    alias da_sfSoundBuffer_createFromSamples = sfSoundBuffer* function( const( sfInt16 )* samples,size_t sampleCount,uint channelCount,uint sampleRate );
-    alias da_sfSoundBuffer_copy = sfSoundBuffer* function( const( sfSoundBuffer )* soundBuffer );
-    alias da_sfSoundBuffer_destroy = void function( sfSoundBuffer* soundBuffer );
-    alias da_sfSoundBuffer_saveToFile = sfBool function( const( sfSoundBuffer )* soundBuffer,const( char )* filename );
-    alias da_sfSoundBuffer_getSamples = const( sfInt16 )* function( const( sfSoundBuffer )* soundBuffer );
-    alias da_sfSoundBuffer_getSampleCount = size_t function( const( sfSoundBuffer )* soundBuffer );
-    alias da_sfSoundBuffer_getSampleRate = uint function( const( sfSoundBuffer )* soundBuffer );
-    alias da_sfSoundBuffer_getChannelCount = uint function( const( sfSoundBuffer )* soundBuffer );
-    alias da_sfSoundBuffer_getDuration = sfTime function( const( sfSoundBuffer )* soundBuffer );
+    alias da_sfSound_copy = sfSound* function( const( sfSound )* );
+    alias da_sfSound_destroy = void function( sfSound* );
+    alias da_sfSound_play = void function( sfSound* );
+    alias da_sfSound_pause = void function( sfSound* );
+    alias da_sfSound_stop = void function( sfSound* );
+    alias da_sfSound_setBuffer = void function( sfSound*,const( sfSoundBuffer )* );
+    alias da_sfSound_getBuffer = const( sfSoundBuffer )* function( const( sfSound )* );
+    alias da_sfSound_setLoop = void function( sfSound*,sfBool );
+    alias da_sfSound_getLoop = sfBool function( const( sfSound )* );
+    alias da_sfSound_getStatus = sfSoundStatus function( const( sfSound )* );
+    alias da_sfSound_setPitch = void function( sfSound*,float );
+    alias da_sfSound_setVolume = void function( sfSound*,float );
+    alias da_sfSound_setPosition = void function( sfSound*,sfVector3f );
+    alias da_sfSound_setRelativeToListener = void function( sfSound*,sfBool );
+    alias da_sfSound_setMinDistance = void function( sfSound*,float );
+    alias da_sfSound_setAttenuation = void function( sfSound*,float );
+    alias da_sfSound_setPlayingOffset = void function( sfSound*,sfTime );
+    alias da_sfSound_getPitch = float function( const( sfSound )* );
+    alias da_sfSound_getVolume = float function( const( sfSound )* );
+    alias da_sfSound_getPosition = sfVector3f function( const( sfSound )* );
+    alias da_sfSound_isRelativeToListener = sfBool function( const( sfSound )* );
+    alias da_sfSound_getMinDistance = float function( const( sfSound )* );
+    alias da_sfSound_getAttenuation = float function( const( sfSound )* );
+    alias da_sfSound_getPlayingOffset = sfTime function( const( sfSound )* );
+
+    // Audio/SoundBuffer.h
+    alias da_sfSoundBuffer_createFromFile = sfSoundBuffer* function( const( char )* );
+    alias da_sfSoundBuffer_createFromMemory = sfSoundBuffer* function( const( void )*,size_t );
+    alias da_sfSoundBuffer_createFromStream = sfSoundBuffer* function( sfInputStream* );
+    alias da_sfSoundBuffer_createFromSamples = sfSoundBuffer* function( const( sfInt16 )*,size_t,uint,uint );
+    alias da_sfSoundBuffer_copy = sfSoundBuffer* function( const( sfSoundBuffer )* );
+    alias da_sfSoundBuffer_destroy = void function( sfSoundBuffer* );
+    alias da_sfSoundBuffer_saveToFile = sfBool function( const( sfSoundBuffer )*,const( char )* );
+    alias da_sfSoundBuffer_getSamples = const( sfInt16 )* function( const( sfSoundBuffer )* );
+    alias da_sfSoundBuffer_getSampleCount = size_t function( const( sfSoundBuffer )* );
+    alias da_sfSoundBuffer_getSampleRate = uint function( const( sfSoundBuffer )* );
+    alias da_sfSoundBuffer_getChannelCount = uint function( const( sfSoundBuffer )* );
+    alias da_sfSoundBuffer_getDuration = sfTime function( const( sfSoundBuffer )* );
+
+    // Audio/SoundBufferRecorder.h
     alias da_sfSoundBufferRecorder_create = sfSoundBufferRecorder* function();
-    alias da_sfSoundBufferRecorder_destroy = void function( sfSoundBufferRecorder* soundBufferRecorder );
-    alias da_sfSoundBufferRecorder_start = void function( sfSoundBufferRecorder* soundBufferRecorder,uint sampleRate );
-    alias da_sfSoundBufferRecorder_stop = void function( sfSoundBufferRecorder* soundBufferRecorder );
-    alias da_sfSoundBufferRecorder_getSampleRate = uint function( const( sfSoundBufferRecorder )* soundBufferRecorder );
-    alias da_sfSoundBufferRecorder_getBuffer = const( sfSoundBuffer )* function( const( sfSoundBufferRecorder )* soundBufferRecorder );
-    alias da_sfSoundRecorder_create = sfSoundRecorder* function( sfSoundRecorderStartCallback onStart,sfSoundRecorderProcessCallback onProcess,sfSoundRecorderStopCallback onStop,void* userData );
-    alias da_sfSoundRecorder_destroy = void function( sfSoundRecorder* soundRecorder );
-    alias da_sfSoundRecorder_start = void function( sfSoundRecorder* soundRecorder,uint sampleRate );
-    alias da_sfSoundRecorder_stop = void function( sfSoundRecorder* soundRecorder );
-    alias da_sfSoundRecorder_getSampleRate = uint function( const( sfSoundRecorder )* soundRecorder );
+    alias da_sfSoundBufferRecorder_destroy = void function( sfSoundBufferRecorder* );
+    alias da_sfSoundBufferRecorder_start = void function( sfSoundBufferRecorder*,uint );
+    alias da_sfSoundBufferRecorder_stop = void function( sfSoundBufferRecorder* );
+    alias da_sfSoundBufferRecorder_getSampleRate = uint function( const( sfSoundBufferRecorder )* );
+    alias da_sfSoundBufferRecorder_getBuffer = const( sfSoundBuffer )* function( const( sfSoundBufferRecorder )* );
+
+    // Audio/SoundRecorder.h
+    alias da_sfSoundRecorder_create = sfSoundRecorder* function( sfSoundRecorderStartCallback,sfSoundRecorderProcessCallback,sfSoundRecorderStopCallback,void* );
+    alias da_sfSoundRecorder_destroy = void function( sfSoundRecorder* );
+    alias da_sfSoundRecorder_start = void function( sfSoundRecorder*,uint );
+    alias da_sfSoundRecorder_stop = void function( sfSoundRecorder* );
+    alias da_sfSoundRecorder_getSampleRate = uint function( const( sfSoundRecorder )* );
     alias da_sfSoundRecorder_isAvailable = sfBool function();
-    alias da_sfSoundStream_create = sfSoundStream* function( sfSoundStreamGetDataCallback onGetData,sfSoundStreamSeekCallback onSeek,uint channelCount,int sampleRate,void* userData );
-    alias da_sfSoundStream_destroy = void function( sfSoundStream* soundStream );
-    alias da_sfSoundStream_play = void function( sfSoundStream* soundStream );
-    alias da_sfSoundStream_pause = void function( sfSoundStream* soundStream );
-    alias da_sfSoundStream_stop = void function( sfSoundStream* soundStream );
-    alias da_sfSoundStream_getStatus = sfSoundStatus function( const( sfSoundStream )* soundStream );
-    alias da_sfSoundStream_getChannelCount = uint function( const( sfSoundStream )* soundStream );
-    alias da_sfSoundStream_getSampleRate = uint function( const( sfSoundStream )* soundStream );
-    alias da_sfSoundStream_setPitch = void function( sfSoundStream* soundStream,float pitch );
-    alias da_sfSoundStream_setVolume = void function( sfSoundStream* soundStream,float volume );
-    alias da_sfSoundStream_setPosition = void function( sfSoundStream* soundStream,sfVector3f position );
-    alias da_sfSoundStream_setRelativeToListener = void function( sfSoundStream* soundStream,sfBool relative );
-    alias da_sfSoundStream_setMinDistance = void function( sfSoundStream* soundStream,float distance );
-    alias da_sfSoundStream_setAttenuation = void function( sfSoundStream* soundStream,float attenuation );
-    alias da_sfSoundStream_setPlayingOffset = void function( sfSoundStream* soundStream,sfTime timeOffset );
-    alias da_sfSoundStream_setLoop = void function( sfSoundStream* soundStream,sfBool loop );
-    alias da_sfSoundStream_getPitch = float function( const( sfSoundStream )* soundStream );
-    alias da_sfSoundStream_getVolume = float function( const( sfSoundStream )* soundStream );
-    alias da_sfSoundStream_getPosition = sfVector3f function( const( sfSoundStream )* soundStream );
-    alias da_sfSoundStream_isRelativeToListener = sfBool function( const( sfSoundStream )* soundStream );
-    alias da_sfSoundStream_getMinDistance = float function( const( sfSoundStream )* soundStream );
-    alias da_sfSoundStream_getAttenuation = float function( const( sfSoundStream )* soundStream );
-    alias da_sfSoundStream_getLoop = sfBool function( const( sfSoundStream )* soundStream );
-    alias da_sfSoundStream_getPlayingOffset = sfTime function( const( sfSoundStream )* soundStream );
+
+    // Audio/SoundStream.h
+    alias da_sfSoundStream_create = sfSoundStream* function( sfSoundStreamGetDataCallback,sfSoundStreamSeekCallback,uint,int,void* );
+    alias da_sfSoundStream_destroy = void function( sfSoundStream* );
+    alias da_sfSoundStream_play = void function( sfSoundStream* );
+    alias da_sfSoundStream_pause = void function( sfSoundStream* );
+    alias da_sfSoundStream_stop = void function( sfSoundStream* );
+    alias da_sfSoundStream_getStatus = sfSoundStatus function( const( sfSoundStream )* );
+    alias da_sfSoundStream_getChannelCount = uint function( const( sfSoundStream )* );
+    alias da_sfSoundStream_getSampleRate = uint function( const( sfSoundStream )* );
+    alias da_sfSoundStream_setPitch = void function( sfSoundStream*,float );
+    alias da_sfSoundStream_setVolume = void function( sfSoundStream*,float );
+    alias da_sfSoundStream_setPosition = void function( sfSoundStream*,sfVector3f );
+    alias da_sfSoundStream_setRelativeToListener = void function( sfSoundStream*,sfBool );
+    alias da_sfSoundStream_setMinDistance = void function( sfSoundStream*,float );
+    alias da_sfSoundStream_setAttenuation = void function( sfSoundStream*,float );
+    alias da_sfSoundStream_setPlayingOffset = void function( sfSoundStream*,sfTime );
+    alias da_sfSoundStream_setLoop = void function( sfSoundStream*,sfBool );
+    alias da_sfSoundStream_getPitch = float function( const( sfSoundStream )* );
+    alias da_sfSoundStream_getVolume = float function( const( sfSoundStream )* );
+    alias da_sfSoundStream_getPosition = sfVector3f function( const( sfSoundStream )* );
+    alias da_sfSoundStream_isRelativeToListener = sfBool function( const( sfSoundStream )* );
+    alias da_sfSoundStream_getMinDistance = float function( const( sfSoundStream )* );
+    alias da_sfSoundStream_getAttenuation = float function( const( sfSoundStream )* );
+    alias da_sfSoundStream_getLoop = sfBool function( const( sfSoundStream )* );
+    alias da_sfSoundStream_getPlayingOffset = sfTime function( const( sfSoundStream )* );
 }
 
 __gshared {
@@ -193,6 +206,7 @@ __gshared {
     da_sfListener_getPosition sfListener_getPosition;
     da_sfListener_setDirection sfListener_setDirection;
     da_sfListener_getDirection sfListener_getDirection;
+
     da_sfMusic_createFromFile sfMusic_createFromFile;
     da_sfMusic_createFromMemory sfMusic_createFromMemory;
     da_sfMusic_createFromStream sfMusic_createFromStream;
@@ -220,6 +234,7 @@ __gshared {
     da_sfMusic_isRelativeToListener sfMusic_isRelativeToListener;
     da_sfMusic_getMinDistance sfMusic_getMinDistance;
     da_sfMusic_getAttenuation sfMusic_getAttenuation;
+
     da_sfSound_create sfSound_create;
     da_sfSound_copy sfSound_copy;
     da_sfSound_destroy sfSound_destroy;
@@ -245,6 +260,7 @@ __gshared {
     da_sfSound_getMinDistance sfSound_getMinDistance;
     da_sfSound_getAttenuation sfSound_getAttenuation;
     da_sfSound_getPlayingOffset sfSound_getPlayingOffset;
+
     da_sfSoundBuffer_createFromFile sfSoundBuffer_createFromFile;
     da_sfSoundBuffer_createFromMemory sfSoundBuffer_createFromMemory;
     da_sfSoundBuffer_createFromStream sfSoundBuffer_createFromStream;
@@ -257,18 +273,21 @@ __gshared {
     da_sfSoundBuffer_getSampleRate sfSoundBuffer_getSampleRate;
     da_sfSoundBuffer_getChannelCount sfSoundBuffer_getChannelCount;
     da_sfSoundBuffer_getDuration sfSoundBuffer_getDuration;
+
     da_sfSoundBufferRecorder_create sfSoundBufferRecorder_create;
     da_sfSoundBufferRecorder_destroy sfSoundBufferRecorder_destroy;
     da_sfSoundBufferRecorder_start sfSoundBufferRecorder_start;
     da_sfSoundBufferRecorder_stop sfSoundBufferRecorder_stop;
     da_sfSoundBufferRecorder_getSampleRate sfSoundBufferRecorder_getSampleRate;
     da_sfSoundBufferRecorder_getBuffer sfSoundBufferRecorder_getBuffer;
+
     da_sfSoundRecorder_create sfSoundRecorder_create;
     da_sfSoundRecorder_destroy sfSoundRecorder_destroy;
     da_sfSoundRecorder_start sfSoundRecorder_start;
     da_sfSoundRecorder_stop sfSoundRecorder_stop;
     da_sfSoundRecorder_getSampleRate sfSoundRecorder_getSampleRate;
     da_sfSoundRecorder_isAvailable sfSoundRecorder_isAvailable;
+
     da_sfSoundStream_create sfSoundStream_create;
     da_sfSoundStream_destroy sfSoundStream_destroy;
     da_sfSoundStream_play sfSoundStream_play;
