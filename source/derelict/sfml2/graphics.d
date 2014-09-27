@@ -163,6 +163,7 @@ struct sfVertex {
 }
 
 extern( C ) nothrow {
+    // Graphics/CircleShape.h
     alias da_sfCircleShape_create = sfCircleShape* function();
     alias da_sfCircleShape_copy = sfCircleShape* function( const( sfCircleShape )* shape );
     alias da_sfCircleShape_destroy = void function( sfCircleShape* shape );
@@ -196,10 +197,14 @@ extern( C ) nothrow {
     alias da_sfCircleShape_setPointCount = void function( sfCircleShape* shape,uint count );
     alias da_sfCircleShape_getLocalBounds = sfFloatRect function( const( sfCircleShape )* shape );
     alias da_sfCircleShape_getGlobalBounds = sfFloatRect function( const( sfCircleShape )* shape );
+
+    // Graphics/Color.h
     alias da_sfColor_fromRGB = sfColor function( sfUint8 red,sfUint8 green,sfUint8 blue );
     alias da_sfColor_fromRGBA = sfColor function( sfUint8 red,sfUint8 green,sfUint8 blue,sfUint8 alpha );
     alias da_sfColor_add = sfColor function( sfColor color1,sfColor color2 );
     alias da_sfColor_modulate = sfColor function( sfColor color1,sfColor color2 );
+
+    // Graphics/ConvexShape.h
     alias da_sfConvexShape_create = sfConvexShape* function();
     alias da_sfConvexShape_copy = sfConvexShape* function( const( sfConvexShape )* shape );
     alias da_sfConvexShape_destroy = void function( sfConvexShape* shape );
@@ -232,6 +237,8 @@ extern( C ) nothrow {
     alias da_sfConvexShape_setPoint = void function( sfConvexShape* shape,uint index,sfVector2f point );
     alias da_sfConvexShape_getLocalBounds = sfFloatRect function( const( sfConvexShape )* shape );
     alias da_sfConvexShape_getGlobalBounds = sfFloatRect function( const( sfConvexShape )* shape );
+
+    // Graphics/Font.h
     alias da_sfFont_createFromFile = sfFont* function( const( char )* filename );
     alias da_sfFont_createFromMemory = sfFont* function( const( void )* data,size_t sizeInBytes );
     alias da_sfFont_createFromStream = sfFont* function( sfInputStream* stream );
@@ -241,6 +248,8 @@ extern( C ) nothrow {
     alias da_sfFont_getKerning = int function( sfFont* font,sfUint32 first,sfUint32 second,uint characterSize );
     alias da_sfFont_getLineSpacing = int function( sfFont* font,uint characterSize );
     alias da_sfFont_getTexture = const( sfTexture )* function( sfFont* font,uint characterSize );
+
+    // Graphics/Image.h
     alias da_sfImage_create = sfImage* function( uint width,uint height );
     alias da_sfImage_createFromColor = sfImage* function( uint width,uint height,sfColor color );
     alias da_sfImage_createFromPixels = sfImage* function( uint width,uint height,const( sfUint8 )* pixels );
@@ -258,10 +267,14 @@ extern( C ) nothrow {
     alias da_sfImage_getPixelsPtr = const( sfUint8 )* function( const( sfImage )* image );
     alias da_sfImage_flipHorizontally = void function( sfImage* image );
     alias da_sfImage_flipVertically = void function( sfImage* image );
+
+    // Graphics/Rect.h
     alias da_sfFloatRect_contains = sfBool function( const( sfFloatRect )* rect,float x,float y );
     alias da_sfIntRect_contains = sfBool function( const( sfIntRect )* rect,int x,int y );
     alias da_sfFloatRect_intersects = sfBool function( const( sfFloatRect )* rect1,const( sfFloatRect )* rect2,sfFloatRect* intersection );
     alias da_sfIntRect_intersects = sfBool function( const( sfIntRect )* rect1,const( sfIntRect )* rect2,sfIntRect* intersection );
+
+    // Graphics/RectangleShape.h
     alias da_sfRectangleShape_create = sfRectangleShape* function();
     alias da_sfRectangleShape_copy = sfRectangleShape* function( const( sfRectangleShape )* shape );
     alias da_sfRectangleShape_destroy = void function( sfRectangleShape* shape );
@@ -294,6 +307,8 @@ extern( C ) nothrow {
     alias da_sfRectangleShape_getSize = sfVector2f function( const( sfRectangleShape )* shape );
     alias da_sfRectangleShape_getLocalBounds = sfFloatRect function( const( sfRectangleShape )* shape );
     alias da_sfRectangleShape_getGlobalBounds = sfFloatRect function( const( sfRectangleShape )* shape );
+
+    // Graphics/RenderTexture.h
     alias da_sfRenderTexture_create = sfRenderTexture* function( uint width,uint height,sfBool depthBuffer );
     alias da_sfRenderTexture_destroy = void function( sfRenderTexture* renderTexture );
     alias da_sfRenderTexture_getSize = sfVector2u function( const( sfRenderTexture )* renderTexture );
@@ -322,6 +337,8 @@ extern( C ) nothrow {
     alias da_sfRenderTexture_isSmooth = sfBool function( const( sfRenderTexture )* renderTexture );
     alias da_sfRenderTexture_setRepeated = void function( sfRenderTexture*, sfBool );
     alias da_sfRenderTexture_isRepeated = sfBool function( const( sfRenderTexture )* );
+
+    // Graphics/RenderWindow.h
     alias da_sfRenderWindow_create = sfRenderWindow* function( sfVideoMode mode,const( char )* title,sfUint32 style,const( sfContextSettings )* settings );
     alias da_sfRenderWindow_createFromHandle = sfRenderWindow* function( sfWindowHandle handle,const( sfContextSettings )* settings );
     alias da_sfRenderWindow_destroy = void function( sfRenderWindow* renderWindow );
@@ -366,6 +383,8 @@ extern( C ) nothrow {
     alias da_sfRenderWindow_capture = sfImage* function( const( sfRenderWindow )* renderWindow );
     alias da_sfMouse_getPositionRenderWindow = sfVector2i function( const( sfRenderWindow )* relativeTo );
     alias da_sfMouse_setPositionRenderWindow = void function( sfVector2i position, const( sfRenderWindow )* relativeTo );
+
+    // Graphics/Shader.h
     alias da_sfShader_createFromFile = sfShader* function( const( char )* vertexShaderFilename,const( char )* fragmentShaderFilename );
     alias da_sfShader_createFromMemory = sfShader* function( const( char )* vertexShader,const( char )* fragmentShader );
     alias da_sfShader_createFromStream = sfShader* function( sfInputStream* vertexShaderStream,sfInputStream* fragmentShaderStream );
@@ -382,6 +401,8 @@ extern( C ) nothrow {
     alias da_sfShader_setCurrentTextureParameter = void function( sfShader* shader,const( char )* name );
     alias da_sfShader_bind = void function( const( sfShader )* shader );
     alias da_sfShader_isAvailable = sfBool function();
+
+    // Graphics/Shape.h
     alias da_sfShape_create = sfShape* function( sfShapeGetPointCountCallback getPointCount,sfShapeGetPointCallback getPoint );
     alias da_sfShape_destroy = void function( sfShape* shape );
     alias da_sfShape_setPosition = void function( sfShape* shape,sfVector2f position );
@@ -412,6 +433,8 @@ extern( C ) nothrow {
     alias da_sfShape_getLocalBounds = sfFloatRect function( const( sfShape )* shape );
     alias da_sfShape_getGlobalBounds = sfFloatRect function( const( sfShape )* shape );
     alias da_sfShape_update = void function( sfShape* shape );
+
+    // Graphics/Sprite.h
     alias da_sfSprite_create = sfSprite* function();
     alias da_sfSprite_copy = sfSprite* function( const( sfSprite )* sprite );
     alias da_sfSprite_destroy = void function( sfSprite* sprite );
@@ -436,6 +459,8 @@ extern( C ) nothrow {
     alias da_sfSprite_getColor = sfColor function( const( sfSprite )* sprite );
     alias da_sfSprite_getLocalBounds = sfFloatRect function( const( sfSprite )* sprite );
     alias da_sfSprite_getGlobalBounds = sfFloatRect function( const( sfSprite )* sprite );
+
+    // Graphics/Text.h
     alias da_sfText_create = sfText* function();
     alias da_sfText_copy = sfText* function( const( sfText )* text );
     alias da_sfText_destroy = void function( sfText* text );
@@ -467,6 +492,8 @@ extern( C ) nothrow {
     alias da_sfText_findCharacterPos = sfVector2f function( const( sfText )* text,size_t index );
     alias da_sfText_getLocalBounds = sfFloatRect function( const( sfText )* text );
     alias da_sfText_getGlobalBounds = sfFloatRect function( const( sfText )* text );
+
+    // Graphics/Texture.h
     alias da_sfTexture_create = sfTexture* function( uint width, uint height );
     alias da_sfTexture_createFromFile = sfTexture* function( const( char )* filename,const( sfIntRect )* area );
     alias da_sfTexture_createFromMemory = sfTexture* function( const( void )* data,size_t sizeInBytes,const( sfIntRect )* area );
@@ -486,6 +513,8 @@ extern( C ) nothrow {
     alias da_sfTexture_setRepeated = void function( sfTexture* texture,sfBool repeated );
     alias da_sfTexture_isRepeated = sfBool function( const( sfTexture )* texture );
     alias da_sfTexture_getMaximumSize = uint function();
+
+    // Graphics/Transform.h
     alias da_sfTransform_fromMatrix = sfTransform function( float a00,float a01,float a02,float a10,float a11,float a12,float a20,float a21,float a22 );
     alias da_sfTransform_getMatrix = void function( const( sfTransform )* transform, float* matrix );
     alias da_sfTransform_getInverse = sfTransform function( const( sfTransform )* transform );
@@ -497,6 +526,8 @@ extern( C ) nothrow {
     alias da_sfTransform_rotateWithCenter = void function( sfTransform* transform,float angle,float centerX,float centerY );
     alias da_sfTransform_scale = void function( sfTransform* transform,float scaleX,float scaleY );
     alias da_sfTransform_scaleWithCenter = void function( sfTransform* transform,float scaleX,float scaleY,float centerX,float centerY );
+
+    // Graphics/Transformalble.h
     alias da_sfTransformable_create = sfTransformable* function();
     alias da_sfTransformable_copy = sfTransformable* function( const( sfTransformable )* transformable );
     alias da_sfTransformable_destroy = void function( sfTransformable* transformable );
@@ -513,6 +544,8 @@ extern( C ) nothrow {
     alias da_sfTransformable_scale = void function( sfTransformable* transformable,sfVector2f factors );
     alias da_sfTransformable_getTransform = sfTransform function( const( sfTransformable )* transformable );
     alias da_sfTransformable_getInverseTransform = sfTransform function( const( sfTransformable )* transformable );
+
+    // Graphics/VertexArray.h
     alias da_sfVertexArray_create = sfVertexArray* function();
     alias da_sfVertexArray_copy = sfVertexArray* function( const( sfVertexArray )* vertexArray );
     alias da_sfVertexArray_destroy = void function( sfVertexArray* vertexArray );
@@ -524,6 +557,8 @@ extern( C ) nothrow {
     alias da_sfVertexArray_setPrimitiveType = void function( sfVertexArray* vertexArray,sfPrimitiveType type );
     alias da_sfVertexArray_getPrimitiveType = sfPrimitiveType function( sfVertexArray* vertexArray );
     alias da_sfVertexArray_getBounds = sfFloatRect function( sfVertexArray* vertexArray );
+
+    // Graphics/View.h
     alias da_sfView_create = sfView* function();
     alias da_sfView_createFromRect = sfView* function( sfFloatRect rectangle );
     alias da_sfView_copy = sfView* function( const( sfView )* view );
@@ -576,10 +611,12 @@ __gshared {
     da_sfCircleShape_setPointCount sfCircleShape_setPointCount;
     da_sfCircleShape_getLocalBounds sfCircleShape_getLocalBounds;
     da_sfCircleShape_getGlobalBounds sfCircleShape_getGlobalBounds;
+
     da_sfColor_fromRGB sfColor_fromRGB;
     da_sfColor_fromRGBA sfColor_fromRGBA;
     da_sfColor_add sfColor_add;
     da_sfColor_modulate sfColor_modulate;
+
     da_sfConvexShape_create sfConvexShape_create;
     da_sfConvexShape_copy sfConvexShape_copy;
     da_sfConvexShape_destroy sfConvexShape_destroy;
@@ -612,6 +649,7 @@ __gshared {
     da_sfConvexShape_setPoint sfConvexShape_setPoint;
     da_sfConvexShape_getLocalBounds sfConvexShape_getLocalBounds;
     da_sfConvexShape_getGlobalBounds sfConvexShape_getGlobalBounds;
+
     da_sfFont_createFromFile sfFont_createFromFile;
     da_sfFont_createFromMemory sfFont_createFromMemory;
     da_sfFont_createFromStream sfFont_createFromStream;
@@ -621,6 +659,7 @@ __gshared {
     da_sfFont_getKerning sfFont_getKerning;
     da_sfFont_getLineSpacing sfFont_getLineSpacing;
     da_sfFont_getTexture sfFont_getTexture;
+
     da_sfImage_create sfImage_create;
     da_sfImage_createFromColor sfImage_createFromColor;
     da_sfImage_createFromPixels sfImage_createFromPixels;
@@ -638,10 +677,12 @@ __gshared {
     da_sfImage_getPixelsPtr sfImage_getPixelsPtr;
     da_sfImage_flipHorizontally sfImage_flipHorizontally;
     da_sfImage_flipVertically sfImage_flipVertically;
+
     da_sfFloatRect_contains sfFloatRect_contains;
     da_sfIntRect_contains sfIntRect_contains;
     da_sfFloatRect_intersects sfFloatRect_intersects;
     da_sfIntRect_intersects sfIntRect_intersects;
+
     da_sfRectangleShape_create sfRectangleShape_create;
     da_sfRectangleShape_copy sfRectangleShape_copy;
     da_sfRectangleShape_destroy sfRectangleShape_destroy;
@@ -674,6 +715,7 @@ __gshared {
     da_sfRectangleShape_getSize sfRectangleShape_getSize;
     da_sfRectangleShape_getLocalBounds sfRectangleShape_getLocalBounds;
     da_sfRectangleShape_getGlobalBounds sfRectangleShape_getGlobalBounds;
+
     da_sfRenderTexture_create sfRenderTexture_create;
     da_sfRenderTexture_destroy sfRenderTexture_destroy;
     da_sfRenderTexture_getSize sfRenderTexture_getSize;
@@ -702,6 +744,7 @@ __gshared {
     da_sfRenderTexture_isSmooth sfRenderTexture_isSmooth;
     da_sfRenderTexture_setRepeated sfRenderTexture_setRepeated;
     da_sfRenderTexture_isRepeated sfRenderTexture_isRepeated;
+
     da_sfRenderWindow_create sfRenderWindow_create;
     da_sfRenderWindow_createFromHandle sfRenderWindow_createFromHandle;
     da_sfRenderWindow_destroy sfRenderWindow_destroy;
@@ -746,6 +789,7 @@ __gshared {
     da_sfRenderWindow_capture sfRenderWindow_capture;
     da_sfMouse_getPositionRenderWindow sfMouse_getPositionRenderWindow;
     da_sfMouse_setPositionRenderWindow sfMouse_setPositionRenderWindow;
+
     da_sfShader_createFromFile sfShader_createFromFile;
     da_sfShader_createFromMemory sfShader_createFromMemory;
     da_sfShader_createFromStream sfShader_createFromStream;
@@ -762,6 +806,7 @@ __gshared {
     da_sfShader_setCurrentTextureParameter sfShader_setCurrentTextureParameter;
     da_sfShader_bind sfShader_bind;
     da_sfShader_isAvailable sfShader_isAvailable;
+
     da_sfShape_create sfShape_create;
     da_sfShape_destroy sfShape_destroy;
     da_sfShape_setPosition sfShape_setPosition;
@@ -792,6 +837,7 @@ __gshared {
     da_sfShape_getLocalBounds sfShape_getLocalBounds;
     da_sfShape_getGlobalBounds sfShape_getGlobalBounds;
     da_sfShape_update sfShape_update;
+
     da_sfSprite_create sfSprite_create;
     da_sfSprite_copy sfSprite_copy;
     da_sfSprite_destroy sfSprite_destroy;
@@ -816,6 +862,7 @@ __gshared {
     da_sfSprite_getColor sfSprite_getColor;
     da_sfSprite_getLocalBounds sfSprite_getLocalBounds;
     da_sfSprite_getGlobalBounds sfSprite_getGlobalBounds;
+
     da_sfText_create sfText_create;
     da_sfText_copy sfText_copy;
     da_sfText_destroy sfText_destroy;
@@ -847,6 +894,7 @@ __gshared {
     da_sfText_findCharacterPos sfText_findCharacterPos;
     da_sfText_getLocalBounds sfText_getLocalBounds;
     da_sfText_getGlobalBounds sfText_getGlobalBounds;
+
     da_sfTexture_create sfTexture_create;
     da_sfTexture_createFromFile sfTexture_createFromFile;
     da_sfTexture_createFromMemory sfTexture_createFromMemory;
@@ -866,6 +914,7 @@ __gshared {
     da_sfTexture_setRepeated sfTexture_setRepeated;
     da_sfTexture_isRepeated sfTexture_isRepeated;
     da_sfTexture_getMaximumSize sfTexture_getMaximumSize;
+
     da_sfTransform_fromMatrix sfTransform_fromMatrix;
     da_sfTransform_getMatrix sfTransform_getMatrix;
     da_sfTransform_getInverse sfTransform_getInverse;
@@ -877,6 +926,7 @@ __gshared {
     da_sfTransform_rotateWithCenter sfTransform_rotateWithCenter;
     da_sfTransform_scale sfTransform_scale;
     da_sfTransform_scaleWithCenter sfTransform_scaleWithCenter;
+
     da_sfTransformable_create sfTransformable_create;
     da_sfTransformable_copy sfTransformable_copy;
     da_sfTransformable_destroy sfTransformable_destroy;
@@ -893,6 +943,7 @@ __gshared {
     da_sfTransformable_scale sfTransformable_scale;
     da_sfTransformable_getTransform sfTransformable_getTransform;
     da_sfTransformable_getInverseTransform sfTransformable_getInverseTransform;
+
     da_sfVertexArray_create sfVertexArray_create;
     da_sfVertexArray_copy sfVertexArray_copy;
     da_sfVertexArray_destroy sfVertexArray_destroy;
@@ -904,6 +955,7 @@ __gshared {
     da_sfVertexArray_setPrimitiveType sfVertexArray_setPrimitiveType;
     da_sfVertexArray_getPrimitiveType sfVertexArray_getPrimitiveType;
     da_sfVertexArray_getBounds sfVertexArray_getBounds;
+
     da_sfView_create sfView_create;
     da_sfView_createFromRect sfView_createFromRect;
     da_sfView_copy sfView_copy;
