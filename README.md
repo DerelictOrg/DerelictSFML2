@@ -1,7 +1,7 @@
 DerelictSFML2
 ==========
 
-Dynamic bindings to version 2.1 of [the SFML libraries][1] for the D Programming Language.
+Dynamic bindings to version 2.0 of [the SFML libraries][1] for the D Programming Language.
 
 For information on how to build DerelictSFML2 and link it with your programs, please see the post [Using Derelict] at The One With D.
 
