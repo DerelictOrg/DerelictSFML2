@@ -335,8 +335,6 @@ extern( C ) @nogc nothrow {
     alias da_sfRenderTexture_getTexture = const( sfTexture )* function( const( sfRenderTexture )* );
     alias da_sfRenderTexture_setSmooth = void function( sfRenderTexture*,sfBool );
     alias da_sfRenderTexture_isSmooth = sfBool function( const( sfRenderTexture )* );
-    alias da_sfRenderTexture_setRepeated = void function( sfRenderTexture*, sfBool );
-    alias da_sfRenderTexture_isRepeated = sfBool function( const( sfRenderTexture )* );
 
     // Graphics/RenderWindow.h
     alias da_sfRenderWindow_create = sfRenderWindow* function( sfVideoMode,const( char )*,sfUint32,const( sfContextSettings )* );
@@ -742,8 +740,6 @@ __gshared {
     da_sfRenderTexture_getTexture sfRenderTexture_getTexture;
     da_sfRenderTexture_setSmooth sfRenderTexture_setSmooth;
     da_sfRenderTexture_isSmooth sfRenderTexture_isSmooth;
-    da_sfRenderTexture_setRepeated sfRenderTexture_setRepeated;
-    da_sfRenderTexture_isRepeated sfRenderTexture_isRepeated;
 
     da_sfRenderWindow_create sfRenderWindow_create;
     da_sfRenderWindow_createFromHandle sfRenderWindow_createFromHandle;
@@ -1138,8 +1134,6 @@ class DerelictSFML2GraphicsLoader : SharedLibLoader {
         bindFunc( cast( void** )&sfRenderTexture_getTexture, "sfRenderTexture_getTexture" );
         bindFunc( cast( void** )&sfRenderTexture_setSmooth, "sfRenderTexture_setSmooth" );
         bindFunc( cast( void** )&sfRenderTexture_isSmooth, "sfRenderTexture_isSmooth" );
-        bindFunc( cast( void** )&sfRenderTexture_setRepeated, "sfRenderTexture_setRepeated" );
-        bindFunc( cast( void** )&sfRenderTexture_isRepeated, "sfRenderTexture_isRepeated" );
         bindFunc( cast( void** )&sfRenderWindow_create, "sfRenderWindow_create" );
         bindFunc( cast( void** )&sfRenderWindow_createFromHandle, "sfRenderWindow_createFromHandle" );
         bindFunc( cast( void** )&sfRenderWindow_destroy, "sfRenderWindow_destroy" );
