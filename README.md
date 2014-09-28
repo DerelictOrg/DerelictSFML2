@@ -3,7 +3,7 @@ DerelictSFML2
 
 Dynamic bindings to version 2.1 of [the SFML libraries][1] for the D Programming Language.
 
-For information on how to build DerelictSFML2 and link it with your programs, please see the post [Using Derelict] at The One With D.
+For information on how to build DerelictSFML2 and link it with your programs, please see the post [Using Derelict][2] at The One With D.
 
 For information on how to load the SFML2 libraries via DerelictSFML2, see the page [DerelictUtil for Users][3] at the DerelictUtil Wiki. Note that SFML2 is not a single library, but a collection of libraries. Each library has a loader in DerelictSFML2. Here's an example:
 
@@ -30,6 +30,6 @@ void main() {
 
 Finally, it should be noted that there are two versions of the SFML2 shared libraries. One is written in C++, the other in C. For DerelictSFML2, you need to use the C version of the libraries, known as CSFML. DerelictSFML2 cannot load the C++ SFML2 libraries.
 
-[1] http://www.sfml-dev.org/
-[2] http://dblog.aldacron.net/derelict-help/using-derelict/
-[3] https://github.com/DerelictOrg/DerelictUtil/wiki/DerelictUtil-for-Users
+[1]: http://www.sfml-dev.org/
+[2]: http://dblog.aldacron.net/derelict-help/using-derelict/
+[3]: https://github.com/DerelictOrg/DerelictUtil/wiki/DerelictUtil-for-Users
