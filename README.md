@@ -3,7 +3,7 @@ DerelictSFML2
 
 Dynamic bindings to version 2.0 of [the SFML libraries][1] for the D Programming Language.
 
-For information on how to build DerelictSFML2 and link it with your programs, please see the post [Using Derelict] at The One With D.
+For information on how to build DerelictSFML2 and link it with your programs, please see the post [Using Derelict][2] at The One With D.
 
 For information on how to load the SFML2 libraries via DerelictSFML2, see the page [DerelictUtil for Users][3] at the DerelictUtil Wiki. Note that SFML2 is not a single library, but a collection of libraries. Each library has a loader in DerelictSFML2. Here's an example:
 
