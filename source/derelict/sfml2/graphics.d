@@ -34,11 +34,11 @@ private {
     import derelict.sfml2.window;
 
     static if( Derelict_OS_Windows )
-        enum libNames = "csfml-graphics-2.dll";
+        enum libNames = "csfml-graphics-2.2.dll";
     else static if( Derelict_OS_Mac )
-        enum libNames = "libcsfml-graphics.2.dylib";
+        enum libNames = "libcsfml-graphics.2.2.dylib";
     else static if( Derelict_OS_Posix )
-        enum libNames = "libcsfml-graphics.so.2";
+        enum libNames = "libcsfml-graphics.so.2.2";
     else
         static assert( 0, "Need to implement SFML2 Graphics libNames for this operating system." );
 }
@@ -61,13 +61,39 @@ struct sfVertexArray;
 struct sfView;
 
 // Graphics/BlendMode.h
-alias sfBlendMode = int;
+alias sfBlendFactor = int;
 enum {
-    sfBlendAlpha,
-    sfBlendAdd,
-    sfBlendMultiply,
-    sfBlendNone,
+    sfBlendFactorZero,
+    sfBlendFactorOne,
+    sfBlendFactorSrcColor,
+    sfBlendFactorOneMinusSrcColor,
+    sfBlendFactorDstColor,
+    sfBlendFactorOneMinusDstColor,
+    sfBlendFactorSrcAlpha,
+    sfBlendFactorOneMinusSrcAlpha,
+    sfBlendFactorDstAlpha,
+    sfBlendFactorOneMinusDstAlpha
 }
+
+alias sfBlendEquation = int;
+enum {
+    sfBlendEquationAdd,
+    sfBlendEquationSubtract
+}
+
+struct sfBlendMode {
+    sfBlendFactor colorSrcFactor;
+    sfBlendFactor colorDstFactor;
+    sfBlendEquation colorEquation;
+    sfBlendFactor alphaSrcFactor;
+    sfBlendFactor alphaDstFactor;
+    sfBlendEquation alphaEquation;
+}
+
+extern (C) extern __gshared immutable( sfBlendMode ) sfBlendAlpha;
+extern (C) extern __gshared immutable( sfBlendMode ) sfBlendAdd;
+extern (C) extern __gshared immutable( sfBlendMode ) sfBlendMultiply;
+extern (C) extern __gshared immutable( sfBlendMode ) sfBlendNone;
 
 // Graphics/Color.h
 struct sfColor {
@@ -87,10 +113,15 @@ immutable( sfColor ) sfMagenta = sfColor( 255, 0, 255, 255 );
 immutable( sfColor ) sfCyan = sfColor( 0, 255, 255, 255 );
 immutable( sfColor ) sfTransparent = sfColor( 0, 0, 0, 0 );
 
+// Graphics/FontInfo.h
+struct sfFontInfo {
+    const( char )* family;
+}
+
 // Graphics/Glyph.h
 struct sfGlyph {
-    int advance;
-    sfIntRect bounds;
+    float advance;
+    sfFloatRect bounds;
     sfIntRect textureRect;
 }
 
@@ -142,6 +173,7 @@ enum {
     sfTextBold = 1 << 0,
     sfTextItalic = 1 << 1,
     sfTextUnderlined = 1 << 2,
+    sfTextStrikeThrough = 1 << 3
 }
 
 // Graphics/Transform
@@ -245,9 +277,12 @@ extern( C ) @nogc nothrow {
     alias da_sfFont_copy = sfFont* function( const( sfFont )* );
     alias da_sfFont_destroy = void function( sfFont* );
     alias da_sfFont_getGlyph = sfGlyph function( sfFont*,sfUint32,uint,sfBool );
-    alias da_sfFont_getKerning = int function( sfFont*,sfUint32,sfUint32,uint );
-    alias da_sfFont_getLineSpacing = int function( sfFont*,uint );
+    alias da_sfFont_getKerning = float function( sfFont*,sfUint32,sfUint32,uint );
+    alias da_sfFont_getLineSpacing = float function( sfFont*,uint );
+    alias da_sfFont_getUnderlinePosition = float function( sfFont*,uint );
+    alias da_sfFont_getUnderlineThickness = float function( sfFont*,uint );
     alias da_sfFont_getTexture = const( sfTexture )* function( sfFont*,uint );
+    alias da_sfFont_getInfo = sfFontInfo function( const( sfFont )* );
 
     // Graphics/Image.h
     alias da_sfImage_create = sfImage* function( uint,uint );
@@ -358,6 +393,8 @@ extern( C ) @nogc nothrow {
     alias da_sfRenderWindow_setVerticalSyncEnabled = void function( sfRenderWindow*,sfBool );
     alias da_sfRenderWindow_setKeyRepeatEnabled = void function( sfRenderWindow*,sfBool );
     alias da_sfRenderWindow_setActive = sfBool function( sfRenderWindow*,sfBool );
+    alias da_sfRenderWindow_requestFocus = void function( sfRenderWindow* );
+    alias da_sfRenderWindow_hasFocus = sfBool function( const( sfRenderWindow )* );
     alias da_sfRenderWindow_display = void function( sfRenderWindow* );
     alias da_sfRenderWindow_setFramerateLimit = void function( sfRenderWindow*,uint );
     alias da_sfRenderWindow_setJoystickThreshold = void function( sfRenderWindow*,float );
@@ -383,6 +420,7 @@ extern( C ) @nogc nothrow {
     alias da_sfRenderWindow_capture = sfImage* function( const( sfRenderWindow )* );
     alias da_sfMouse_getPositionRenderWindow = sfVector2i function( const( sfRenderWindow )* );
     alias da_sfMouse_setPositionRenderWindow = void function( sfVector2i, const( sfRenderWindow )* );
+    alias da_sfTouch_getPositionRenderWindow = sfVector2i function( uint,const( sfRenderWindow )* );
 
     // Graphics/Shader.h
     alias da_sfShader_createFromFile = sfShader* function( const( char )*,const( char )* );
@@ -658,7 +696,10 @@ __gshared {
     da_sfFont_getGlyph sfFont_getGlyph;
     da_sfFont_getKerning sfFont_getKerning;
     da_sfFont_getLineSpacing sfFont_getLineSpacing;
+    da_sfFont_getUnderlinePosition sfFont_getUnderlinePosition;
+    da_sfFont_getUnderlineThickness sfFont_getUnderlineThickness;
     da_sfFont_getTexture sfFont_getTexture;
+    da_sfFont_getInfo sfFont_getInfo;
 
     da_sfImage_create sfImage_create;
     da_sfImage_createFromColor sfImage_createFromColor;
@@ -764,6 +805,8 @@ __gshared {
     da_sfRenderWindow_setVerticalSyncEnabled sfRenderWindow_setVerticalSyncEnabled;
     da_sfRenderWindow_setKeyRepeatEnabled sfRenderWindow_setKeyRepeatEnabled;
     da_sfRenderWindow_setActive sfRenderWindow_setActive;
+    da_sfRenderWindow_requestFocus sfRenderWindow_requestFocus;
+    da_sfRenderWindow_hasFocus sfRenderWindow_hasFocus;
     da_sfRenderWindow_display sfRenderWindow_display;
     da_sfRenderWindow_setFramerateLimit sfRenderWindow_setFramerateLimit;
     da_sfRenderWindow_setJoystickThreshold sfRenderWindow_setJoystickThreshold;
@@ -789,6 +832,7 @@ __gshared {
     da_sfRenderWindow_capture sfRenderWindow_capture;
     da_sfMouse_getPositionRenderWindow sfMouse_getPositionRenderWindow;
     da_sfMouse_setPositionRenderWindow sfMouse_setPositionRenderWindow;
+    da_sfTouch_getPositionRenderWindow sfTouch_getPositionRenderWindow;
 
     da_sfShader_createFromFile sfShader_createFromFile;
     da_sfShader_createFromMemory sfShader_createFromMemory;
@@ -1058,7 +1102,10 @@ class DerelictSFML2GraphicsLoader : SharedLibLoader {
         bindFunc( cast( void** )&sfFont_getGlyph, "sfFont_getGlyph" );
         bindFunc( cast( void** )&sfFont_getKerning, "sfFont_getKerning" );
         bindFunc( cast( void** )&sfFont_getLineSpacing, "sfFont_getLineSpacing" );
+        bindFunc( cast( void** )&sfFont_getUnderlinePosition, "sfFont_getUnderlinePosition" );
+        bindFunc( cast( void** )&sfFont_getUnderlineThickness, "sfFont_getUnderlineThickness" );
         bindFunc( cast( void** )&sfFont_getTexture, "sfFont_getTexture" );
+        bindFunc( cast( void** )&sfFont_getInfo, "sfFont_getInfo" );
         bindFunc( cast( void** )&sfImage_create, "sfImage_create" );
         bindFunc( cast( void** )&sfImage_createFromColor, "sfImage_createFromColor" );
         bindFunc( cast( void** )&sfImage_createFromPixels, "sfImage_createFromPixels" );
@@ -1159,6 +1206,8 @@ class DerelictSFML2GraphicsLoader : SharedLibLoader {
         bindFunc( cast( void** )&sfRenderWindow_setVerticalSyncEnabled, "sfRenderWindow_setVerticalSyncEnabled" );
         bindFunc( cast( void** )&sfRenderWindow_setKeyRepeatEnabled, "sfRenderWindow_setKeyRepeatEnabled" );
         bindFunc( cast( void** )&sfRenderWindow_setActive, "sfRenderWindow_setActive" );
+        bindFunc( cast( void** )&sfRenderWindow_requestFocus, "sfRenderWindow_requestFocus" );
+        bindFunc( cast( void** )&sfRenderWindow_hasFocus, "sfRenderWindow_hasFocus" );
         bindFunc( cast( void** )&sfRenderWindow_display, "sfRenderWindow_display" );
         bindFunc( cast( void** )&sfRenderWindow_setFramerateLimit, "sfRenderWindow_setFramerateLimit" );
         bindFunc( cast( void** )&sfRenderWindow_setJoystickThreshold, "sfRenderWindow_setJoystickThreshold" );
@@ -1184,6 +1233,7 @@ class DerelictSFML2GraphicsLoader : SharedLibLoader {
         bindFunc( cast( void** )&sfRenderWindow_capture, "sfRenderWindow_capture" );
         bindFunc( cast( void** )&sfMouse_getPositionRenderWindow, "sfMouse_getPositionRenderWindow" );
         bindFunc( cast( void** )&sfMouse_setPositionRenderWindow, "sfMouse_setPositionRenderWindow" );
+        bindFunc( cast( void** )&sfTouch_getPositionRenderWindow, "sfTouch_getPositionRenderWindow" );
         bindFunc( cast( void** )&sfShader_createFromFile, "sfShader_createFromFile" );
         bindFunc( cast( void** )&sfShader_createFromMemory, "sfShader_createFromMemory" );
         bindFunc( cast( void** )&sfShader_createFromStream, "sfShader_createFromStream" );
