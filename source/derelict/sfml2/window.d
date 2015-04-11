@@ -33,11 +33,11 @@ private {
     import derelict.sfml2.system;
 
     static if( Derelict_OS_Windows )
-        enum libNames = "csfml-window-2.dll";
+        enum libNames = "csfml-window-2.2.dll";
     else static if( Derelict_OS_Mac )
-        enum libNames = "libcsfml-window.2.dylib";
+        enum libNames = "libcsfml-window.2.2.dylib";
     else static if( Derelict_OS_Posix )
-        enum libNames = "libcsfml-window.so.2";
+        enum libNames = "libcsfml-window.so.2.2";
     else
         static assert( 0, "Need to implement SFML2 Window libNames for this operating system." );
 }
@@ -66,7 +66,13 @@ enum {
     sfEvtJoystickButtonReleased,
     sfEvtJoystickMoved,
     sfEvtJoystickConnected,
-    sfEvtJoystickDisconnected
+    sfEvtJoystickDisconnected,
+    sfEvtTouchBegan,
+    sfEvtTouchMoved,
+    sfEvtTouchEnded,
+    sfEvtSensorChanged,
+
+    sfEvtCount
 }
 
 struct sfKeyEvent {
@@ -127,6 +133,21 @@ struct sfSizeEvent {
     uint height;
 }
 
+struct sfTouchEvent {
+    sfEventType type;
+    uint finger;
+    int x;
+    int y;
+}
+
+struct sfSensorEvent {
+    sfEventType type;
+    sfSensorType sensorType;
+    float x;
+    float y;
+    float z;
+}
+
 union sfEvent {
     sfEventType type;
     sfSizeEvent size;
@@ -138,6 +159,8 @@ union sfEvent {
     sfJoystickMoveEvent joystickMove;
     sfJoystickButtonEvent joystickButton;
     sfJoystickConnectEvent joystickConnect;
+    sfTouchEvent touch;
+    sfSensorEvent sensor;
 }
 
 alias sfJoystickAxis = int;
@@ -157,6 +180,13 @@ enum {
     sfJoystickCount = 8,
     sfJoystickButtonCount = 32,
     sfJoystickAxisCount = 8,
+}
+
+// Window/JoystickIdentification.h
+struct sfJoystickIdentification {
+    const( char )* name;
+    uint vendorId;
+    uint productId;
 }
 
 // Window/Keyboard.h
@@ -277,7 +307,20 @@ enum {
     sfMouseButtonCount,
 }
 
-// Window/VideoMode
+// Window/Sensor.h
+alias sfSensorType = int;
+enum {
+    sfSensorAccelerometer,
+    sfSensorGyroscope,
+    sfSensorMagnetometer,
+    sfSensorGravity,
+    sfSensorUserAcceleration,
+    sfSensorOrientation,
+
+    sfSensorCount
+}
+
+// Window/VideoMode.h
 struct sfVideoMode {
     uint width;
     uint height;
@@ -285,6 +328,7 @@ struct sfVideoMode {
 }
 
 // Window/Window.h
+alias sfWindowStyle = uint;
 enum : uint {
     sfNone = 0,
     sfTitlebar = 1 << 0,
@@ -324,6 +368,7 @@ extern( C ) @nogc nothrow {
     alias da_sfJoystick_hasAxis = sfBool function( uint, sfJoystickAxis );
     alias da_sfJoystick_isButtonPressed = sfBool function( uint, uint );
     alias da_sfJoystick_getAxisPosition = float function( uint, sfJoystickAxis );
+    alias da_sfJoystick_getIdentification = sfJoystickIdentification function( uint );
     alias da_sfJoystick_update = void function();
 
     // Window/Keyboard.h
@@ -333,6 +378,15 @@ extern( C ) @nogc nothrow {
     alias da_sfMouse_isButtonPressed = sfBool function( sfMouseButton );
     alias da_sfMouse_getPosition = sfVector2i function( const( sfWindow )* );
     alias da_sfMouse_setPosition = void function( sfVector2i,const( sfWindow )* );
+
+    // Window/Sensor.h
+    alias da_sfSensor_isAvailable = sfBool function( sfSensorType );
+    alias da_sfSensor_setEnabled = void function( sfSensorType,sfBool );
+    alias da_sfSensor_getValue = sfVector3f function( sfSensorType );
+
+    // Window/Touch.h
+    alias da_sfTouch_isDown = sfBool function( uint );
+    alias da_sfTouch_getPosition = sfVector2i function( uint, const( sfWindow )* );
 
     // Window/VideoMode.h
     alias da_sfVideoMode_getDesktopMode = sfVideoMode function();
@@ -359,6 +413,8 @@ extern( C ) @nogc nothrow {
     alias da_sfWindow_setVerticalSyncEnabled = void function( sfWindow*,sfBool );
     alias da_sfWindow_setKeyRepeatEnabled = void function( sfWindow*,sfBool );
     alias da_sfWindow_setActive = sfBool function( sfWindow*,sfBool );
+    alias da_sfWindow_requestFocus = void function( sfWindow* );
+    alias da_sfWindow_hasFocus = void function( const( sfWindow )* );
     alias da_sfWindow_display = void function( sfWindow* );
     alias da_sfWindow_setFramerateLimit = void function( sfWindow*,uint );
     alias da_sfWindow_setJoystickThreshold = void function( sfWindow*,float );
@@ -375,6 +431,7 @@ __gshared {
     da_sfJoystick_hasAxis sfJoystick_hasAxis;
     da_sfJoystick_isButtonPressed sfJoystick_isButtonPressed;
     da_sfJoystick_getAxisPosition sfJoystick_getAxisPosition;
+    da_sfJoystick_getIdentification sfJoystick_getIdentification;
     da_sfJoystick_update sfJoystick_update;
 
     da_sfKeyboard_isKeyPressed sfKeyboard_isKeyPressed;
@@ -382,6 +439,13 @@ __gshared {
     da_sfMouse_isButtonPressed sfMouse_isButtonPressed;
     da_sfMouse_getPosition sfMouse_getPosition;
     da_sfMouse_setPosition sfMouse_setPosition;
+
+    da_sfSensor_isAvailable sfSensor_isAvailable;
+    da_sfSensor_setEnabled sfSensor_setEnabled;
+    da_sfSensor_getValue sfSensor_getValue;
+
+    da_sfTouch_isDown sfTouch_isDown;
+    da_sfTouch_getPosition sfTouch_getPosition;
 
     da_sfVideoMode_getDesktopMode sfVideoMode_getDesktopMode;
     da_sfVideoMode_getFullscreenModes sfVideoMode_getFullscreenModes;
@@ -406,6 +470,8 @@ __gshared {
     da_sfWindow_setVerticalSyncEnabled sfWindow_setVerticalSyncEnabled;
     da_sfWindow_setKeyRepeatEnabled sfWindow_setKeyRepeatEnabled;
     da_sfWindow_setActive sfWindow_setActive;
+    da_sfWindow_requestFocus sfWindow_requestFocus;
+    da_sfWindow_hasFocus sfWindow_hasFocus;
     da_sfWindow_display sfWindow_display;
     da_sfWindow_setFramerateLimit sfWindow_setFramerateLimit;
     da_sfWindow_setJoystickThreshold sfWindow_setJoystickThreshold;
@@ -426,11 +492,17 @@ class DerelictSFML2WindowLoader : SharedLibLoader {
         bindFunc( cast( void** )&sfJoystick_hasAxis, "sfJoystick_hasAxis" );
         bindFunc( cast( void** )&sfJoystick_isButtonPressed, "sfJoystick_isButtonPressed" );
         bindFunc( cast( void** )&sfJoystick_getAxisPosition, "sfJoystick_getAxisPosition" );
+        bindFunc( cast( void** )&sfJoystick_getIdentification, "sfJoystick_getIdentification" );
         bindFunc( cast( void** )&sfJoystick_update, "sfJoystick_update" );
         bindFunc( cast( void** )&sfKeyboard_isKeyPressed, "sfKeyboard_isKeyPressed" );
         bindFunc( cast( void** )&sfMouse_isButtonPressed, "sfMouse_isButtonPressed" );
         bindFunc( cast( void** )&sfMouse_getPosition, "sfMouse_getPosition" );
         bindFunc( cast( void** )&sfMouse_setPosition, "sfMouse_setPosition" );
+        bindFunc( cast( void** )&sfSensor_isAvailable, "sfSensor_isAvailable" );
+        bindFunc( cast( void** )&sfSensor_setEnabled, "sfSensor_setEnabled" );
+        bindFunc( cast( void** )&sfSensor_getValue, "sfSensor_getValue" );
+        bindFunc( cast( void** )&sfTouch_isDown, "sfTouch_isDown" );
+        bindFunc( cast( void** )&sfTouch_getPosition, "sfTouch_getPosition" );
         bindFunc( cast( void** )&sfVideoMode_getDesktopMode, "sfVideoMode_getDesktopMode" );
         bindFunc( cast( void** )&sfVideoMode_getFullscreenModes, "sfVideoMode_getFullscreenModes" );
         bindFunc( cast( void** )&sfVideoMode_isValid, "sfVideoMode_isValid" );
@@ -453,6 +525,8 @@ class DerelictSFML2WindowLoader : SharedLibLoader {
         bindFunc( cast( void** )&sfWindow_setVerticalSyncEnabled, "sfWindow_setVerticalSyncEnabled" );
         bindFunc( cast( void** )&sfWindow_setKeyRepeatEnabled, "sfWindow_setKeyRepeatEnabled" );
         bindFunc( cast( void** )&sfWindow_setActive, "sfWindow_setActive" );
+        bindFunc( cast( void** )&sfWindow_requestFocus, "sfWindow_requestFocus" );
+        bindFunc( cast( void** )&sfWindow_hasFocus, "sfWindow_hasFocus" );
         bindFunc( cast( void** )&sfWindow_display, "sfWindow_display" );
         bindFunc( cast( void** )&sfWindow_setFramerateLimit, "sfWindow_setFramerateLimit" );
         bindFunc( cast( void** )&sfWindow_setJoystickThreshold, "sfWindow_setJoystickThreshold" );
