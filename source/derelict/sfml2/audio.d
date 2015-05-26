@@ -337,7 +337,7 @@ class DerelictSFML2AudioLoader : SharedLibLoader {
 
     protected override void configureMinimumVersion( SharedLibVersion minorVersion ) {
         if( minorVersion.major == 2 && minorVersion.minor <= 1 ) {
-                missingSymbolCallback = &allowSFML_2_0_1;
+                missingSymbolCallback = &allowSFML_2_1;
         }
     }
 
@@ -457,7 +457,7 @@ class DerelictSFML2AudioLoader : SharedLibLoader {
         bindFunc( cast( void** )&sfSoundStream_getPlayingOffset, "sfSoundStream_getPlayingOffset" );
     }
 
-    private ShouldThrow allowSFML_2_0_1( string symbolName ) {
+    private ShouldThrow allowSFML_2_1( string symbolName ) {
         switch( symbolName ) {
             case "sfListener_setUpVector": break;
             case "sfListener_getUpVector": break;

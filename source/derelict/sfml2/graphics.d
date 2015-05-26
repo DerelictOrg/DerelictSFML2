@@ -1029,10 +1029,10 @@ class DerelictSFML2GraphicsLoader : SharedLibLoader {
     protected override void configureMinimumVersion( SharedLibVersion minorVersion ) {
         if( minorVersion.major == 2 ) {
             if( minorVersion.minor == 1 ) {
-                missingSymbolCallback = &allowSFML_2_0_1;
+                missingSymbolCallback = &allowSFML_2_1;
             }
             else if( minorVersion.minor == 0 ) {
-                missingSymbolCallback = &allowSFML_2_0_0;
+                missingSymbolCallback = &allowSFML_2_0;
             }
         }
     }
@@ -1423,15 +1423,15 @@ class DerelictSFML2GraphicsLoader : SharedLibLoader {
         bindFunc( cast( void** )&sfView_zoom, "sfView_zoom" );
     }
 
-    private ShouldThrow allowSFML_2_0_0( string symbolName ) {
+    private ShouldThrow allowSFML_2_0( string symbolName ) {
         if( symbolName == "sfRenderTexture_setRepeated" ||
                 symbolName == "sfRenderTexture_isRepeated") {
             return ShouldThrow.No;
         }
-        return allowSFML_2_0_1( symbolName );
+        return allowSFML_2_1( symbolName );
     }
 
-    private ShouldThrow allowSFML_2_0_1( string symbolName ) {
+    private ShouldThrow allowSFML_2_1( string symbolName ) {
         switch( symbolName ) {
             case "sfFont_getUnderlinePosition": break;
             case "sfFont_getUnderlineThickness": break;

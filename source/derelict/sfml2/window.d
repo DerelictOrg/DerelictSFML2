@@ -487,7 +487,7 @@ class DerelictSFML2WindowLoader : SharedLibLoader {
 
     protected override void configureMinimumVersion( SharedLibVersion minorVersion ) {
         if( minorVersion.major == 2 && minorVersion.minor <= 1 ) {
-                missingSymbolCallback = &allowSFML_2_0_1;
+                missingSymbolCallback = &allowSFML_2_1;
         }
     }
 
@@ -541,7 +541,7 @@ class DerelictSFML2WindowLoader : SharedLibLoader {
         bindFunc( cast( void** )&sfWindow_getSystemHandle, "sfWindow_getSystemHandle" );
     }
 
-    private ShouldThrow allowSFML_2_0_1( string symbolName ) {
+    private ShouldThrow allowSFML_2_1( string symbolName ) {
         switch( symbolName ) {
             case "sfJoystick_getIdentification": break;
             case "sfSensor_isAvailable": break;
