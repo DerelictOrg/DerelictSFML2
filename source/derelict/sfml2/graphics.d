@@ -27,11 +27,13 @@ DEALINGS IN THE SOFTWARE.
 */
 module derelict.sfml2.graphics;
 
+public import derelict.util.loader;
+
 private {
-    import derelict.util.loader;
-    import derelict.util.system;
-    import derelict.sfml2.system;
-    import derelict.sfml2.window;
+    import derelict.util.exception,
+           derelict.util.system;
+    import derelict.sfml2.system,
+           derelict.sfml2.window;
 
     static if( Derelict_OS_Windows )
         enum libNames = "csfml-graphics-2.2.dll,csfml-graphics-2.dll";
@@ -1024,6 +1026,17 @@ class DerelictSFML2GraphicsLoader : SharedLibLoader {
         super( libNames );
     }
 
+    protected override void configureMinimumVersion( SharedLibVersion minorVersion ) {
+        if( minorVersion.major == 2 ) {
+            if( minorVersion.minor == 1 ) {
+                missingSymbolCallback = &allowSFML_2_0_1;
+            }
+            else if( minorVersion.minor == 0 ) {
+                missingSymbolCallback = &allowSFML_2_0_0;
+            }
+        }
+    }
+
     protected override void loadSymbols() {
         bindFunc( cast( void** )&sfCircleShape_create, "sfCircleShape_create" );
         bindFunc( cast( void** )&sfCircleShape_copy, "sfCircleShape_copy" );
@@ -1408,6 +1421,24 @@ class DerelictSFML2GraphicsLoader : SharedLibLoader {
         bindFunc( cast( void** )&sfView_move, "sfView_move" );
         bindFunc( cast( void** )&sfView_rotate, "sfView_rotate" );
         bindFunc( cast( void** )&sfView_zoom, "sfView_zoom" );
+    }
+
+    private ShouldThrow allowSFML_2_0_0( string symbolName ) {
+        return allowSFML_2_0_1( symbolName );
+    }
+
+    private ShouldThrow allowSFML_2_0_1( string symbolName ) {
+        switch( symbolName ) {
+            case "sfFont_getUnderlinePosition": break;
+            case "sfFont_getUnderlineThickness": break;
+            case "sfFont_getInfo": break;
+            case "sfRenderWindow_requestFocus": break;
+            case "sfRenderWindow_hasFocus": break;
+            case "sfTouch_getPositionRenderWindow": break;
+            default: return ShouldThrow.Yes;
+
+        }
+        return ShouldThrow.No;
     }
 }
 
