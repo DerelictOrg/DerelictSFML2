@@ -27,8 +27,9 @@ DEALINGS IN THE SOFTWARE.
 */
 module derelict.sfml2.system;
 
+public import derelict.util.loader;
+
 private {
-    import derelict.util.loader;
     import derelict.util.system;
 
     static if(  Derelict_OS_Windows )
@@ -170,6 +171,8 @@ class DerelictSFML2SystemLoader : SharedLibLoader {
     public this() {
         super(libNames );
     }
+
+    protected override void configureMinimumVersion( SharedLibVersion minorVersion ) {}
 
     protected override void loadSymbols() {
         bindFunc( cast( void** )&sfClock_create, "sfClock_create" );

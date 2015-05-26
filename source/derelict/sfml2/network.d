@@ -27,8 +27,9 @@ DEALINGS IN THE SOFTWARE.
 */
 module derelict.sfml2.network;
 
+public import derelict.util.loader;
+
 private {
-    import derelict.util.loader;
     import derelict.util.system;
     import derelict.sfml2.system;
 
@@ -461,6 +462,8 @@ class DerelictSFML2NetworkLoader : SharedLibLoader {
     public this() {
         super( libNames );
     }
+
+    protected override void configureMinimumVersion( SharedLibVersion minorVersion ) {}
 
     protected override void loadSymbols() {
         bindFunc( cast( void** )&sfFtpListingResponse_destroy, "sfFtpListingResponse_destroy" );
