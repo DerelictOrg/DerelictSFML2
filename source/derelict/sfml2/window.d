@@ -27,9 +27,11 @@ DEALINGS IN THE SOFTWARE.
 */
 module derelict.sfml2.window;
 
+public import derelict.util.loader;
+
 private {
-    import derelict.util.loader;
-    import derelict.util.system;
+    import derelict.util.exception,
+           derelict.util.system;
     import derelict.sfml2.system;
 
     static if( Derelict_OS_Windows )
@@ -483,6 +485,17 @@ class DerelictSFML2WindowLoader : SharedLibLoader {
         super( libNames );
     }
 
+    protected override void configureMinimumVersion( SharedLibVersion minorVersion ) {
+        if( minorVersion.major == 2 ) {
+            if( minorVersion.minor == 1 ) {
+                missingSymbolCallback = &allowSFML_2_0_1;
+            }
+            else if( minorVersion.minor == 0 ) {
+                missingSymbolCallback = &allowSFML_2_0_0;
+            }
+        }
+    }
+
     protected override void loadSymbols() {
         bindFunc( cast( void** )&sfContext_create, "sfContext_create" );
         bindFunc( cast( void** )&sfContext_destroy, "sfContext_destroy" );
@@ -531,6 +544,26 @@ class DerelictSFML2WindowLoader : SharedLibLoader {
         bindFunc( cast( void** )&sfWindow_setFramerateLimit, "sfWindow_setFramerateLimit" );
         bindFunc( cast( void** )&sfWindow_setJoystickThreshold, "sfWindow_setJoystickThreshold" );
         bindFunc( cast( void** )&sfWindow_getSystemHandle, "sfWindow_getSystemHandle" );
+    }
+
+    private ShouldThrow allowSFML_2_0_0( string symbolName ) {
+        return allowSFML_2_0_1( symbolName );
+    }
+
+    private ShouldThrow allowSFML_2_0_1( string symbolName ) {
+        switch( symbolName ) {
+            case "sfJoystick_getIdentification": break;
+            case "sfSensor_isAvailable": break;
+            case "sfSensor_setEnabled": break;
+            case "sfSensor_getValue": break;
+            case "sfTouch_isDown": break;
+            case "sfTouch_getPosition": break;
+            case "sfWindow_requestFocus": break;
+            case "sfWindow_hasFocus": break;
+            default: return ShouldThrow.Yes;
+
+        }
+        return ShouldThrow.No;
     }
 }
 
