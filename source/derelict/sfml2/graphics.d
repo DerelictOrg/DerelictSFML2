@@ -1424,6 +1424,10 @@ class DerelictSFML2GraphicsLoader : SharedLibLoader {
     }
 
     private ShouldThrow allowSFML_2_0_0( string symbolName ) {
+        if( symbolName == "sfRenderTexture_setRepeated" ||
+                symbolName == "sfRenderTexture_isRepeated") {
+            return ShouldThrow.No;
+        }
         return allowSFML_2_0_1( symbolName );
     }
 
