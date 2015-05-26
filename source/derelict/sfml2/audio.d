@@ -33,11 +33,11 @@ private {
     import derelict.sfml2.system;
 
     static if( Derelict_OS_Windows )
-        enum libNames = "csfml-audio-2.dll";
+        enum libNames = "csfml-audio-2.2.dll";
     else static if( Derelict_OS_Mac )
-        enum libNames = "libcsfml-audio.2.dylib";
+        enum libNames = "libcsfml-audio.2.2.dylib";
     else static if( Derelict_OS_Posix )
-        enum libNames = "libcsfml-audio.so.2";
+        enum libNames = "libcsfml-audio.so.2.2";
     else
         static assert( 0, "Need to implement SFML2 Audio libNames for this operating system." );
 }
@@ -85,6 +85,8 @@ extern( C ) @nogc nothrow {
     alias da_sfListener_getPosition = sfVector3f function();
     alias da_sfListener_setDirection = void function( sfVector3f );
     alias da_sfListener_getDirection = sfVector3f function();
+    alias da_sfListener_setUpVector = void function( sfVector3f );
+    alias da_sfListener_getUpVector = sfVector3f function();
 
     // Audio/Music.h
     alias da_sfMusic_createFromFile = sfMusic* function( const( char )* );
@@ -167,10 +169,15 @@ extern( C ) @nogc nothrow {
     // Audio/SoundRecorder.h
     alias da_sfSoundRecorder_create = sfSoundRecorder* function( sfSoundRecorderStartCallback,sfSoundRecorderProcessCallback,sfSoundRecorderStopCallback,void* );
     alias da_sfSoundRecorder_destroy = void function( sfSoundRecorder* );
-    alias da_sfSoundRecorder_start = void function( sfSoundRecorder*,uint );
+    alias da_sfSoundRecorder_start = sfBool function( sfSoundRecorder*,uint );
     alias da_sfSoundRecorder_stop = void function( sfSoundRecorder* );
     alias da_sfSoundRecorder_getSampleRate = uint function( const( sfSoundRecorder )* );
     alias da_sfSoundRecorder_isAvailable = sfBool function();
+    alias da_sfSoundRecorder_setProcessingInterval = void function( sfSoundRecorder*,sfTime );
+    alias da_sfSoundRecorder_getAvailableDevices = const( char )** function( size_t* );
+    alias da_sfSoundRecorder_getDefaultDevice = const( char )* function();
+    alias da_sfSoundRecorder_setDevice = sfBool function( sfSoundRecorder*, const( char )* );
+    alias da_sfSoundRecorder_getDevice = const( char )* function( sfSoundRecorder* );
 
     // Audio/SoundStream.h
     alias da_sfSoundStream_create = sfSoundStream* function( sfSoundStreamGetDataCallback,sfSoundStreamSeekCallback,uint,int,void* );
@@ -206,6 +213,8 @@ __gshared {
     da_sfListener_getPosition sfListener_getPosition;
     da_sfListener_setDirection sfListener_setDirection;
     da_sfListener_getDirection sfListener_getDirection;
+    da_sfListener_setUpVector sfListener_setUpVector;
+    da_sfListener_getUpVector sfListener_getUpVector;
 
     da_sfMusic_createFromFile sfMusic_createFromFile;
     da_sfMusic_createFromMemory sfMusic_createFromMemory;
@@ -287,6 +296,11 @@ __gshared {
     da_sfSoundRecorder_stop sfSoundRecorder_stop;
     da_sfSoundRecorder_getSampleRate sfSoundRecorder_getSampleRate;
     da_sfSoundRecorder_isAvailable sfSoundRecorder_isAvailable;
+    da_sfSoundRecorder_setProcessingInterval sfSoundRecorder_setProcessingInterval;
+    da_sfSoundRecorder_getAvailableDevices sfSoundRecorder_getAvailableDevices;
+    da_sfSoundRecorder_getDefaultDevice sfSoundRecorder_getDefaultDevice;
+    da_sfSoundRecorder_setDevice sfSoundRecorder_setDevice;
+    da_sfSoundRecorder_getDevice sfSoundRecorder_getDevice;
 
     da_sfSoundStream_create sfSoundStream_create;
     da_sfSoundStream_destroy sfSoundStream_destroy;
@@ -326,6 +340,8 @@ class DerelictSFML2AudioLoader : SharedLibLoader {
         bindFunc( cast( void** )&sfListener_getPosition, "sfListener_getPosition" );
         bindFunc( cast( void** )&sfListener_setDirection, "sfListener_setDirection" );
         bindFunc( cast( void** )&sfListener_getDirection, "sfListener_getDirection" );
+        bindFunc( cast( void** )&sfListener_setUpVector, "sfListener_setUpVector" );
+        bindFunc( cast( void** )&sfListener_getUpVector, "sfListener_getUpVector" );
         bindFunc( cast( void** )&sfMusic_createFromFile, "sfMusic_createFromFile" );
         bindFunc( cast( void** )&sfMusic_createFromMemory, "sfMusic_createFromMemory" );
         bindFunc( cast( void** )&sfMusic_createFromStream, "sfMusic_createFromStream" );
@@ -402,6 +418,11 @@ class DerelictSFML2AudioLoader : SharedLibLoader {
         bindFunc( cast( void** )&sfSoundRecorder_stop, "sfSoundRecorder_stop" );
         bindFunc( cast( void** )&sfSoundRecorder_getSampleRate, "sfSoundRecorder_getSampleRate" );
         bindFunc( cast( void** )&sfSoundRecorder_isAvailable, "sfSoundRecorder_isAvailable" );
+        bindFunc( cast( void** )&sfSoundRecorder_setProcessingInterval, "sfSoundRecorder_setProcessingInterval" );
+        bindFunc( cast( void** )&sfSoundRecorder_getAvailableDevices, "sfSoundRecorder_getAvailableDevices" );
+        bindFunc( cast( void** )&sfSoundRecorder_getDefaultDevice, "sfSoundRecorder_getDefaultDevice" );
+        bindFunc( cast( void** )&sfSoundRecorder_setDevice, "sfSoundRecorder_setDevice" );
+        bindFunc( cast( void** )&sfSoundRecorder_getDevice, "sfSoundRecorder_getDevice" );
         bindFunc( cast( void** )&sfSoundStream_create, "sfSoundStream_create" );
         bindFunc( cast( void** )&sfSoundStream_destroy, "sfSoundStream_destroy" );
         bindFunc( cast( void** )&sfSoundStream_play, "sfSoundStream_play" );

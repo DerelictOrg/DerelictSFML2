@@ -33,11 +33,11 @@ private {
     import derelict.sfml2.system;
 
     static if( Derelict_OS_Windows )
-        enum libNames = "csfml-network-2.dll";
+        enum libNames = "csfml-network-2.2.dll";
     else static if( Derelict_OS_Mac )
-        enum libNames = "libcsfml-network.2.dylib";
+        enum libNames = "libcsfml-network.2.2.dylib";
     else static if( Derelict_OS_Posix )
-        enum libNames = "libcsfml-network.so.2";
+        enum libNames = "libcsfml-network.so.2.2";
     else
         static assert( 0, "Need to implement SFML2 Network libNames for this operating system." );
 }
@@ -117,6 +117,8 @@ enum {
     sfHttpGet,
     sfHttpPost,
     sfHttpHead,
+    sfHttpPut,
+    sfHttpDelete
 }
 
 alias sfHttpStatus = int;
