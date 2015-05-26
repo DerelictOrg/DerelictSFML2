@@ -27,9 +27,11 @@ DEALINGS IN THE SOFTWARE.
 */
 module derelict.sfml2.audio;
 
+public import derelict.util.loader;
+
 private {
-    import derelict.util.loader;
-    import derelict.util.system;
+    import derelict.util.exception,
+           derelict.util.system;
     import derelict.sfml2.system;
 
     static if( Derelict_OS_Windows )
@@ -333,6 +335,17 @@ class DerelictSFML2AudioLoader : SharedLibLoader {
         super( libNames );
     }
 
+    protected override void configureMinimumVersion( SharedLibVersion minorVersion ) {
+        if( minorVersion.major == 2 ) {
+            if( minorVersion.minor == 1 ) {
+                missingSymbolCallback = &allowSFML_2_0_1;
+            }
+            else if( minorVersion.minor == 0 ) {
+                missingSymbolCallback = &allowSFML_2_0_0;
+            }
+        }
+    }
+
     protected override void loadSymbols() {
         bindFunc( cast( void** )&sfListener_setGlobalVolume, "sfListener_setGlobalVolume" );
         bindFunc( cast( void** )&sfListener_getGlobalVolume, "sfListener_getGlobalVolume" );
@@ -447,6 +460,25 @@ class DerelictSFML2AudioLoader : SharedLibLoader {
         bindFunc( cast( void** )&sfSoundStream_getAttenuation, "sfSoundStream_getAttenuation" );
         bindFunc( cast( void** )&sfSoundStream_getLoop, "sfSoundStream_getLoop" );
         bindFunc( cast( void** )&sfSoundStream_getPlayingOffset, "sfSoundStream_getPlayingOffset" );
+    }
+
+    private ShouldThrow allowSFML_2_0_0( string symbolName ) {
+        return allowSFML_2_0_1( symbolName );
+    }
+
+    private ShouldThrow allowSFML_2_0_1( string symbolName ) {
+        switch( symbolName ) {
+            case "sfListener_setUpVector": break;
+            case "sfListener_getUpVector": break;
+            case "sfSoundRecorder_setProcessingInterval": break;
+            case "sfSoundRecorder_getAvailableDevices": break;
+            case "sfSoundRecorder_getDefaultDevice": break;
+            case "sfSoundRecorder_setDevice": break;
+            case "sfSoundRecorder_getDevice": break;
+            default: return ShouldThrow.Yes;
+
+        }
+        return ShouldThrow.No;
     }
 }
 
