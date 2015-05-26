@@ -336,13 +336,8 @@ class DerelictSFML2AudioLoader : SharedLibLoader {
     }
 
     protected override void configureMinimumVersion( SharedLibVersion minorVersion ) {
-        if( minorVersion.major == 2 ) {
-            if( minorVersion.minor == 1 ) {
+        if( minorVersion.major == 2 && minorVersion.minor <= 1 ) {
                 missingSymbolCallback = &allowSFML_2_0_1;
-            }
-            else if( minorVersion.minor == 0 ) {
-                missingSymbolCallback = &allowSFML_2_0_0;
-            }
         }
     }
 
@@ -460,10 +455,6 @@ class DerelictSFML2AudioLoader : SharedLibLoader {
         bindFunc( cast( void** )&sfSoundStream_getAttenuation, "sfSoundStream_getAttenuation" );
         bindFunc( cast( void** )&sfSoundStream_getLoop, "sfSoundStream_getLoop" );
         bindFunc( cast( void** )&sfSoundStream_getPlayingOffset, "sfSoundStream_getPlayingOffset" );
-    }
-
-    private ShouldThrow allowSFML_2_0_0( string symbolName ) {
-        return allowSFML_2_0_1( symbolName );
     }
 
     private ShouldThrow allowSFML_2_0_1( string symbolName ) {
