@@ -377,6 +377,7 @@ extern( C ) @nogc nothrow {
 
     // Graphics/RenderWindow.h
     alias da_sfRenderWindow_create = sfRenderWindow* function( sfVideoMode,const( char )*,sfUint32,const( sfContextSettings )* );
+    alias da_sfRenderWindow_createUnicode = sfRenderWindow* function( sfVideoMode,const( dchar )*,sfUint32,const( sfContextSettings )* );
     alias da_sfRenderWindow_createFromHandle = sfRenderWindow* function( sfWindowHandle,const( sfContextSettings )* );
     alias da_sfRenderWindow_destroy = void function( sfRenderWindow* );
     alias da_sfRenderWindow_close = void function( sfRenderWindow* );
@@ -789,6 +790,7 @@ __gshared {
     da_sfRenderTexture_isRepeated sfRenderTexture_isRepeated;
 
     da_sfRenderWindow_create sfRenderWindow_create;
+    da_sfRenderWindow_createUnicode sfRenderWindow_createUnicode;
     da_sfRenderWindow_createFromHandle sfRenderWindow_createFromHandle;
     da_sfRenderWindow_destroy sfRenderWindow_destroy;
     da_sfRenderWindow_close sfRenderWindow_close;
@@ -1201,6 +1203,7 @@ class DerelictSFML2GraphicsLoader : SharedLibLoader {
         bindFunc( cast( void** )&sfRenderTexture_setRepeated, "sfRenderTexture_setRepeated" );
         bindFunc( cast( void** )&sfRenderTexture_isRepeated, "sfRenderTexture_isRepeated" );
         bindFunc( cast( void** )&sfRenderWindow_create, "sfRenderWindow_create" );
+        bindFunc( cast( void** )&sfRenderWindow_createUnicode, "sfRenderWindow_createUnicode" );
         bindFunc( cast( void** )&sfRenderWindow_createFromHandle, "sfRenderWindow_createFromHandle" );
         bindFunc( cast( void** )&sfRenderWindow_destroy, "sfRenderWindow_destroy" );
         bindFunc( cast( void** )&sfRenderWindow_close, "sfRenderWindow_close" );

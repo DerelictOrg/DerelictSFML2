@@ -397,6 +397,7 @@ extern( C ) @nogc nothrow {
 
     // Window/Window.h
     alias da_sfWindow_create = sfWindow* function( sfVideoMode,const( char )*,sfUint32,const( sfContextSettings )* );
+    alias da_sfWindow_createUnicode = sfWindow* function(sfVideoMode,const( dchar )*,sfUint32,const( sfContextSettings )*);
     alias da_sfWindow_createFromHandle = sfWindow* function( sfWindowHandle,const( sfContextSettings )* );
     alias da_sfWindow_destroy = void function( sfWindow* );
     alias da_sfWindow_close = void function( sfWindow* );
@@ -454,6 +455,7 @@ __gshared {
     da_sfVideoMode_isValid sfVideoMode_isValid;
 
     da_sfWindow_create sfWindow_create;
+    da_sfWindow_createUnicode sfWindow_createUnicode;
     da_sfWindow_createFromHandle sfWindow_createFromHandle;
     da_sfWindow_destroy sfWindow_destroy;
     da_sfWindow_close sfWindow_close;
@@ -515,6 +517,7 @@ class DerelictSFML2WindowLoader : SharedLibLoader {
         bindFunc( cast( void** )&sfVideoMode_getFullscreenModes, "sfVideoMode_getFullscreenModes" );
         bindFunc( cast( void** )&sfVideoMode_isValid, "sfVideoMode_isValid" );
         bindFunc( cast( void** )&sfWindow_create, "sfWindow_create" );
+        bindFunc( cast( void** )&sfWindow_createUnicode, "sfWindow_createUnicode" );
         bindFunc( cast( void** )&sfWindow_createFromHandle, "sfWindow_createFromHandle" );
         bindFunc( cast( void** )&sfWindow_destroy, "sfWindow_destroy" );
         bindFunc( cast( void** )&sfWindow_close, "sfWindow_close" );
