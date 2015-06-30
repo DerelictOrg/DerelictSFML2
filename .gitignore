@@ -2,3 +2,4 @@ lib
 bin
 .dub
 update.txt
+dub.selections.json
