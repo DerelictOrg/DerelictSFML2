@@ -516,13 +516,13 @@ extern( C ) @nogc nothrow {
     alias da_sfText_getTransform = sfTransform function( const( sfText )* );
     alias da_sfText_getInverseTransform = sfTransform function( const( sfText )* );
     alias da_sfText_setString = void function( sfText*,const( char )* );
-    alias da_sfText_setUnicodeString = void function( sfText*,const( sfUint32 )* );
+    alias da_sfText_setUnicodeString = void function( sfText*,const( dchar )* );
     alias da_sfText_setFont = void function( sfText*,const( sfFont )* );
     alias da_sfText_setCharacterSize = void function( sfText*,uint );
     alias da_sfText_setStyle = void function( sfText*,sfUint32 );
     alias da_sfText_setColor = void function( sfText*,sfColor );
     alias da_sfText_getString = const( char )* function( const( sfText )* );
-    alias da_sfText_getUnicodeString = const( sfUint32 )* function( const( sfText )* );
+    alias da_sfText_getUnicodeString = const( dchar )* function( const( sfText )* );
     alias da_sfText_getFont = const( sfFont )* function( const( sfText )* );
     alias da_sfText_getCharacterSize = uint function( const( sfText )* );
     alias da_sfText_getStyle = sfUint32 function( const( sfText )* );
