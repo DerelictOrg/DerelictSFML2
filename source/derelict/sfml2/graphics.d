@@ -92,10 +92,24 @@ struct sfBlendMode {
     sfBlendEquation alphaEquation;
 }
 
-extern (C) extern __gshared immutable( sfBlendMode ) sfBlendAlpha;
-extern (C) extern __gshared immutable( sfBlendMode ) sfBlendAdd;
-extern (C) extern __gshared immutable( sfBlendMode ) sfBlendMultiply;
-extern (C) extern __gshared immutable( sfBlendMode ) sfBlendNone;
+__gshared {
+    immutable( sfBlendMode ) sfBlendAlpha = sfBlendMode (
+        sfBlendFactorSrcAlpha, sfBlendFactorOneMinusSrcAlpha, sfBlendEquationAdd,
+        sfBlendFactorOne, sfBlendFactorOneMinusSrcAlpha, sfBlendEquationAdd
+    );
+    immutable( sfBlendMode ) sfBlendAdd = sfBlendMode (
+        sfBlendFactorSrcAlpha, sfBlendFactorOne, sfBlendEquationAdd,
+        sfBlendFactorOne, sfBlendFactorOne, sfBlendEquationAdd
+    );
+    immutable( sfBlendMode ) sfBlendMultiply = sfBlendMode (
+        sfBlendFactorDstColor, sfBlendFactorZero, sfBlendEquationAdd,
+        sfBlendFactorDstColor, sfBlendFactorZero, sfBlendEquationAdd
+    );
+    immutable( sfBlendMode ) sfBlendNone = sfBlendMode (
+        sfBlendFactorOne, sfBlendFactorZero, sfBlendEquationAdd,
+        sfBlendFactorOne, sfBlendFactorZero, sfBlendEquationAdd
+    );
+}
 
 // Graphics/Color.h
 struct sfColor {
