@@ -33,11 +33,11 @@ private {
     import derelict.util.system;
 
     static if(  Derelict_OS_Windows )
-        enum libNames = "csfml-system-2.2.dll,csfml-system-2.dll";
+        enum libNames = "csfml-system.dll,csfml-system-2.dll,csfml-system-2.3.dll,csfml-system-2.2.dll,csfml-system-2.1.dll,csfml-system-2.0.dll";
     else static if(  Derelict_OS_Mac )
-        enum libNames = "libcsfml-system.2.2.dylib,libcsfml-system.2.dylib";
+        enum libNames = "libcsfml-system.dylib,libcsfml-system.2.dylib,libcsfml-system.2.3.dylib,libcsfml-system.2.2.dylib,libcsfml-system.2.1.dylib,libcsfml-system.2.0.dylib";
     else static if(  Derelict_OS_Posix )
-        enum libNames = "libcsfml-system.so.2.2,libcsfml-system.so.2";
+        enum libNames = "libcsfml-system.so,libcsfml-system.so.2,libcsfml-system.so.2.3,libcsfml-system.so.2.2,libcsfml-system.so.2.1,libcsfml-system.so.2.0";
     else
         static assert(  0, "Need to implement SFML2 System libNames for this operating system." );
 }

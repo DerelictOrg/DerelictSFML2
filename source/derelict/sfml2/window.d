@@ -35,11 +35,11 @@ private {
     import derelict.sfml2.system;
 
     static if( Derelict_OS_Windows )
-        enum libNames = "csfml-window-2.2.dll,csfml-window-2.dll";
+        enum libNames = "csfml-window.dll,csfml-window-2.dll,csfml-window-2.3.dll,csfml-window-2.2.dll,csfml-window-2.1.dll,csfml-window-2.0.dll";
     else static if( Derelict_OS_Mac )
-        enum libNames = "libcsfml-window.2.2.dylib,libcsfml-window.2.dylib";
+        enum libNames = "libcsfml-window.dylib,libcsfml-window.2.dylib,libcsfml-window.2.3.dylib,libcsfml-window.2.2.dylib,libcsfml-window.2.1.dylib,libcsfml-window.2.0.dylib";
     else static if( Derelict_OS_Posix )
-        enum libNames = "libcsfml-window.so.2.2,libcsfml-window.so.2";
+        enum libNames = "libcsfml-window.so,libcsfml-window.so.2,libcsfml-window.so.2.3,libcsfml-window.so.2.2,libcsfml-window.so.2.1,libcsfml-window.so.2.0";
     else
         static assert( 0, "Need to implement SFML2 Window libNames for this operating system." );
 }

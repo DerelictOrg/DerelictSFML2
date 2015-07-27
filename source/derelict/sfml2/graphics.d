@@ -36,11 +36,11 @@ private {
            derelict.sfml2.window;
 
     static if( Derelict_OS_Windows )
-        enum libNames = "csfml-graphics-2.2.dll,csfml-graphics-2.dll";
+        enum libNames = "csfml-graphics.dll,csfml-graphics-2.dll,csfml-graphics-2.3.dll,csfml-graphics-2.2.dll,csfml-graphics-2.1.dll,csfml-graphics-2.0.dll";
     else static if( Derelict_OS_Mac )
-        enum libNames = "libcsfml-graphics.2.2.dylib,libcsfml-graphics.2.dylib";
+        enum libNames = "libcsfml-graphics.dylib,libcsfml-graphics.2.dylib,libcsfml-graphics.2.3.dylib,libcsfml-graphics.2.2.dylib,libcsfml-graphics.2.1.dylib,libcsfml-graphics.2.0.dylib";
     else static if( Derelict_OS_Posix )
-        enum libNames = "libcsfml-graphics.so.2.2,libcsfml-graphics.so.2";
+        enum libNames = "libcsfml-graphics.so,libcsfml-graphics.so.2,libcsfml-graphics.so.2.3,libcsfml-graphics.so.2.2,libcsfml-graphics.so.2.1,libcsfml-graphics.so.2.0";
     else
         static assert( 0, "Need to implement SFML2 Graphics libNames for this operating system." );
 }

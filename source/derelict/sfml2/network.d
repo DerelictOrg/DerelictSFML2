@@ -34,11 +34,11 @@ private {
     import derelict.sfml2.system;
 
     static if( Derelict_OS_Windows )
-        enum libNames = "csfml-network-2.2.dll,csfml-network-2.dll";
+        enum libNames = "csfml-network.dll,csfml-network-2.dll,csfml-network-2.3.dllcsfml-network-2.2.dll,csfml-network-2.1.dll,csfml-network-2.0.dll";
     else static if( Derelict_OS_Mac )
-        enum libNames = "libcsfml-network.2.2.dylib,libcsfml-network.2.dylib";
+        enum libNames = "libcsfml-network.dylib,libcsfml-network.2.dylib,libcsfml-network.2.3.dylib,libcsfml-network.2.2.dylib,libcsfml-network.2.1.dylib,libcsfml-network.2.0.dylib";
     else static if( Derelict_OS_Posix )
-        enum libNames = "libcsfml-network.so.2.2,libcsfml-network.so.2";
+        enum libNames = "libcsfml-network.so,libcsfml-network.so.2,libcsfml-network.so.2.3,libcsfml-network.so.2.2,libcsfml-network.so.2.1,libcsfml-network.so.2.0";
     else
         static assert( 0, "Need to implement SFML2 Network libNames for this operating system." );
 }
