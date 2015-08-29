@@ -160,6 +160,7 @@ alias sfSocketStatus = int;
 enum {
     sfSocketDone,
     sfSocketNotReady,
+    sfSocketPartial,
     sfSocketDisconnected,
     sfSocketError
 }
@@ -296,6 +297,7 @@ extern( C ) @nogc nothrow {
     alias da_sfTcpSocket_connect = sfSocketStatus function( sfTcpSocket*,sfIpAddress,ushort,sfTime );
     alias da_sfTcpSocket_disconnect = void function( sfTcpSocket* );
     alias da_sfTcpSocket_send = sfSocketStatus function( sfTcpSocket*,const( void )*,size_t );
+    alias da_sfTcpSocket_sendPartial = sfSocketStatus function( sfTcpSocket*,const( void )*,size_t,size_t* );
     alias da_sfTcpSocket_receive = sfSocketStatus function( sfTcpSocket*,void*,size_t,size_t* );
     alias da_sfTcpSocket_sendPacket = sfSocketStatus function( sfTcpSocket*,sfPacket* );
     alias da_sfTcpSocket_receivePacket = sfSocketStatus function( sfTcpSocket*,sfPacket* );
@@ -440,6 +442,7 @@ __gshared {
     da_sfTcpSocket_connect sfTcpSocket_connect;
     da_sfTcpSocket_disconnect sfTcpSocket_disconnect;
     da_sfTcpSocket_send sfTcpSocket_send;
+    da_sfTcpSocket_sendPartial sfTcpSocket_sendPartial;
     da_sfTcpSocket_receive sfTcpSocket_receive;
     da_sfTcpSocket_sendPacket sfTcpSocket_sendPacket;
     da_sfTcpSocket_receivePacket sfTcpSocket_receivePacket;
@@ -582,6 +585,7 @@ class DerelictSFML2NetworkLoader : SharedLibLoader {
         bindFunc( cast( void** )&sfTcpSocket_connect, "sfTcpSocket_connect" );
         bindFunc( cast( void** )&sfTcpSocket_disconnect, "sfTcpSocket_disconnect" );
         bindFunc( cast( void** )&sfTcpSocket_send, "sfTcpSocket_send" );
+        bindFunc( cast( void** )&sfTcpSocket_sendPartial, "sfTcpSocket_sendPartial" );
         bindFunc( cast( void** )&sfTcpSocket_receive, "sfTcpSocket_receive" );
         bindFunc( cast( void** )&sfTcpSocket_sendPacket, "sfTcpSocket_sendPacket" );
         bindFunc( cast( void** )&sfTcpSocket_receivePacket, "sfTcpSocket_receivePacket" );
