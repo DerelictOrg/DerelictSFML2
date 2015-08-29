@@ -36,11 +36,11 @@ private {
            derelict.sfml2.window;
 
     static if( Derelict_OS_Windows )
-        enum libNames = "csfml-graphics.dll,csfml-graphics-2.dll,csfml-graphics-2.3.dll,csfml-graphics-2.2.dll,csfml-graphics-2.1.dll,csfml-graphics-2.0.dll";
+        enum libNames = "csfml-graphics.dll,csfml-graphics-2.dll,csfml-graphics-2.3.dll";
     else static if( Derelict_OS_Mac )
-        enum libNames = "libcsfml-graphics.dylib,libcsfml-graphics.2.dylib,libcsfml-graphics.2.3.dylib,libcsfml-graphics.2.2.dylib,libcsfml-graphics.2.1.dylib,libcsfml-graphics.2.0.dylib";
+        enum libNames = "libcsfml-graphics.dylib,libcsfml-graphics.2.dylib,libcsfml-graphics.2.3.dylib";
     else static if( Derelict_OS_Posix )
-        enum libNames = "libcsfml-graphics.so,libcsfml-graphics.so.2,libcsfml-graphics.so.2.3,libcsfml-graphics.so.2.2,libcsfml-graphics.so.2.1,libcsfml-graphics.so.2.0";
+        enum libNames = "libcsfml-graphics.so,libcsfml-graphics.so.2,libcsfml-graphics.so.2.3";
     else
         static assert( 0, "Need to implement SFML2 Graphics libNames for this operating system." );
 }
@@ -1044,17 +1044,6 @@ class DerelictSFML2GraphicsLoader : SharedLibLoader {
         super( libNames );
     }
 
-    protected override void configureMinimumVersion( SharedLibVersion minorVersion ) {
-        if( minorVersion.major == 2 ) {
-            if( minorVersion.minor == 1 ) {
-                missingSymbolCallback = &allowSFML_2_1;
-            }
-            else if( minorVersion.minor == 0 ) {
-                missingSymbolCallback = &allowSFML_2_0;
-            }
-        }
-    }
-
     protected override void loadSymbols() {
         bindFunc( cast( void** )&sfCircleShape_create, "sfCircleShape_create" );
         bindFunc( cast( void** )&sfCircleShape_copy, "sfCircleShape_copy" );
@@ -1440,28 +1429,6 @@ class DerelictSFML2GraphicsLoader : SharedLibLoader {
         bindFunc( cast( void** )&sfView_move, "sfView_move" );
         bindFunc( cast( void** )&sfView_rotate, "sfView_rotate" );
         bindFunc( cast( void** )&sfView_zoom, "sfView_zoom" );
-    }
-
-    private ShouldThrow allowSFML_2_0( string symbolName ) {
-        if( symbolName == "sfRenderTexture_setRepeated" ||
-                symbolName == "sfRenderTexture_isRepeated") {
-            return ShouldThrow.No;
-        }
-        return allowSFML_2_1( symbolName );
-    }
-
-    private ShouldThrow allowSFML_2_1( string symbolName ) {
-        switch( symbolName ) {
-            case "sfFont_getUnderlinePosition": break;
-            case "sfFont_getUnderlineThickness": break;
-            case "sfFont_getInfo": break;
-            case "sfRenderWindow_requestFocus": break;
-            case "sfRenderWindow_hasFocus": break;
-            case "sfTouch_getPositionRenderWindow": break;
-            default: return ShouldThrow.Yes;
-
-        }
-        return ShouldThrow.No;
     }
 }
 
