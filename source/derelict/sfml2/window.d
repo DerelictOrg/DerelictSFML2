@@ -319,6 +319,12 @@ enum {
     sfMouseButtonCount,
 }
 
+alias int sfMouseWheel;
+enum {
+    sfMouseVerticalWheel,
+    sfMouseHorizontalWheel,
+}
+
 // Window/Sensor.h
 alias sfSensorType = int;
 enum {
@@ -350,12 +356,19 @@ enum : uint {
     sfDefaultStyle = sfTitlebar | sfResize | sfClose,
 }
 
+alias sfContextAttribute {
+    sfContextDefault = 0,
+    sfContextCore = 1 << 0,
+    sfContextDebug = 1 << 2,
+}
+
 struct sfContextSettings {
     uint depthBits;
     uint stencilBits;
     uint antialiasingLevel;
     uint majorVersion;
     uint minorVersion;
+    sfUint32 attributeFlags;
 }
 
 // Window/WindowHandle.h
