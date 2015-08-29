@@ -35,11 +35,11 @@ private {
     import derelict.sfml2.system;
 
     static if( Derelict_OS_Windows )
-        enum libNames = "csfml-window.dll,csfml-window-2.dll,csfml-window-2.3.dll,csfml-window-2.2.dll,csfml-window-2.1.dll,csfml-window-2.0.dll";
+        enum libNames = "csfml-window.dll,csfml-window-2.dll,csfml-window-2.3.dll";
     else static if( Derelict_OS_Mac )
-        enum libNames = "libcsfml-window.dylib,libcsfml-window.2.dylib,libcsfml-window.2.3.dylib,libcsfml-window.2.2.dylib,libcsfml-window.2.1.dylib,libcsfml-window.2.0.dylib";
+        enum libNames = "libcsfml-window.dylib,libcsfml-window.2.dylib,libcsfml-window.2.3.dylib";
     else static if( Derelict_OS_Posix )
-        enum libNames = "libcsfml-window.so,libcsfml-window.so.2,libcsfml-window.so.2.3,libcsfml-window.so.2.2,libcsfml-window.so.2.1,libcsfml-window.so.2.0";
+        enum libNames = "libcsfml-window.so,libcsfml-window.so.2,libcsfml-window.so.2.3";
     else
         static assert( 0, "Need to implement SFML2 Window libNames for this operating system." );
 }
@@ -487,12 +487,6 @@ class DerelictSFML2WindowLoader : SharedLibLoader {
         super( libNames );
     }
 
-    protected override void configureMinimumVersion( SharedLibVersion minorVersion ) {
-        if( minorVersion.major == 2 && minorVersion.minor <= 1 ) {
-                missingSymbolCallback = &allowSFML_2_1;
-        }
-    }
-
     protected override void loadSymbols() {
         bindFunc( cast( void** )&sfContext_create, "sfContext_create" );
         bindFunc( cast( void** )&sfContext_destroy, "sfContext_destroy" );
@@ -542,22 +536,6 @@ class DerelictSFML2WindowLoader : SharedLibLoader {
         bindFunc( cast( void** )&sfWindow_setFramerateLimit, "sfWindow_setFramerateLimit" );
         bindFunc( cast( void** )&sfWindow_setJoystickThreshold, "sfWindow_setJoystickThreshold" );
         bindFunc( cast( void** )&sfWindow_getSystemHandle, "sfWindow_getSystemHandle" );
-    }
-
-    private ShouldThrow allowSFML_2_1( string symbolName ) {
-        switch( symbolName ) {
-            case "sfJoystick_getIdentification": break;
-            case "sfSensor_isAvailable": break;
-            case "sfSensor_setEnabled": break;
-            case "sfSensor_getValue": break;
-            case "sfTouch_isDown": break;
-            case "sfTouch_getPosition": break;
-            case "sfWindow_requestFocus": break;
-            case "sfWindow_hasFocus": break;
-            default: return ShouldThrow.Yes;
-
-        }
-        return ShouldThrow.No;
     }
 }
 
