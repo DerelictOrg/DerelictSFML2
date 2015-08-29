@@ -33,11 +33,11 @@ private {
     import derelict.sfml2.system;
 
     static if( Derelict_OS_Windows )
-        enum libNames = "csfml-audio-2.2.dll";
+        enum libNames = "csfml-audio.dll,csfml-audio-2.dll,csfml-audio-2.2.dll";
     else static if( Derelict_OS_Mac )
-        enum libNames = "libcsfml-audio.2.2.dylib";
+        enum libNames = "libcsfml-audio.dylib,libcsfml-audio.2.dylib,libcsfml-audio.2.2.dylib";
     else static if( Derelict_OS_Posix )
-        enum libNames = "libcsfml-audio.so.2.2";
+        enum libNames = "libcsfml-audio.so,libcsfml-audio.so.2,libcsfml-audio.so.2.2";
     else
         static assert( 0, "Need to implement SFML2 Audio libNames for this operating system." );
 }
