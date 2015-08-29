@@ -34,11 +34,11 @@ private {
     import derelict.sfml2.system;
 
     static if( Derelict_OS_Windows )
-        enum libNames = "csfml-network.dll,csfml-network-2.dll,csfml-network-2.3.dllcsfml-network-2.2.dll,csfml-network-2.1.dll,csfml-network-2.0.dll";
+        enum libNames = "csfml-network.dll,csfml-network-2.dll,csfml-network-2.3.dll";
     else static if( Derelict_OS_Mac )
-        enum libNames = "libcsfml-network.dylib,libcsfml-network.2.dylib,libcsfml-network.2.3.dylib,libcsfml-network.2.2.dylib,libcsfml-network.2.1.dylib,libcsfml-network.2.0.dylib";
+        enum libNames = "libcsfml-network.dylib,libcsfml-network.2.dylib,libcsfml-network.2.3.dylib";
     else static if( Derelict_OS_Posix )
-        enum libNames = "libcsfml-network.so,libcsfml-network.so.2,libcsfml-network.so.2.3,libcsfml-network.so.2.2,libcsfml-network.so.2.1,libcsfml-network.so.2.0";
+        enum libNames = "libcsfml-network.so,libcsfml-network.so.2,libcsfml-network.so.2.3";
     else
         static assert( 0, "Need to implement SFML2 Network libNames for this operating system." );
 }
@@ -462,8 +462,6 @@ class DerelictSFML2NetworkLoader : SharedLibLoader {
     public this() {
         super( libNames );
     }
-
-    protected override void configureMinimumVersion( SharedLibVersion minorVersion ) {}
 
     protected override void loadSymbols() {
         bindFunc( cast( void** )&sfFtpListingResponse_destroy, "sfFtpListingResponse_destroy" );
