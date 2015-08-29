@@ -117,15 +117,17 @@ struct sfColor {
     sfUint8 a;
 }
 
-immutable( sfColor ) sfBlack = sfColor( 0, 0, 0, 255 );
-immutable( sfColor ) sfWhite = sfColor( 255, 255, 255, 255 );
-immutable( sfColor ) sfRed = sfColor( 255, 0, 0, 255 );
-immutable( sfColor ) sfGreen = sfColor( 0, 255, 0, 255 );
-immutable( sfColor ) sfBlue = sfColor( 0, 0, 255, 255 );
-immutable( sfColor ) sfYellow = sfColor( 255, 255, 0, 255 );
-immutable( sfColor ) sfMagenta = sfColor( 255, 0, 255, 255 );
-immutable( sfColor ) sfCyan = sfColor( 0, 255, 255, 255 );
-immutable( sfColor ) sfTransparent = sfColor( 0, 0, 0, 0 );
+__gshared {
+    immutable( sfColor ) sfBlack = sfColor( 0, 0, 0, 255 );
+    immutable( sfColor ) sfWhite = sfColor( 255, 255, 255, 255 );
+    immutable( sfColor ) sfRed = sfColor( 255, 0, 0, 255 );
+    immutable( sfColor ) sfGreen = sfColor( 0, 255, 0, 255 );
+    immutable( sfColor ) sfBlue = sfColor( 0, 0, 255, 255 );
+    immutable( sfColor ) sfYellow = sfColor( 255, 255, 0, 255 );
+    immutable( sfColor ) sfMagenta = sfColor( 255, 0, 255, 255 );
+    immutable( sfColor ) sfCyan = sfColor( 0, 255, 255, 255 );
+    immutable( sfColor ) sfTransparent = sfColor( 0, 0, 0, 0 );
+}
 
 // Graphics/FontInfo.h
 struct sfFontInfo {
