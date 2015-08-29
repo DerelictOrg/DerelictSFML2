@@ -180,8 +180,8 @@ struct sfRenderStates {
 
 // Graphics/Shape.h
 extern(C) nothrow {
-    alias sfShapeGetPointCountCallback = uint function( void* );
-    alias sfShapeGetPointCallback = sfVector2f function( uint,void* );
+    alias sfShapeGetPointCountCallback = size_t function( void* );
+    alias sfShapeGetPointCallback = sfVector2f function( size_t,void* );
 }
 
 // Graphics/Text.h
@@ -240,18 +240,21 @@ extern( C ) @nogc nothrow {
     alias da_sfCircleShape_getFillColor = sfColor function( const( sfCircleShape )* );
     alias da_sfCircleShape_getOutlineColor = sfColor function( const( sfCircleShape )* );
     alias da_sfCircleShape_getOutlineThickness = float function( const( sfCircleShape )* );
-    alias da_sfCircleShape_getPointCount = uint function( const( sfCircleShape )* );
-    alias da_sfCircleShape_getPoint = sfVector2f function( const( sfCircleShape )*,uint );
+    alias da_sfCircleShape_getPointCount = size_t function( const( sfCircleShape )* );
+    alias da_sfCircleShape_getPoint = sfVector2f function( const( sfCircleShape )*,size_t );
     alias da_sfCircleShape_setRadius = void function( sfCircleShape*,float );
     alias da_sfCircleShape_getRadius = float function( const( sfCircleShape )* );
-    alias da_sfCircleShape_setPointCount = void function( sfCircleShape*,uint );
+    alias da_sfCircleShape_setPointCount = void function( sfCircleShape*,size_t );
     alias da_sfCircleShape_getLocalBounds = sfFloatRect function( const( sfCircleShape )* );
     alias da_sfCircleShape_getGlobalBounds = sfFloatRect function( const( sfCircleShape )* );
 
     // Graphics/Color.h
     alias da_sfColor_fromRGB = sfColor function( sfUint8,sfUint8,sfUint8 );
     alias da_sfColor_fromRGBA = sfColor function( sfUint8,sfUint8,sfUint8,sfUint8 );
+    alias da_sfColor_fromInteger = sfColor function( sfUint32 );
+    alias da_sfColor_toInteger = sfUint32 function( sfColor );
     alias da_sfColor_add = sfColor function( sfColor,sfColor );
+    alias da_sfColor_subtract = sfColor function( sfColor,sfColor );
     alias da_sfColor_modulate = sfColor function( sfColor,sfColor );
 
     // Graphics/ConvexShape.h
@@ -281,10 +284,10 @@ extern( C ) @nogc nothrow {
     alias da_sfConvexShape_getFillColor = sfColor function( const( sfConvexShape )* );
     alias da_sfConvexShape_getOutlineColor = sfColor function( const( sfConvexShape )* );
     alias da_sfConvexShape_getOutlineThickness = float function( const( sfConvexShape )* );
-    alias da_sfConvexShape_getPointCount = uint function( const( sfConvexShape )* );
-    alias da_sfConvexShape_getPoint = sfVector2f function( const( sfConvexShape )*,uint );
-    alias da_sfConvexShape_setPointCount = void function( sfConvexShape*,uint );
-    alias da_sfConvexShape_setPoint = void function( sfConvexShape*,uint,sfVector2f );
+    alias da_sfConvexShape_getPointCount = size_t function( const( sfConvexShape )* );
+    alias da_sfConvexShape_getPoint = sfVector2f function( const( sfConvexShape )*,size_t );
+    alias da_sfConvexShape_setPointCount = void function( sfConvexShape*,size_t );
+    alias da_sfConvexShape_setPoint = void function( sfConvexShape*,size_t,sfVector2f );
     alias da_sfConvexShape_getLocalBounds = sfFloatRect function( const( sfConvexShape )* );
     alias da_sfConvexShape_getGlobalBounds = sfFloatRect function( const( sfConvexShape )* );
 
@@ -354,8 +357,8 @@ extern( C ) @nogc nothrow {
     alias da_sfRectangleShape_getFillColor = sfColor function( const( sfRectangleShape )* );
     alias da_sfRectangleShape_getOutlineColor = sfColor function( const( sfRectangleShape )* );
     alias da_sfRectangleShape_getOutlineThickness = float function( const( sfRectangleShape )* );
-    alias da_sfRectangleShape_getPointCount = uint function( const( sfRectangleShape )* );
-    alias da_sfRectangleShape_getPoint = sfVector2f function( const( sfRectangleShape )*,uint );
+    alias da_sfRectangleShape_getPointCount = size_t function( const( sfRectangleShape )* );
+    alias da_sfRectangleShape_getPoint = sfVector2f function( const( sfRectangleShape )*,size_t );
     alias da_sfRectangleShape_setSize = void function( sfRectangleShape*,sfVector2f );
     alias da_sfRectangleShape_getSize = sfVector2f function( const( sfRectangleShape )* );
     alias da_sfRectangleShape_getLocalBounds = sfFloatRect function( const( sfRectangleShape )* );
@@ -381,7 +384,7 @@ extern( C ) @nogc nothrow {
     alias da_sfRenderTexture_drawConvexShape = void function( sfRenderTexture*,const( sfConvexShape )*,const( sfRenderStates )* );
     alias da_sfRenderTexture_drawRectangleShape = void function( sfRenderTexture*,const( sfRectangleShape )*,const( sfRenderStates )* );
     alias da_sfRenderTexture_drawVertexArray = void function( sfRenderTexture*,const( sfVertexArray )*,const( sfRenderStates )* );
-    alias da_sfRenderTexture_drawPrimitives = void function( sfRenderTexture*,const( sfVertex )*,uint, sfPrimitiveType, const( sfRenderStates )* );
+    alias da_sfRenderTexture_drawPrimitives = void function( sfRenderTexture*,const( sfVertex )*,size_t,sfPrimitiveType, const( sfRenderStates )* );
     alias da_sfRenderTexture_pushGLStates = void function( sfRenderTexture* );
     alias da_sfRenderTexture_popGLStates = void function( sfRenderTexture* );
     alias da_sfRenderTexture_resetGLStates = void function( sfRenderTexture* );
@@ -432,7 +435,7 @@ extern( C ) @nogc nothrow {
     alias da_sfRenderWindow_drawConvexShape = void function( sfRenderWindow*,const( sfConvexShape )*,const( sfRenderStates )* );
     alias da_sfRenderWindow_drawRectangleShape = void function( sfRenderWindow*,const( sfRectangleShape )*,const( sfRenderStates )* );
     alias da_sfRenderWindow_drawVertexArray = void function( sfRenderWindow*,const( sfVertexArray )*,const( sfRenderStates )* );
-    alias da_sfRenderWindow_drawPrimitives = void function( sfRenderWindow*,sfVertex*,uint,sfPrimitiveType,const( sfRenderStates )* );
+    alias da_sfRenderWindow_drawPrimitives = void function( sfRenderWindow*,sfVertex*,size_t,sfPrimitiveType,const( sfRenderStates )* );
     alias da_sfRenderWindow_pushGLStates = void function( sfRenderWindow* );
     alias da_sfRenderWindow_popGLStates = void function( sfRenderWindow* );
     alias da_sfRenderWindow_resetGLStates = void function( sfRenderWindow* );
@@ -456,6 +459,7 @@ extern( C ) @nogc nothrow {
     alias da_sfShader_setTransformParameter = void function( sfShader*,const( char )*,sfTransform );
     alias da_sfShader_setTextureParameter = void function( sfShader*,const( char )*,const( sfTexture )* );
     alias da_sfShader_setCurrentTextureParameter = void function( sfShader*,const( char )* );
+    alias da_sfShader_getNativeHandle = uint function( const(sfShader)* );
     alias da_sfShader_bind = void function( const( sfShader )* );
     alias da_sfShader_isAvailable = sfBool function();
 
@@ -485,8 +489,8 @@ extern( C ) @nogc nothrow {
     alias da_sfShape_getFillColor = sfColor function( const( sfShape )* );
     alias da_sfShape_getOutlineColor = sfColor function( const( sfShape )* );
     alias da_sfShape_getOutlineThickness = float function( const( sfShape )* );
-    alias da_sfShape_getPointCount = uint function( const( sfShape )* );
-    alias da_sfShape_getPoint = sfVector2f function( const( sfShape )*,uint );
+    alias da_sfShape_getPointCount = size_t function( const( sfShape )* );
+    alias da_sfShape_getPoint = sfVector2f function( const( sfShape )*,size_t );
     alias da_sfShape_getLocalBounds = sfFloatRect function( const( sfShape )* );
     alias da_sfShape_getGlobalBounds = sfFloatRect function( const( sfShape )* );
     alias da_sfShape_update = void function( sfShape* );
@@ -569,6 +573,7 @@ extern( C ) @nogc nothrow {
     alias da_sfTexture_isSmooth = sfBool function( const( sfTexture )* );
     alias da_sfTexture_setRepeated = void function( sfTexture*,sfBool );
     alias da_sfTexture_isRepeated = sfBool function( const( sfTexture )* );
+    alias da_sfTexture_getNativeHandle = uint function( const(sfTexture)* );
     alias da_sfTexture_getMaximumSize = uint function();
 
     // Graphics/Transform.h
@@ -606,10 +611,10 @@ extern( C ) @nogc nothrow {
     alias da_sfVertexArray_create = sfVertexArray* function();
     alias da_sfVertexArray_copy = sfVertexArray* function( const( sfVertexArray )* );
     alias da_sfVertexArray_destroy = void function( sfVertexArray* );
-    alias da_sfVertexArray_getVertexCount = uint function( const( sfVertexArray )* );
-    alias da_sfVertexArray_getVertex = sfVertex* function( sfVertexArray*,uint );
+    alias da_sfVertexArray_getVertexCount = size_t function( const( sfVertexArray )* );
+    alias da_sfVertexArray_getVertex = sfVertex* function( sfVertexArray*,size_t );
     alias da_sfVertexArray_clear = void function( sfVertexArray* );
-    alias da_sfVertexArray_resize = void function( sfVertexArray*,uint );
+    alias da_sfVertexArray_resize = void function( sfVertexArray*,size_t );
     alias da_sfVertexArray_append = void function( sfVertexArray*,sfVertex );
     alias da_sfVertexArray_setPrimitiveType = void function( sfVertexArray*,sfPrimitiveType );
     alias da_sfVertexArray_getPrimitiveType = sfPrimitiveType function( sfVertexArray* );
@@ -671,7 +676,10 @@ __gshared {
 
     da_sfColor_fromRGB sfColor_fromRGB;
     da_sfColor_fromRGBA sfColor_fromRGBA;
+    da_sfColor_fromInteger sfColor_fromInteger;
+    da_sfColor_toInteger sfColor_toInteger;
     da_sfColor_add sfColor_add;
+    da_sfColor_subtract sfColor_subtract;
     da_sfColor_modulate sfColor_modulate;
 
     da_sfConvexShape_create sfConvexShape_create;
@@ -868,6 +876,7 @@ __gshared {
     da_sfShader_setTransformParameter sfShader_setTransformParameter;
     da_sfShader_setTextureParameter sfShader_setTextureParameter;
     da_sfShader_setCurrentTextureParameter sfShader_setCurrentTextureParameter;
+    da_sfShader_getNativeHandle sfShader_getNativeHandle;
     da_sfShader_bind sfShader_bind;
     da_sfShader_isAvailable sfShader_isAvailable;
 
@@ -977,6 +986,7 @@ __gshared {
     da_sfTexture_isSmooth sfTexture_isSmooth;
     da_sfTexture_setRepeated sfTexture_setRepeated;
     da_sfTexture_isRepeated sfTexture_isRepeated;
+    da_sfTexture_getNativeHandle sfTexture_getNativeHandle;
     da_sfTexture_getMaximumSize sfTexture_getMaximumSize;
 
     da_sfTransform_fromMatrix sfTransform_fromMatrix;
@@ -1080,7 +1090,10 @@ class DerelictSFML2GraphicsLoader : SharedLibLoader {
         bindFunc( cast( void** )&sfCircleShape_getGlobalBounds, "sfCircleShape_getGlobalBounds" );
         bindFunc( cast( void** )&sfColor_fromRGB, "sfColor_fromRGB" );
         bindFunc( cast( void** )&sfColor_fromRGBA, "sfColor_fromRGBA" );
+        bindFunc( cast( void** )&sfColor_fromInteger, "sfColor_fromInteger" );
+        bindFunc( cast( void** )&sfColor_toInteger, "sfColor_toInteger" );
         bindFunc( cast( void** )&sfColor_add, "sfColor_add" );
+        bindFunc( cast( void** )&sfColor_subtract, "sfColor_subtract" );
         bindFunc( cast( void** )&sfColor_modulate, "sfColor_modulate" );
         bindFunc( cast( void** )&sfConvexShape_create, "sfConvexShape_create" );
         bindFunc( cast( void** )&sfConvexShape_copy, "sfConvexShape_copy" );
@@ -1269,6 +1282,7 @@ class DerelictSFML2GraphicsLoader : SharedLibLoader {
         bindFunc( cast( void** )&sfShader_setTransformParameter, "sfShader_setTransformParameter" );
         bindFunc( cast( void** )&sfShader_setTextureParameter, "sfShader_setTextureParameter" );
         bindFunc( cast( void** )&sfShader_setCurrentTextureParameter, "sfShader_setCurrentTextureParameter" );
+        bindFunc( cast( void** )&sfShader_getNativeHandle, "sfShader_getNativeHandle" );
         bindFunc( cast( void** )&sfShader_bind, "sfShader_bind" );
         bindFunc( cast( void** )&sfShader_isAvailable, "sfShader_isAvailable" );
         bindFunc( cast( void** )&sfShape_create, "sfShape_create" );
@@ -1374,6 +1388,7 @@ class DerelictSFML2GraphicsLoader : SharedLibLoader {
         bindFunc( cast( void** )&sfTexture_isSmooth, "sfTexture_isSmooth" );
         bindFunc( cast( void** )&sfTexture_setRepeated, "sfTexture_setRepeated" );
         bindFunc( cast( void** )&sfTexture_isRepeated, "sfTexture_isRepeated" );
+        bindFunc( cast( void** )&sfTexture_getNativeHandle, "sfTexture_getNativeHandle" );
         bindFunc( cast( void** )&sfTexture_getMaximumSize, "sfTexture_getMaximumSize" );
         bindFunc( cast( void** )&sfTransform_fromMatrix, "sfTransform_fromMatrix" );
         bindFunc( cast( void** )&sfTransform_getMatrix, "sfTransform_getMatrix" );
