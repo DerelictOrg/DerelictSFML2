@@ -25,7 +25,7 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 
 */
-module derelict.sfml2.graphics;
+deprecated module derelict.sfml2.graphics;
 
 public import derelict.util.loader;
 
