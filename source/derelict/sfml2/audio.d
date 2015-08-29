@@ -35,11 +35,11 @@ private {
     import derelict.sfml2.system;
 
     static if( Derelict_OS_Windows )
-        enum libNames = "csfml-audio.dll,csfml-audio-2.dll,csmfl-audio-2.3.dll,csfml-audio-2.2.dll,csfml-audio-2.1.dll,csfml-audio-2.0.dll";
+        enum libNames = "csfml-audio.dll,csfml-audio-2.dll,csmfl-audio-2.3.dll";
     else static if( Derelict_OS_Mac )
-        enum libNames = "libcsfml-audio.dylib,libcsfml-audio.2.dylib,libcsfml-audio.2.3.dylib,libcsfml-audio.2.2.dylib,libcsfml-audio.2.1.dylib,libcsfml-audio.2.0.dylib";
+        enum libNames = "libcsfml-audio.dylib,libcsfml-audio.2.dylib,libcsfml-audio.2.3.dylib";
     else static if( Derelict_OS_Posix )
-        enum libNames = "libcsfml-audio.so,libcsfml-audio.so.2,libcsfml-audio.so.2.3,libcsfml-audio.so.2.2,libcsfml-audio.so.2.1,libcsfml-audio.so.2.0";
+        enum libNames = "libcsfml-audio.so,libcsfml-audio.so.2,libcsfml-audio.so.2.3";
     else
         static assert( 0, "Need to implement SFML2 Audio libNames for this operating system." );
 }
@@ -150,12 +150,12 @@ extern( C ) @nogc nothrow {
     alias da_sfSoundBuffer_createFromFile = sfSoundBuffer* function( const( char )* );
     alias da_sfSoundBuffer_createFromMemory = sfSoundBuffer* function( const( void )*,size_t );
     alias da_sfSoundBuffer_createFromStream = sfSoundBuffer* function( sfInputStream* );
-    alias da_sfSoundBuffer_createFromSamples = sfSoundBuffer* function( const( sfInt16 )*,size_t,uint,uint );
+    alias da_sfSoundBuffer_createFromSamples = sfSoundBuffer* function( const( sfInt16 )*,sfUint64,uint,uint );
     alias da_sfSoundBuffer_copy = sfSoundBuffer* function( const( sfSoundBuffer )* );
     alias da_sfSoundBuffer_destroy = void function( sfSoundBuffer* );
     alias da_sfSoundBuffer_saveToFile = sfBool function( const( sfSoundBuffer )*,const( char )* );
     alias da_sfSoundBuffer_getSamples = const( sfInt16 )* function( const( sfSoundBuffer )* );
-    alias da_sfSoundBuffer_getSampleCount = size_t function( const( sfSoundBuffer )* );
+    alias da_sfSoundBuffer_getSampleCount = sfUint64 function( const( sfSoundBuffer )* );
     alias da_sfSoundBuffer_getSampleRate = uint function( const( sfSoundBuffer )* );
     alias da_sfSoundBuffer_getChannelCount = uint function( const( sfSoundBuffer )* );
     alias da_sfSoundBuffer_getDuration = sfTime function( const( sfSoundBuffer )* );
@@ -335,12 +335,6 @@ class DerelictSFML2AudioLoader : SharedLibLoader {
         super( libNames );
     }
 
-    protected override void configureMinimumVersion( SharedLibVersion minorVersion ) {
-        if( minorVersion.major == 2 && minorVersion.minor <= 1 ) {
-                missingSymbolCallback = &allowSFML_2_1;
-        }
-    }
-
     protected override void loadSymbols() {
         bindFunc( cast( void** )&sfListener_setGlobalVolume, "sfListener_setGlobalVolume" );
         bindFunc( cast( void** )&sfListener_getGlobalVolume, "sfListener_getGlobalVolume" );
@@ -455,21 +449,6 @@ class DerelictSFML2AudioLoader : SharedLibLoader {
         bindFunc( cast( void** )&sfSoundStream_getAttenuation, "sfSoundStream_getAttenuation" );
         bindFunc( cast( void** )&sfSoundStream_getLoop, "sfSoundStream_getLoop" );
         bindFunc( cast( void** )&sfSoundStream_getPlayingOffset, "sfSoundStream_getPlayingOffset" );
-    }
-
-    private ShouldThrow allowSFML_2_1( string symbolName ) {
-        switch( symbolName ) {
-            case "sfListener_setUpVector": break;
-            case "sfListener_getUpVector": break;
-            case "sfSoundRecorder_setProcessingInterval": break;
-            case "sfSoundRecorder_getAvailableDevices": break;
-            case "sfSoundRecorder_getDefaultDevice": break;
-            case "sfSoundRecorder_setDevice": break;
-            case "sfSoundRecorder_getDevice": break;
-            default: return ShouldThrow.Yes;
-
-        }
-        return ShouldThrow.No;
     }
 }
 

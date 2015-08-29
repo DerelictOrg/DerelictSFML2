@@ -356,7 +356,8 @@ enum : uint {
     sfDefaultStyle = sfTitlebar | sfResize | sfClose,
 }
 
-alias sfContextAttribute {
+alias sfContextAttribute = int;
+enum {
     sfContextDefault = 0,
     sfContextCore = 1 << 0,
     sfContextDebug = 1 << 2,
