@@ -59,6 +59,7 @@ enum {
     sfEvtKeyPressed,
     sfEvtKeyReleased,
     sfEvtMouseWheelMoved,
+    sfEvtMouseWheelScrolled,
     sfEvtMouseButtonPressed,
     sfEvtMouseButtonReleased,
     sfEvtMouseMoved,
@@ -111,6 +112,14 @@ struct sfMouseWheelEvent {
     int         y;
 }
 
+struct sfMouseWheelScrollEvent {
+    sfEventType type;
+    sfMouseWheel wheel;
+    float delta;
+    int x;
+    int y;
+}
+
 struct sfJoystickMoveEvent {
     sfEventType    type;
     uint   joystickId;
@@ -158,6 +167,7 @@ union sfEvent {
     sfMouseMoveEvent mouseMove;
     sfMouseButtonEvent mouseButton;
     sfMouseWheelEvent mouseWheel;
+    sfMouseWheelScrollEvent mouseWheelScroll;
     sfJoystickMoveEvent joystickMove;
     sfJoystickButtonEvent joystickButton;
     sfJoystickConnectEvent joystickConnect;
