@@ -43,7 +43,7 @@ private {
 
 // Config.h
 enum CSFML_VERSION_MAJOR = 2;
-enum CSFML_VERSION_MINOR = 1;
+enum CSFML_VERSION_MINOR = 2;
 
 alias sfBool = int;
 enum sfFalse = 0;
