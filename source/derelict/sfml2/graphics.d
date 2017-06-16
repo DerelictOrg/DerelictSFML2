@@ -27,23 +27,11 @@ DEALINGS IN THE SOFTWARE.
 */
 module derelict.sfml2.graphics;
 
-public import derelict.util.loader;
-
-private {
-    import derelict.util.exception,
-           derelict.util.system;
-    import derelict.sfml2.system,
-           derelict.sfml2.window;
-
-    static if( Derelict_OS_Windows )
-        enum libNames = "csfml-graphics.dll,csfml-graphics-2.dll,csfml-graphics-2.3.dll";
-    else static if( Derelict_OS_Mac )
-        enum libNames = "libcsfml-graphics.dylib,libcsfml-graphics.2.dylib,libcsfml-graphics.2.3.dylib";
-    else static if( Derelict_OS_Posix )
-        enum libNames = "libcsfml-graphics.so,libcsfml-graphics.so.2,libcsfml-graphics.so.2.3";
-    else
-        static assert( 0, "Need to implement SFML2 Graphics libNames for this operating system." );
-}
+import derelict.util.exception,
+       derelict.util.loader,
+       derelict.util.system;
+import derelict.sfml2.system,
+       derelict.sfml2.window;
 
 // Graphics/Types.h
 struct sfCircleShape;
@@ -80,7 +68,8 @@ enum {
 alias sfBlendEquation = int;
 enum {
     sfBlendEquationAdd,
-    sfBlendEquationSubtract
+    sfBlendEquationSubtract,
+    sfBlendEquationReverseSubtract,
 }
 
 struct sfBlendMode {
@@ -93,22 +82,22 @@ struct sfBlendMode {
 }
 
 __gshared {
-    immutable( sfBlendMode ) sfBlendAlpha = sfBlendMode (
+    immutable(sfBlendMode) sfBlendAlpha = sfBlendMode (
         sfBlendFactorSrcAlpha, sfBlendFactorOneMinusSrcAlpha, sfBlendEquationAdd,
         sfBlendFactorOne, sfBlendFactorOneMinusSrcAlpha, sfBlendEquationAdd
-    );
-    immutable( sfBlendMode ) sfBlendAdd = sfBlendMode (
+   );
+    immutable(sfBlendMode) sfBlendAdd = sfBlendMode (
         sfBlendFactorSrcAlpha, sfBlendFactorOne, sfBlendEquationAdd,
         sfBlendFactorOne, sfBlendFactorOne, sfBlendEquationAdd
-    );
-    immutable( sfBlendMode ) sfBlendMultiply = sfBlendMode (
+   );
+    immutable(sfBlendMode) sfBlendMultiply = sfBlendMode (
         sfBlendFactorDstColor, sfBlendFactorZero, sfBlendEquationAdd,
         sfBlendFactorDstColor, sfBlendFactorZero, sfBlendEquationAdd
-    );
-    immutable( sfBlendMode ) sfBlendNone = sfBlendMode (
+   );
+    immutable(sfBlendMode) sfBlendNone = sfBlendMode (
         sfBlendFactorOne, sfBlendFactorZero, sfBlendEquationAdd,
         sfBlendFactorOne, sfBlendFactorZero, sfBlendEquationAdd
-    );
+   );
 }
 
 // Graphics/Color.h
@@ -120,20 +109,58 @@ struct sfColor {
 }
 
 __gshared {
-    immutable( sfColor ) sfBlack = sfColor( 0, 0, 0, 255 );
-    immutable( sfColor ) sfWhite = sfColor( 255, 255, 255, 255 );
-    immutable( sfColor ) sfRed = sfColor( 255, 0, 0, 255 );
-    immutable( sfColor ) sfGreen = sfColor( 0, 255, 0, 255 );
-    immutable( sfColor ) sfBlue = sfColor( 0, 0, 255, 255 );
-    immutable( sfColor ) sfYellow = sfColor( 255, 255, 0, 255 );
-    immutable( sfColor ) sfMagenta = sfColor( 255, 0, 255, 255 );
-    immutable( sfColor ) sfCyan = sfColor( 0, 255, 255, 255 );
-    immutable( sfColor ) sfTransparent = sfColor( 0, 0, 0, 0 );
+    immutable(sfColor) sfBlack = sfColor(0, 0, 0, 255);
+    immutable(sfColor) sfWhite = sfColor(255, 255, 255, 255);
+    immutable(sfColor) sfRed = sfColor(255, 0, 0, 255);
+    immutable(sfColor) sfGreen = sfColor(0, 255, 0, 255);
+    immutable(sfColor) sfBlue = sfColor(0, 0, 255, 255);
+    immutable(sfColor) sfYellow = sfColor(255, 255, 0, 255);
+    immutable(sfColor) sfMagenta = sfColor(255, 0, 255, 255);
+    immutable(sfColor) sfCyan = sfColor(0, 255, 255, 255);
+    immutable(sfColor) sfTransparent = sfColor(0, 0, 0, 0);
 }
 
 // Graphics/FontInfo.h
 struct sfFontInfo {
-    const( char )* family;
+    const(char)* family;
+}
+
+// Graphics/glsl.h
+alias sfGlslVec2 = sfVector2f;
+alias sfGlslIvec2 = sfVector2i;
+
+struct sfGlslBvec2 {
+    sfBool x, y;
+}
+
+alias sfGlslVec3 = sfVector3f;
+
+struct sfGlslIvec3 {
+    int x, y, z;
+}
+
+struct sfGlslBvec3 {
+    sfBool x, y, z;
+}
+
+struct sfGlslVec4 {
+    float x, y, z, w;
+}
+
+struct sfGlslIvec4 {
+    int x, y, z, w;
+}
+
+struct sfGlslBvec4 {
+    sfBool x, y, z, w;
+}
+
+struct sfGlslMat3 {
+    float[9] array;
+}
+
+struct sfGlslMat4 {
+    float[16] array;
 }
 
 // Graphics/Glyph.h
@@ -148,12 +175,15 @@ alias int sfPrimitiveType;
 enum {
     sfPoints,
     sfLines,
-    sfLinesStrip,
+    sfLineStrip,
     sfTriangles,
-    sfTrianglesStrip,
-    sfTrianglesFan,
+    sfTriangleStrip,
+    sfTriangleFan,
     sfQuads,
 }
+alias sfLinesStrip = sfLineStrip;
+alias sfTrianglesStrip = sfTriangleStrip;
+alias sfTrianglesFan = sfTriangleFan;
 
 // Graphics/Rect.h
 struct sfFloatRect {
@@ -174,14 +204,14 @@ struct sfIntRect {
 struct sfRenderStates {
     sfBlendMode blendMode;
     sfTransform transform;
-    const( sfTexture )* texture;
-    const( sfShader )* shader;
+    const(sfTexture)* texture;
+    const(sfShader)* shader;
 }
 
 // Graphics/Shape.h
 extern(C) nothrow {
-    alias sfShapeGetPointCountCallback = size_t function( void* );
-    alias sfShapeGetPointCallback = sfVector2f function( size_t,void* );
+    alias sfShapeGetPointCountCallback = size_t function(void*);
+    alias sfShapeGetPointCallback = sfVector2f function(size_t,void*);
 }
 
 // Graphics/Text.h
@@ -202,7 +232,7 @@ struct sfTransform {
 const sfTransform sfTransform_Identity = sfTransform(
     [1.0f, 0.0f, 0.0f,
     0.0f, 1.0f, 0.0f,
-    0.0f, 0.0f, 1.0f] );
+    0.0f, 0.0f, 1.0f]);
 
 
 // Graphics/Vertex.h
@@ -212,431 +242,469 @@ struct sfVertex {
     sfVector2f texCoords;
 }
 
-extern( C ) @nogc nothrow {
+extern(C) @nogc nothrow {
     // Graphics/CircleShape.h
     alias da_sfCircleShape_create = sfCircleShape* function();
-    alias da_sfCircleShape_copy = sfCircleShape* function( const( sfCircleShape )* );
-    alias da_sfCircleShape_destroy = void function( sfCircleShape* );
-    alias da_sfCircleShape_setPosition = void function( sfCircleShape*,sfVector2f );
-    alias da_sfCircleShape_setRotation = void function( sfCircleShape*,float );
-    alias da_sfCircleShape_setScale = void function( sfCircleShape*,sfVector2f );
-    alias da_sfCircleShape_setOrigin = void function( sfCircleShape*,sfVector2f );
-    alias da_sfCircleShape_getPosition = sfVector2f function( const( sfCircleShape )* );
-    alias da_sfCircleShape_getRotation = float function( const( sfCircleShape )* );
-    alias da_sfCircleShape_getScale = sfVector2f function( const( sfCircleShape )* );
-    alias da_sfCircleShape_getOrigin = sfVector2f function( const( sfCircleShape )* );
-    alias da_sfCircleShape_move = void function( sfCircleShape*,sfVector2f );
-    alias da_sfCircleShape_rotate = void function( sfCircleShape*,float );
-    alias da_sfCircleShape_scale = void function( sfCircleShape*,sfVector2f );
-    alias da_sfCircleShape_getTransform = sfTransform function( const( sfCircleShape )* );
-    alias da_sfCircleShape_getInverseTransform = sfTransform function( const( sfCircleShape )* );
-    alias da_sfCircleShape_setTexture = void function( sfCircleShape*,const( sfTexture )*,sfBool );
-    alias da_sfCircleShape_setTextureRect = void function( sfCircleShape*,sfIntRect );
-    alias da_sfCircleShape_setFillColor = void function( sfCircleShape*,sfColor );
-    alias da_sfCircleShape_setOutlineColor = void function( sfCircleShape*,sfColor );
-    alias da_sfCircleShape_setOutlineThickness = void function( sfCircleShape*,float );
-    alias da_sfCircleShape_getTexture = const( sfTexture )* function( const( sfCircleShape )* );
-    alias da_sfCircleShape_getTextureRect = sfIntRect function( const( sfCircleShape )* );
-    alias da_sfCircleShape_getFillColor = sfColor function( const( sfCircleShape )* );
-    alias da_sfCircleShape_getOutlineColor = sfColor function( const( sfCircleShape )* );
-    alias da_sfCircleShape_getOutlineThickness = float function( const( sfCircleShape )* );
-    alias da_sfCircleShape_getPointCount = size_t function( const( sfCircleShape )* );
-    alias da_sfCircleShape_getPoint = sfVector2f function( const( sfCircleShape )*,size_t );
-    alias da_sfCircleShape_setRadius = void function( sfCircleShape*,float );
-    alias da_sfCircleShape_getRadius = float function( const( sfCircleShape )* );
-    alias da_sfCircleShape_setPointCount = void function( sfCircleShape*,size_t );
-    alias da_sfCircleShape_getLocalBounds = sfFloatRect function( const( sfCircleShape )* );
-    alias da_sfCircleShape_getGlobalBounds = sfFloatRect function( const( sfCircleShape )* );
+    alias da_sfCircleShape_copy = sfCircleShape* function(const(sfCircleShape)*);
+    alias da_sfCircleShape_destroy = void function(sfCircleShape*);
+    alias da_sfCircleShape_setPosition = void function(sfCircleShape*,sfVector2f);
+    alias da_sfCircleShape_setRotation = void function(sfCircleShape*,float);
+    alias da_sfCircleShape_setScale = void function(sfCircleShape*,sfVector2f);
+    alias da_sfCircleShape_setOrigin = void function(sfCircleShape*,sfVector2f);
+    alias da_sfCircleShape_getPosition = sfVector2f function(const(sfCircleShape)*);
+    alias da_sfCircleShape_getRotation = float function(const(sfCircleShape)*);
+    alias da_sfCircleShape_getScale = sfVector2f function(const(sfCircleShape)*);
+    alias da_sfCircleShape_getOrigin = sfVector2f function(const(sfCircleShape)*);
+    alias da_sfCircleShape_move = void function(sfCircleShape*,sfVector2f);
+    alias da_sfCircleShape_rotate = void function(sfCircleShape*,float);
+    alias da_sfCircleShape_scale = void function(sfCircleShape*,sfVector2f);
+    alias da_sfCircleShape_getTransform = sfTransform function(const(sfCircleShape)*);
+    alias da_sfCircleShape_getInverseTransform = sfTransform function(const(sfCircleShape)*);
+    alias da_sfCircleShape_setTexture = void function(sfCircleShape*,const(sfTexture)*,sfBool);
+    alias da_sfCircleShape_setTextureRect = void function(sfCircleShape*,sfIntRect);
+    alias da_sfCircleShape_setFillColor = void function(sfCircleShape*,sfColor);
+    alias da_sfCircleShape_setOutlineColor = void function(sfCircleShape*,sfColor);
+    alias da_sfCircleShape_setOutlineThickness = void function(sfCircleShape*,float);
+    alias da_sfCircleShape_getTexture = const(sfTexture)* function(const(sfCircleShape)*);
+    alias da_sfCircleShape_getTextureRect = sfIntRect function(const(sfCircleShape)*);
+    alias da_sfCircleShape_getFillColor = sfColor function(const(sfCircleShape)*);
+    alias da_sfCircleShape_getOutlineColor = sfColor function(const(sfCircleShape)*);
+    alias da_sfCircleShape_getOutlineThickness = float function(const(sfCircleShape)*);
+    alias da_sfCircleShape_getPointCount = size_t function(const(sfCircleShape)*);
+    alias da_sfCircleShape_getPoint = sfVector2f function(const(sfCircleShape)*,size_t);
+    alias da_sfCircleShape_setRadius = void function(sfCircleShape*,float);
+    alias da_sfCircleShape_getRadius = float function(const(sfCircleShape)*);
+    alias da_sfCircleShape_setPointCount = void function(sfCircleShape*,size_t);
+    alias da_sfCircleShape_getLocalBounds = sfFloatRect function(const(sfCircleShape)*);
+    alias da_sfCircleShape_getGlobalBounds = sfFloatRect function(const(sfCircleShape)*);
 
     // Graphics/Color.h
-    alias da_sfColor_fromRGB = sfColor function( sfUint8,sfUint8,sfUint8 );
-    alias da_sfColor_fromRGBA = sfColor function( sfUint8,sfUint8,sfUint8,sfUint8 );
-    alias da_sfColor_fromInteger = sfColor function( sfUint32 );
-    alias da_sfColor_toInteger = sfUint32 function( sfColor );
-    alias da_sfColor_add = sfColor function( sfColor,sfColor );
-    alias da_sfColor_subtract = sfColor function( sfColor,sfColor );
-    alias da_sfColor_modulate = sfColor function( sfColor,sfColor );
+    alias da_sfColor_fromRGB = sfColor function(sfUint8,sfUint8,sfUint8);
+    alias da_sfColor_fromRGBA = sfColor function(sfUint8,sfUint8,sfUint8,sfUint8);
+    alias da_sfColor_fromInteger = sfColor function(sfUint32);
+    alias da_sfColor_toInteger = sfUint32 function(sfColor);
+    alias da_sfColor_add = sfColor function(sfColor,sfColor);
+    alias da_sfColor_subtract = sfColor function(sfColor,sfColor);
+    alias da_sfColor_modulate = sfColor function(sfColor,sfColor);
 
     // Graphics/ConvexShape.h
     alias da_sfConvexShape_create = sfConvexShape* function();
-    alias da_sfConvexShape_copy = sfConvexShape* function( const( sfConvexShape )* );
-    alias da_sfConvexShape_destroy = void function( sfConvexShape* );
-    alias da_sfConvexShape_setPosition = void function( sfConvexShape*,sfVector2f );
-    alias da_sfConvexShape_setRotation = void function( sfConvexShape*,float );
-    alias da_sfConvexShape_setScale = void function( sfConvexShape*,sfVector2f );
-    alias da_sfConvexShape_setOrigin = void function( sfConvexShape*,sfVector2f );
-    alias da_sfConvexShape_getPosition = sfVector2f function( const( sfConvexShape )* );
-    alias da_sfConvexShape_getRotation = float function( const( sfConvexShape )* );
-    alias da_sfConvexShape_getScale = sfVector2f function( const( sfConvexShape )* );
-    alias da_sfConvexShape_getOrigin = sfVector2f function( const( sfConvexShape )* );
-    alias da_sfConvexShape_move = void function( sfConvexShape*,sfVector2f );
-    alias da_sfConvexShape_rotate = void function( sfConvexShape*,float );
-    alias da_sfConvexShape_scale = void function( sfConvexShape*,sfVector2f );
-    alias da_sfConvexShape_getTransform = sfTransform function( const( sfConvexShape )* );
-    alias da_sfConvexShape_getInverseTransform = sfTransform function( const( sfConvexShape )* );
-    alias da_sfConvexShape_setTexture = void function( sfConvexShape*,const( sfTexture )*,sfBool );
-    alias da_sfConvexShape_setTextureRect = void function( sfConvexShape*,sfIntRect );
-    alias da_sfConvexShape_setFillColor = void function( sfConvexShape*,sfColor );
-    alias da_sfConvexShape_setOutlineColor = void function( sfConvexShape*,sfColor );
-    alias da_sfConvexShape_setOutlineThickness = void function( sfConvexShape*,float );
-    alias da_sfConvexShape_getTexture = const( sfTexture )* function( const( sfConvexShape )* );
-    alias da_sfConvexShape_getTextureRect = sfIntRect function( const( sfConvexShape )* );
-    alias da_sfConvexShape_getFillColor = sfColor function( const( sfConvexShape )* );
-    alias da_sfConvexShape_getOutlineColor = sfColor function( const( sfConvexShape )* );
-    alias da_sfConvexShape_getOutlineThickness = float function( const( sfConvexShape )* );
-    alias da_sfConvexShape_getPointCount = size_t function( const( sfConvexShape )* );
-    alias da_sfConvexShape_getPoint = sfVector2f function( const( sfConvexShape )*,size_t );
-    alias da_sfConvexShape_setPointCount = void function( sfConvexShape*,size_t );
-    alias da_sfConvexShape_setPoint = void function( sfConvexShape*,size_t,sfVector2f );
-    alias da_sfConvexShape_getLocalBounds = sfFloatRect function( const( sfConvexShape )* );
-    alias da_sfConvexShape_getGlobalBounds = sfFloatRect function( const( sfConvexShape )* );
+    alias da_sfConvexShape_copy = sfConvexShape* function(const(sfConvexShape)*);
+    alias da_sfConvexShape_destroy = void function(sfConvexShape*);
+    alias da_sfConvexShape_setPosition = void function(sfConvexShape*,sfVector2f);
+    alias da_sfConvexShape_setRotation = void function(sfConvexShape*,float);
+    alias da_sfConvexShape_setScale = void function(sfConvexShape*,sfVector2f);
+    alias da_sfConvexShape_setOrigin = void function(sfConvexShape*,sfVector2f);
+    alias da_sfConvexShape_getPosition = sfVector2f function(const(sfConvexShape)*);
+    alias da_sfConvexShape_getRotation = float function(const(sfConvexShape)*);
+    alias da_sfConvexShape_getScale = sfVector2f function(const(sfConvexShape)*);
+    alias da_sfConvexShape_getOrigin = sfVector2f function(const(sfConvexShape)*);
+    alias da_sfConvexShape_move = void function(sfConvexShape*,sfVector2f);
+    alias da_sfConvexShape_rotate = void function(sfConvexShape*,float);
+    alias da_sfConvexShape_scale = void function(sfConvexShape*,sfVector2f);
+    alias da_sfConvexShape_getTransform = sfTransform function(const(sfConvexShape)*);
+    alias da_sfConvexShape_getInverseTransform = sfTransform function(const(sfConvexShape)*);
+    alias da_sfConvexShape_setTexture = void function(sfConvexShape*,const(sfTexture)*,sfBool);
+    alias da_sfConvexShape_setTextureRect = void function(sfConvexShape*,sfIntRect);
+    alias da_sfConvexShape_setFillColor = void function(sfConvexShape*,sfColor);
+    alias da_sfConvexShape_setOutlineColor = void function(sfConvexShape*,sfColor);
+    alias da_sfConvexShape_setOutlineThickness = void function(sfConvexShape*,float);
+    alias da_sfConvexShape_getTexture = const(sfTexture)* function(const(sfConvexShape)*);
+    alias da_sfConvexShape_getTextureRect = sfIntRect function(const(sfConvexShape)*);
+    alias da_sfConvexShape_getFillColor = sfColor function(const(sfConvexShape)*);
+    alias da_sfConvexShape_getOutlineColor = sfColor function(const(sfConvexShape)*);
+    alias da_sfConvexShape_getOutlineThickness = float function(const(sfConvexShape)*);
+    alias da_sfConvexShape_getPointCount = size_t function(const(sfConvexShape)*);
+    alias da_sfConvexShape_getPoint = sfVector2f function(const(sfConvexShape)*,size_t);
+    alias da_sfConvexShape_setPointCount = void function(sfConvexShape*,size_t);
+    alias da_sfConvexShape_setPoint = void function(sfConvexShape*,size_t,sfVector2f);
+    alias da_sfConvexShape_getLocalBounds = sfFloatRect function(const(sfConvexShape)*);
+    alias da_sfConvexShape_getGlobalBounds = sfFloatRect function(const(sfConvexShape)*);
 
     // Graphics/Font.h
-    alias da_sfFont_createFromFile = sfFont* function( const( char )* );
-    alias da_sfFont_createFromMemory = sfFont* function( const( void )*,size_t );
-    alias da_sfFont_createFromStream = sfFont* function( sfInputStream* );
-    alias da_sfFont_copy = sfFont* function( const( sfFont )* );
-    alias da_sfFont_destroy = void function( sfFont* );
-    alias da_sfFont_getGlyph = sfGlyph function( sfFont*,sfUint32,uint,sfBool );
-    alias da_sfFont_getKerning = float function( sfFont*,sfUint32,sfUint32,uint );
-    alias da_sfFont_getLineSpacing = float function( sfFont*,uint );
-    alias da_sfFont_getUnderlinePosition = float function( sfFont*,uint );
-    alias da_sfFont_getUnderlineThickness = float function( sfFont*,uint );
-    alias da_sfFont_getTexture = const( sfTexture )* function( sfFont*,uint );
-    alias da_sfFont_getInfo = sfFontInfo function( const( sfFont )* );
+    alias da_sfFont_createFromFile = sfFont* function(const(char)*);
+    alias da_sfFont_createFromMemory = sfFont* function(const(void)*,size_t);
+    alias da_sfFont_createFromStream = sfFont* function(sfInputStream*);
+    alias da_sfFont_copy = sfFont* function(const(sfFont)*);
+    alias da_sfFont_destroy = void function(sfFont*);
+    alias da_sfFont_getGlyph = sfGlyph function(sfFont*,sfUint32,uint,sfBool,float);
+    alias da_sfFont_getKerning = float function(sfFont*,sfUint32,sfUint32,uint);
+    alias da_sfFont_getLineSpacing = float function(sfFont*,uint);
+    alias da_sfFont_getUnderlinePosition = float function(sfFont*,uint);
+    alias da_sfFont_getUnderlineThickness = float function(sfFont*,uint);
+    alias da_sfFont_getTexture = const(sfTexture)* function(sfFont*,uint);
+    alias da_sfFont_getInfo = sfFontInfo function(const(sfFont)*);
+
+    // Graphics/glsl.h
+
 
     // Graphics/Image.h
-    alias da_sfImage_create = sfImage* function( uint,uint );
-    alias da_sfImage_createFromColor = sfImage* function( uint,uint,sfColor );
-    alias da_sfImage_createFromPixels = sfImage* function( uint,uint,const( sfUint8 )* );
-    alias da_sfImage_createFromFile = sfImage* function( const( char )* );
-    alias da_sfImage_createFromMemory = sfImage* function( const( void )*,size_t );
-    alias da_sfImage_createFromStream = sfImage* function( sfInputStream* );
-    alias da_sfImage_copy = sfImage* function( const( sfImage )* );
-    alias da_sfImage_destroy = void function( sfImage* );
-    alias da_sfImage_saveToFile = sfBool function( const( sfImage )*,const( char )* );
-    alias da_sfImage_getSize = sfVector2u function( const( sfImage )* );
-    alias da_sfImage_createMaskFromColor = void function( sfImage*, sfColor,sfUint8 );
-    alias da_sfImage_copyImage = void function( sfImage*,const( sfImage )*,uint,uint,sfIntRect,sfBool );
-    alias da_sfImage_setPixel = void function( sfImage*,uint,uint,sfColor );
-    alias da_sfImage_getPixel = sfColor function( const( sfImage )*,uint,uint );
-    alias da_sfImage_getPixelsPtr = const( sfUint8 )* function( const( sfImage )* );
-    alias da_sfImage_flipHorizontally = void function( sfImage* );
-    alias da_sfImage_flipVertically = void function( sfImage* );
+    alias da_sfImage_create = sfImage* function(uint,uint);
+    alias da_sfImage_createFromColor = sfImage* function(uint,uint,sfColor);
+    alias da_sfImage_createFromPixels = sfImage* function(uint,uint,const(sfUint8)*);
+    alias da_sfImage_createFromFile = sfImage* function(const(char)*);
+    alias da_sfImage_createFromMemory = sfImage* function(const(void)*,size_t);
+    alias da_sfImage_createFromStream = sfImage* function(sfInputStream*);
+    alias da_sfImage_copy = sfImage* function(const(sfImage)*);
+    alias da_sfImage_destroy = void function(sfImage*);
+    alias da_sfImage_saveToFile = sfBool function(const(sfImage)*,const(char)*);
+    alias da_sfImage_getSize = sfVector2u function(const(sfImage)*);
+    alias da_sfImage_createMaskFromColor = void function(sfImage*, sfColor,sfUint8);
+    alias da_sfImage_copyImage = void function(sfImage*,const(sfImage)*,uint,uint,sfIntRect,sfBool);
+    alias da_sfImage_setPixel = void function(sfImage*,uint,uint,sfColor);
+    alias da_sfImage_getPixel = sfColor function(const(sfImage)*,uint,uint);
+    alias da_sfImage_getPixelsPtr = const(sfUint8)* function(const(sfImage)*);
+    alias da_sfImage_flipHorizontally = void function(sfImage*);
+    alias da_sfImage_flipVertically = void function(sfImage*);
 
     // Graphics/Rect.h
-    alias da_sfFloatRect_contains = sfBool function( const( sfFloatRect )*,float,float );
-    alias da_sfIntRect_contains = sfBool function( const( sfIntRect )*,int,int );
-    alias da_sfFloatRect_intersects = sfBool function( const( sfFloatRect )*,const( sfFloatRect )*,sfFloatRect* );
-    alias da_sfIntRect_intersects = sfBool function( const( sfIntRect )*,const( sfIntRect )*,sfIntRect* );
+    alias da_sfFloatRect_contains = sfBool function(const(sfFloatRect)*,float,float);
+    alias da_sfIntRect_contains = sfBool function(const(sfIntRect)*,int,int);
+    alias da_sfFloatRect_intersects = sfBool function(const(sfFloatRect)*,const(sfFloatRect)*,sfFloatRect*);
+    alias da_sfIntRect_intersects = sfBool function(const(sfIntRect)*,const(sfIntRect)*,sfIntRect*);
 
     // Graphics/RectangleShape.h
     alias da_sfRectangleShape_create = sfRectangleShape* function();
-    alias da_sfRectangleShape_copy = sfRectangleShape* function( const( sfRectangleShape )* );
-    alias da_sfRectangleShape_destroy = void function( sfRectangleShape* );
-    alias da_sfRectangleShape_setPosition = void function( sfRectangleShape*,sfVector2f );
-    alias da_sfRectangleShape_setRotation = void function( sfRectangleShape*,float );
-    alias da_sfRectangleShape_setScale = void function( sfRectangleShape*,sfVector2f );
-    alias da_sfRectangleShape_setOrigin = void function( sfRectangleShape*,sfVector2f );
-    alias da_sfRectangleShape_getPosition = sfVector2f function( const( sfRectangleShape )* );
-    alias da_sfRectangleShape_getRotation = float function( const( sfRectangleShape )* );
-    alias da_sfRectangleShape_getScale = sfVector2f function( const( sfRectangleShape )* );
-    alias da_sfRectangleShape_getOrigin = sfVector2f function( const( sfRectangleShape )* );
-    alias da_sfRectangleShape_move = void function( sfRectangleShape*,sfVector2f );
-    alias da_sfRectangleShape_rotate = void function( sfRectangleShape*,float );
-    alias da_sfRectangleShape_scale = void function( sfRectangleShape*,sfVector2f );
-    alias da_sfRectangleShape_getTransform = sfTransform function( const( sfRectangleShape )* );
-    alias da_sfRectangleShape_getInverseTransform = sfTransform function( const( sfRectangleShape )* );
-    alias da_sfRectangleShape_setTexture = void function( sfRectangleShape*,const( sfTexture )*,sfBool );
-    alias da_sfRectangleShape_setTextureRect = void function( sfRectangleShape*,sfIntRect );
-    alias da_sfRectangleShape_setFillColor = void function( sfRectangleShape*,sfColor );
-    alias da_sfRectangleShape_setOutlineColor = void function( sfRectangleShape*,sfColor );
-    alias da_sfRectangleShape_setOutlineThickness = void function( sfRectangleShape*,float );
-    alias da_sfRectangleShape_getTexture = const( sfTexture )* function( const( sfRectangleShape )* );
-    alias da_sfRectangleShape_getTextureRect = sfIntRect function( const( sfRectangleShape )* );
-    alias da_sfRectangleShape_getFillColor = sfColor function( const( sfRectangleShape )* );
-    alias da_sfRectangleShape_getOutlineColor = sfColor function( const( sfRectangleShape )* );
-    alias da_sfRectangleShape_getOutlineThickness = float function( const( sfRectangleShape )* );
-    alias da_sfRectangleShape_getPointCount = size_t function( const( sfRectangleShape )* );
-    alias da_sfRectangleShape_getPoint = sfVector2f function( const( sfRectangleShape )*,size_t );
-    alias da_sfRectangleShape_setSize = void function( sfRectangleShape*,sfVector2f );
-    alias da_sfRectangleShape_getSize = sfVector2f function( const( sfRectangleShape )* );
-    alias da_sfRectangleShape_getLocalBounds = sfFloatRect function( const( sfRectangleShape )* );
-    alias da_sfRectangleShape_getGlobalBounds = sfFloatRect function( const( sfRectangleShape )* );
+    alias da_sfRectangleShape_copy = sfRectangleShape* function(const(sfRectangleShape)*);
+    alias da_sfRectangleShape_destroy = void function(sfRectangleShape*);
+    alias da_sfRectangleShape_setPosition = void function(sfRectangleShape*,sfVector2f);
+    alias da_sfRectangleShape_setRotation = void function(sfRectangleShape*,float);
+    alias da_sfRectangleShape_setScale = void function(sfRectangleShape*,sfVector2f);
+    alias da_sfRectangleShape_setOrigin = void function(sfRectangleShape*,sfVector2f);
+    alias da_sfRectangleShape_getPosition = sfVector2f function(const(sfRectangleShape)*);
+    alias da_sfRectangleShape_getRotation = float function(const(sfRectangleShape)*);
+    alias da_sfRectangleShape_getScale = sfVector2f function(const(sfRectangleShape)*);
+    alias da_sfRectangleShape_getOrigin = sfVector2f function(const(sfRectangleShape)*);
+    alias da_sfRectangleShape_move = void function(sfRectangleShape*,sfVector2f);
+    alias da_sfRectangleShape_rotate = void function(sfRectangleShape*,float);
+    alias da_sfRectangleShape_scale = void function(sfRectangleShape*,sfVector2f);
+    alias da_sfRectangleShape_getTransform = sfTransform function(const(sfRectangleShape)*);
+    alias da_sfRectangleShape_getInverseTransform = sfTransform function(const(sfRectangleShape)*);
+    alias da_sfRectangleShape_setTexture = void function(sfRectangleShape*,const(sfTexture)*,sfBool);
+    alias da_sfRectangleShape_setTextureRect = void function(sfRectangleShape*,sfIntRect);
+    alias da_sfRectangleShape_setFillColor = void function(sfRectangleShape*,sfColor);
+    alias da_sfRectangleShape_setOutlineColor = void function(sfRectangleShape*,sfColor);
+    alias da_sfRectangleShape_setOutlineThickness = void function(sfRectangleShape*,float);
+    alias da_sfRectangleShape_getTexture = const(sfTexture)* function(const(sfRectangleShape)*);
+    alias da_sfRectangleShape_getTextureRect = sfIntRect function(const(sfRectangleShape)*);
+    alias da_sfRectangleShape_getFillColor = sfColor function(const(sfRectangleShape)*);
+    alias da_sfRectangleShape_getOutlineColor = sfColor function(const(sfRectangleShape)*);
+    alias da_sfRectangleShape_getOutlineThickness = float function(const(sfRectangleShape)*);
+    alias da_sfRectangleShape_getPointCount = size_t function(const(sfRectangleShape)*);
+    alias da_sfRectangleShape_getPoint = sfVector2f function(const(sfRectangleShape)*,size_t);
+    alias da_sfRectangleShape_setSize = void function(sfRectangleShape*,sfVector2f);
+    alias da_sfRectangleShape_getSize = sfVector2f function(const(sfRectangleShape)*);
+    alias da_sfRectangleShape_getLocalBounds = sfFloatRect function(const(sfRectangleShape)*);
+    alias da_sfRectangleShape_getGlobalBounds = sfFloatRect function(const(sfRectangleShape)*);
 
     // Graphics/RenderTexture.h
-    alias da_sfRenderTexture_create = sfRenderTexture* function( uint,uint,sfBool );
-    alias da_sfRenderTexture_destroy = void function( sfRenderTexture* );
-    alias da_sfRenderTexture_getSize = sfVector2u function( const( sfRenderTexture )* );
-    alias da_sfRenderTexture_setActive = sfBool function( sfRenderTexture*,sfBool );
-    alias da_sfRenderTexture_display = void function( sfRenderTexture* );
-    alias da_sfRenderTexture_clear = void function( sfRenderTexture*,sfColor );
-    alias da_sfRenderTexture_setView = void function( sfRenderTexture*,const( sfView )* );
-    alias da_sfRenderTexture_getView = const( sfView )* function( const( sfRenderTexture )* );
-    alias da_sfRenderTexture_getDefaultView = const( sfView )* function( const( sfRenderTexture )* );
-    alias da_sfRenderTexture_getViewport = sfIntRect function( const( sfRenderTexture )*,const( sfView )* );
-    alias da_sfRenderTexture_mapPixelToCoords = sfVector2f function( const( sfRenderTexture )*,sfVector2i,const( sfView )* );
-    alias da_sfRenderTexture_mapCoordsToPixel = sfVector2i function( const( sfRenderTexture )*,sfVector2f,const( sfView )* );
-    alias da_sfRenderTexture_drawSprite = void function( sfRenderTexture*,const( sfSprite )*,const( sfRenderStates )* );
-    alias da_sfRenderTexture_drawText = void function( sfRenderTexture*,const( sfText )*,const( sfRenderStates )* );
-    alias da_sfRenderTexture_drawShape = void function( sfRenderTexture*,const( sfShape )*,const( sfRenderStates )* );
-    alias da_sfRenderTexture_drawCircleShape = void function( sfRenderTexture*,const( sfCircleShape )*,const( sfRenderStates )* );
-    alias da_sfRenderTexture_drawConvexShape = void function( sfRenderTexture*,const( sfConvexShape )*,const( sfRenderStates )* );
-    alias da_sfRenderTexture_drawRectangleShape = void function( sfRenderTexture*,const( sfRectangleShape )*,const( sfRenderStates )* );
-    alias da_sfRenderTexture_drawVertexArray = void function( sfRenderTexture*,const( sfVertexArray )*,const( sfRenderStates )* );
-    alias da_sfRenderTexture_drawPrimitives = void function( sfRenderTexture*,const( sfVertex )*,size_t,sfPrimitiveType, const( sfRenderStates )* );
-    alias da_sfRenderTexture_pushGLStates = void function( sfRenderTexture* );
-    alias da_sfRenderTexture_popGLStates = void function( sfRenderTexture* );
-    alias da_sfRenderTexture_resetGLStates = void function( sfRenderTexture* );
-    alias da_sfRenderTexture_getTexture = const( sfTexture )* function( const( sfRenderTexture )* );
-    alias da_sfRenderTexture_setSmooth = void function( sfRenderTexture*,sfBool );
-    alias da_sfRenderTexture_isSmooth = sfBool function( const( sfRenderTexture )* );
-    alias da_sfRenderTexture_setRepeated = void function( sfRenderTexture*, sfBool );
-    alias da_sfRenderTexture_isRepeated = sfBool function( const( sfRenderTexture )* );
+    alias da_sfRenderTexture_create = sfRenderTexture* function(uint,uint,sfBool);
+    alias da_sfRenderTexture_destroy = void function(sfRenderTexture*);
+    alias da_sfRenderTexture_getSize = sfVector2u function(const(sfRenderTexture)*);
+    alias da_sfRenderTexture_setActive = sfBool function(sfRenderTexture*,sfBool);
+    alias da_sfRenderTexture_display = void function(sfRenderTexture*);
+    alias da_sfRenderTexture_clear = void function(sfRenderTexture*,sfColor);
+    alias da_sfRenderTexture_setView = void function(sfRenderTexture*,const(sfView)*);
+    alias da_sfRenderTexture_getView = const(sfView)* function(const(sfRenderTexture)*);
+    alias da_sfRenderTexture_getDefaultView = const(sfView)* function(const(sfRenderTexture)*);
+    alias da_sfRenderTexture_getViewport = sfIntRect function(const(sfRenderTexture)*,const(sfView)*);
+    alias da_sfRenderTexture_mapPixelToCoords = sfVector2f function(const(sfRenderTexture)*,sfVector2i,const(sfView)*);
+    alias da_sfRenderTexture_mapCoordsToPixel = sfVector2i function(const(sfRenderTexture)*,sfVector2f,const(sfView)*);
+    alias da_sfRenderTexture_drawSprite = void function(sfRenderTexture*,const(sfSprite)*,const(sfRenderStates)*);
+    alias da_sfRenderTexture_drawText = void function(sfRenderTexture*,const(sfText)*,const(sfRenderStates)*);
+    alias da_sfRenderTexture_drawShape = void function(sfRenderTexture*,const(sfShape)*,const(sfRenderStates)*);
+    alias da_sfRenderTexture_drawCircleShape = void function(sfRenderTexture*,const(sfCircleShape)*,const(sfRenderStates)*);
+    alias da_sfRenderTexture_drawConvexShape = void function(sfRenderTexture*,const(sfConvexShape)*,const(sfRenderStates)*);
+    alias da_sfRenderTexture_drawRectangleShape = void function(sfRenderTexture*,const(sfRectangleShape)*,const(sfRenderStates)*);
+    alias da_sfRenderTexture_drawVertexArray = void function(sfRenderTexture*,const(sfVertexArray)*,const(sfRenderStates)*);
+    alias da_sfRenderTexture_drawPrimitives = void function(sfRenderTexture*,const(sfVertex)*,size_t,sfPrimitiveType, const(sfRenderStates)*);
+    alias da_sfRenderTexture_pushGLStates = void function(sfRenderTexture*);
+    alias da_sfRenderTexture_popGLStates = void function(sfRenderTexture*);
+    alias da_sfRenderTexture_resetGLStates = void function(sfRenderTexture*);
+    alias da_sfRenderTexture_getTexture = const(sfTexture)* function(const(sfRenderTexture)*);
+    alias da_sfRenderTexture_setSmooth = void function(sfRenderTexture*,sfBool);
+    alias da_sfRenderTexture_isSmooth = sfBool function(const(sfRenderTexture)*);
+    alias da_sfRenderTexture_setRepeated = void function(sfRenderTexture*, sfBool);
+    alias da_sfRenderTexture_isRepeated = sfBool function(const(sfRenderTexture)*);
+    alias da_sfRenderTexture_generateMipmap = sfBool function(sfRenderTexture*);
 
     // Graphics/RenderWindow.h
-    alias da_sfRenderWindow_create = sfRenderWindow* function( sfVideoMode,const( char )*,sfUint32,const( sfContextSettings )* );
-    alias da_sfRenderWindow_createUnicode = sfRenderWindow* function( sfVideoMode,const( dchar )*,sfUint32,const( sfContextSettings )* );
-    alias da_sfRenderWindow_createFromHandle = sfRenderWindow* function( sfWindowHandle,const( sfContextSettings )* );
-    alias da_sfRenderWindow_destroy = void function( sfRenderWindow* );
-    alias da_sfRenderWindow_close = void function( sfRenderWindow* );
-    alias da_sfRenderWindow_isOpen = sfBool function( const( sfRenderWindow )* );
-    alias da_sfRenderWindow_getSettings = sfContextSettings function( const( sfRenderWindow )* );
-    alias da_sfRenderWindow_pollEvent = sfBool function( sfRenderWindow* renderWindow,sfEvent* );
-    alias da_sfRenderWindow_waitEvent = sfBool function( sfRenderWindow* renderWindow,sfEvent* );
-    alias da_sfRenderWindow_getPosition = sfVector2i function( const( sfRenderWindow )* );
-    alias da_sfRenderWindow_setPosition = void function( sfRenderWindow*,sfVector2i );
-    alias da_sfRenderWindow_getSize = sfVector2u function( const( sfRenderWindow )* );
-    alias da_sfRenderWindow_setSize = void function( sfRenderWindow*,sfVector2u );
-    alias da_sfRenderWindow_setTitle = void function( sfRenderWindow*,const( char )* );
-    alias da_sfRenderWindow_setIcon = void function( sfRenderWindow*,uint, uint,const( sfUint8 )* );
-    alias da_sfRenderWindow_setVisible = void function( sfRenderWindow*,sfBool );
-    alias da_sfRenderWindow_setMouseCursorVisible = void function( sfRenderWindow*,sfBool );
-    alias da_sfRenderWindow_setVerticalSyncEnabled = void function( sfRenderWindow*,sfBool );
-    alias da_sfRenderWindow_setKeyRepeatEnabled = void function( sfRenderWindow*,sfBool );
-    alias da_sfRenderWindow_setActive = sfBool function( sfRenderWindow*,sfBool );
-    alias da_sfRenderWindow_requestFocus = void function( sfRenderWindow* );
-    alias da_sfRenderWindow_hasFocus = sfBool function( const( sfRenderWindow )* );
-    alias da_sfRenderWindow_display = void function( sfRenderWindow* );
-    alias da_sfRenderWindow_setFramerateLimit = void function( sfRenderWindow*,uint );
-    alias da_sfRenderWindow_setJoystickThreshold = void function( sfRenderWindow*,float );
-    alias da_sfRenderWindow_getSystemHandle = sfWindowHandle function( const( sfRenderWindow )* );
-    alias da_sfRenderWindow_clear = void function( sfRenderWindow*,sfColor lor );
-    alias da_sfRenderWindow_setView = void function( sfRenderWindow*,const( sfView )* );
-    alias da_sfRenderWindow_getView = const( sfView )* function( const( sfRenderWindow )* );
-    alias da_sfRenderWindow_getDefaultView = const( sfView )* function( const( sfRenderWindow )* );
-    alias da_sfRenderWindow_getViewport = sfIntRect function( const( sfRenderWindow )*,const( sfView )* );
-    alias da_sfRenderWindow_mapPixelToCoords = sfVector2f function( const( sfRenderWindow )*,sfVector2i,const( sfView )* );
-    alias da_sfRenderWindow_mapCoordsToPixel = sfVector2i function( const( sfRenderWindow )*,sfVector2f,const( sfView )* );
-    alias da_sfRenderWindow_drawSprite = void function( sfRenderWindow*,const( sfSprite )*,const( sfRenderStates )* );
-    alias da_sfRenderWindow_drawText = void function( sfRenderWindow*,const( sfText )*,const( sfRenderStates )* );
-    alias da_sfRenderWindow_drawShape = void function( sfRenderWindow*,const( sfShape )*,const( sfRenderStates )* );
-    alias da_sfRenderWindow_drawCircleShape = void function( sfRenderWindow*,const( sfCircleShape )*,const( sfRenderStates )* );
-    alias da_sfRenderWindow_drawConvexShape = void function( sfRenderWindow*,const( sfConvexShape )*,const( sfRenderStates )* );
-    alias da_sfRenderWindow_drawRectangleShape = void function( sfRenderWindow*,const( sfRectangleShape )*,const( sfRenderStates )* );
-    alias da_sfRenderWindow_drawVertexArray = void function( sfRenderWindow*,const( sfVertexArray )*,const( sfRenderStates )* );
-    alias da_sfRenderWindow_drawPrimitives = void function( sfRenderWindow*,sfVertex*,size_t,sfPrimitiveType,const( sfRenderStates )* );
-    alias da_sfRenderWindow_pushGLStates = void function( sfRenderWindow* );
-    alias da_sfRenderWindow_popGLStates = void function( sfRenderWindow* );
-    alias da_sfRenderWindow_resetGLStates = void function( sfRenderWindow* );
-    alias da_sfRenderWindow_capture = sfImage* function( const( sfRenderWindow )* );
-    alias da_sfMouse_getPositionRenderWindow = sfVector2i function( const( sfRenderWindow )* );
-    alias da_sfMouse_setPositionRenderWindow = void function( sfVector2i, const( sfRenderWindow )* );
-    alias da_sfTouch_getPositionRenderWindow = sfVector2i function( uint,const( sfRenderWindow )* );
+    alias da_sfRenderWindow_create = sfRenderWindow* function(sfVideoMode,const(char)*,sfUint32,const(sfContextSettings)*);
+    alias da_sfRenderWindow_createUnicode = sfRenderWindow* function(sfVideoMode,const(dchar)*,sfUint32,const(sfContextSettings)*);
+    alias da_sfRenderWindow_createFromHandle = sfRenderWindow* function(sfWindowHandle,const(sfContextSettings)*);
+    alias da_sfRenderWindow_destroy = void function(sfRenderWindow*);
+    alias da_sfRenderWindow_close = void function(sfRenderWindow*);
+    alias da_sfRenderWindow_isOpen = sfBool function(const(sfRenderWindow)*);
+    alias da_sfRenderWindow_getSettings = sfContextSettings function(const(sfRenderWindow)*);
+    alias da_sfRenderWindow_pollEvent = sfBool function(sfRenderWindow* renderWindow,sfEvent*);
+    alias da_sfRenderWindow_waitEvent = sfBool function(sfRenderWindow* renderWindow,sfEvent*);
+    alias da_sfRenderWindow_getPosition = sfVector2i function(const(sfRenderWindow)*);
+    alias da_sfRenderWindow_setPosition = void function(sfRenderWindow*,sfVector2i);
+    alias da_sfRenderWindow_getSize = sfVector2u function(const(sfRenderWindow)*);
+    alias da_sfRenderWindow_setSize = void function(sfRenderWindow*,sfVector2u);
+    alias da_sfRenderWindow_setTitle = void function(sfRenderWindow*,const(char)*);
+    alias da_sfRenderWindow_setIcon = void function(sfRenderWindow*,uint, uint,const(sfUint8)*);
+    alias da_sfRenderWindow_setVisible = void function(sfRenderWindow*,sfBool);
+    alias da_sfRenderWindow_setVerticalSyncEnabled = void function(sfRenderWindow*,sfBool);
+    alias da_sfRenderWindow_setMouseCursorVisible = void function(sfRenderWindow*,sfBool);
+    alias da_sfRenderWindow_setMouseCursorGrabbed = void function(sfRenderWindow*,sfBool);
+    alias da_sfRenderWindow_setKeyRepeatEnabled = void function(sfRenderWindow*,sfBool);
+    alias da_sfRenderWindow_setFramerateLimit = void function(sfRenderWindow*,uint);
+    alias da_sfRenderWindow_setJoystickThreshold = void function(sfRenderWindow*,float);
+    alias da_sfRenderWindow_setActive = sfBool function(sfRenderWindow*,sfBool);
+    alias da_sfRenderWindow_requestFocus = void function(sfRenderWindow*);
+    alias da_sfRenderWindow_hasFocus = sfBool function(const(sfRenderWindow)*);
+    alias da_sfRenderWindow_display = void function(sfRenderWindow*);
+    alias da_sfRenderWindow_getSystemHandle = sfWindowHandle function(const(sfRenderWindow)*);
+    alias da_sfRenderWindow_clear = void function(sfRenderWindow*,sfColor lor);
+    alias da_sfRenderWindow_setView = void function(sfRenderWindow*,const(sfView)*);
+    alias da_sfRenderWindow_getView = const(sfView)* function(const(sfRenderWindow)*);
+    alias da_sfRenderWindow_getDefaultView = const(sfView)* function(const(sfRenderWindow)*);
+    alias da_sfRenderWindow_getViewport = sfIntRect function(const(sfRenderWindow)*,const(sfView)*);
+    alias da_sfRenderWindow_mapPixelToCoords = sfVector2f function(const(sfRenderWindow)*,sfVector2i,const(sfView)*);
+    alias da_sfRenderWindow_mapCoordsToPixel = sfVector2i function(const(sfRenderWindow)*,sfVector2f,const(sfView)*);
+    alias da_sfRenderWindow_drawSprite = void function(sfRenderWindow*,const(sfSprite)*,const(sfRenderStates)*);
+    alias da_sfRenderWindow_drawText = void function(sfRenderWindow*,const(sfText)*,const(sfRenderStates)*);
+    alias da_sfRenderWindow_drawShape = void function(sfRenderWindow*,const(sfShape)*,const(sfRenderStates)*);
+    alias da_sfRenderWindow_drawCircleShape = void function(sfRenderWindow*,const(sfCircleShape)*,const(sfRenderStates)*);
+    alias da_sfRenderWindow_drawConvexShape = void function(sfRenderWindow*,const(sfConvexShape)*,const(sfRenderStates)*);
+    alias da_sfRenderWindow_drawRectangleShape = void function(sfRenderWindow*,const(sfRectangleShape)*,const(sfRenderStates)*);
+    alias da_sfRenderWindow_drawVertexArray = void function(sfRenderWindow*,const(sfVertexArray)*,const(sfRenderStates)*);
+    alias da_sfRenderWindow_drawPrimitives = void function(sfRenderWindow*,sfVertex*,size_t,sfPrimitiveType,const(sfRenderStates)*);
+    alias da_sfRenderWindow_pushGLStates = void function(sfRenderWindow*);
+    alias da_sfRenderWindow_popGLStates = void function(sfRenderWindow*);
+    alias da_sfRenderWindow_resetGLStates = void function(sfRenderWindow*);
+    alias da_sfRenderWindow_capture = sfImage* function(const(sfRenderWindow)*);
+    alias da_sfMouse_getPositionRenderWindow = sfVector2i function(const(sfRenderWindow)*);
+    alias da_sfMouse_setPositionRenderWindow = void function(sfVector2i, const(sfRenderWindow)*);
+    alias da_sfTouch_getPositionRenderWindow = sfVector2i function(uint,const(sfRenderWindow)*);
 
     // Graphics/Shader.h
-    alias da_sfShader_createFromFile = sfShader* function( const( char )*,const( char )* );
-    alias da_sfShader_createFromMemory = sfShader* function( const( char )*,const( char )* );
-    alias da_sfShader_createFromStream = sfShader* function( sfInputStream*,sfInputStream* );
-    alias da_sfShader_destroy = void function( sfShader* );
-    alias da_sfShader_setFloatParameter = void function( sfShader*,const( char )*,float );
-    alias da_sfShader_setFloat2Parameter = void function( sfShader*,const( char )*,float,float );
-    alias da_sfShader_setFloat3Parameter = void function( sfShader*,const( char )*,float,float,float );
-    alias da_sfShader_setFloat4Parameter = void function( sfShader*,const( char )*,float,float,float,float );
-    alias da_sfShader_setVector2Parameter = void function( sfShader*,const( char )*,sfVector2f );
-    alias da_sfShader_setVector3Parameter = void function( sfShader*,const( char )*,sfVector3f );
-    alias da_sfShader_setColorParameter = void function( sfShader*,const( char )*,sfColor );
-    alias da_sfShader_setTransformParameter = void function( sfShader*,const( char )*,sfTransform );
-    alias da_sfShader_setTextureParameter = void function( sfShader*,const( char )*,const( sfTexture )* );
-    alias da_sfShader_setCurrentTextureParameter = void function( sfShader*,const( char )* );
-    alias da_sfShader_getNativeHandle = uint function( const(sfShader)* );
-    alias da_sfShader_bind = void function( const( sfShader )* );
+    alias da_sfShader_createFromFile = sfShader* function(const(char)*,const(char)*,const(char)*);
+    alias da_sfShader_createFromMemory = sfShader* function(const(char)*,const(char)*,const(char)*);
+    alias da_sfShader_createFromStream = sfShader* function(sfInputStream*,sfInputStream*,sfInputStream*);
+    alias da_sfShader_destroy = void function(sfShader*);
+    alias da_sfShader_setFloatUniform = void function(sfShader*,const(char)*,float);
+    alias da_sfShader_setVec2Uniform = void function(sfShader*,const(char)*,sfGlslVec2);
+    alias da_sfShader_setVec3Uniform = void function(sfShader*,const(char)*,sfGlslVec3);
+    alias da_sfShader_setVec4Uniform = void function(sfShader*,const(char)*,sfGlslVec4);
+    alias da_sfShader_setColorUniform = void function(sfShader*,const(char)*,sfColor);
+    alias da_sfShader_setIntUniform = void function(sfShader*,const(char)*,int);
+    alias da_sfShader_setIvec2Uniform = void function(sfShader*,const(char)*,sfGlslIvec2);
+    alias da_sfShader_setIvec3Uniform = void function(sfShader*,const(char)*,sfGlslIvec3);
+    alias da_sfShader_setIvec4Uniform = void function(sfShader*,const(char)*,sfGlslIvec4);
+    alias da_sfShader_setIntColorUniform = void function(sfShader*,const(char)*,sfColor);
+    alias da_sfShader_setBoolUniform = void function(sfShader*,const(char)*,sfBool);
+    alias da_sfShader_setBvec2Uniform = void function(sfShader*,const(char)*,sfGlslBvec2);
+    alias da_sfShader_setBvec3Uniform = void function(sfShader*,const(char)*,sfGlslBvec3);
+    alias da_sfShader_setBvec4Uniform = void function(sfShader*,const(char)*,sfGlslBvec4);
+    alias da_sfShader_setMat3Uniform = void function(sfShader*,const(char)*,const(sfGlslMat3)*);
+    alias da_sfShader_setMat4Uniform = void function(sfShader*,const(char)*,const(sfGlslMat4)*);
+    alias da_sfShader_setTextureUniform = void function(sfShader*,const(char)*,const(sfTexture)*);
+    alias da_sfShader_setCurrentTextureUniform = void function(sfShader*,const(char)*);
+    alias da_sfShader_setVec2UniformArray = void function(sfShader*,const(char)*,const(sfGlslVec2)*,size_t);
+    alias da_sfShader_setVec3UniformArray = void function(sfShader*,const(char)*,const(sfGlslVec3)*,size_t);
+    alias da_sfShader_setVec4UniformArray = void function(sfShader*,const(char)*,const(sfGlslVec4)*,size_t);
+    alias da_sfShader_setMat3UniformArray = void function(sfShader*,const(char)*,const(sfGlslMat3)*,size_t);
+    alias da_sfShader_setMat4UniformArray = void function(sfShader*,const(char)*,const(sfGlslMat4)*,size_t);
+    alias da_sfShader_setFloatParameter = void function(sfShader*,const(char)*,float);
+    alias da_sfShader_setFloat2Parameter = void function(sfShader*,const(char)*,float,float);
+    alias da_sfShader_setFloat3Parameter = void function(sfShader*,const(char)*,float,float,float);
+    alias da_sfShader_setFloat4Parameter = void function(sfShader*,const(char)*,float,float,float,float);
+    alias da_sfShader_setVector2Parameter = void function(sfShader*,const(char)*,sfVector2f);
+    alias da_sfShader_setVector3Parameter = void function(sfShader*,const(char)*,sfVector3f);
+    alias da_sfShader_setColorParameter = void function(sfShader*,const(char)*,sfColor);
+    alias da_sfShader_setTransformParameter = void function(sfShader*,const(char)*,sfTransform);
+    alias da_sfShader_setTextureParameter = void function(sfShader*,const(char)*,const(sfTexture)*);
+    alias da_sfShader_setCurrentTextureParameter = void function(sfShader*,const(char)*);
+    alias da_sfShader_getNativeHandle = uint function(const(sfShader)*);
+    alias da_sfShader_bind = void function(const(sfShader)*);
     alias da_sfShader_isAvailable = sfBool function();
+    alias da_sfShader_isGeometryAvailable = sfBool function();
 
     // Graphics/Shape.h
-    alias da_sfShape_create = sfShape* function( sfShapeGetPointCountCallback,sfShapeGetPointCallback );
-    alias da_sfShape_destroy = void function( sfShape* );
-    alias da_sfShape_setPosition = void function( sfShape*,sfVector2f );
-    alias da_sfShape_setRotation = void function( sfShape*,float );
-    alias da_sfShape_setScale = void function( sfShape*,sfVector2f );
-    alias da_sfShape_setOrigin = void function( sfShape*,sfVector2f );
-    alias da_sfShape_getPosition = sfVector2f function( const( sfShape )* );
-    alias da_sfShape_getRotation = float function( const( sfShape )* );
-    alias da_sfShape_getScale = sfVector2f function( const( sfShape )* );
-    alias da_sfShape_getOrigin = sfVector2f function( const( sfShape )* );
-    alias da_sfShape_move = void function( sfShape*,sfVector2f );
-    alias da_sfShape_rotate = void function( sfShape*,float );
-    alias da_sfShape_scale = void function( sfShape*,sfVector2f );
-    alias da_sfShape_getTransform = sfTransform function( const( sfShape )* );
-    alias da_sfShape_getInverseTransform = sfTransform function( const( sfShape )* );
-    alias da_sfShape_setTexture = void function( sfShape*,const( sfTexture )*,sfBool );
-    alias da_sfShape_setTextureRect = void function( sfShape*,sfIntRect );
-    alias da_sfShape_setFillColor = void function( sfShape*,sfColor );
-    alias da_sfShape_setOutlineColor = void function( sfShape*,sfColor );
-    alias da_sfShape_setOutlineThickness = void function( sfShape*,float );
-    alias da_sfShape_getTexture = const( sfTexture )* function( const( sfShape )* );
-    alias da_sfShape_getTextureRect = sfIntRect function( const( sfShape )* );
-    alias da_sfShape_getFillColor = sfColor function( const( sfShape )* );
-    alias da_sfShape_getOutlineColor = sfColor function( const( sfShape )* );
-    alias da_sfShape_getOutlineThickness = float function( const( sfShape )* );
-    alias da_sfShape_getPointCount = size_t function( const( sfShape )* );
-    alias da_sfShape_getPoint = sfVector2f function( const( sfShape )*,size_t );
-    alias da_sfShape_getLocalBounds = sfFloatRect function( const( sfShape )* );
-    alias da_sfShape_getGlobalBounds = sfFloatRect function( const( sfShape )* );
-    alias da_sfShape_update = void function( sfShape* );
+    alias da_sfShape_create = sfShape* function(sfShapeGetPointCountCallback,sfShapeGetPointCallback);
+    alias da_sfShape_destroy = void function(sfShape*);
+    alias da_sfShape_setPosition = void function(sfShape*,sfVector2f);
+    alias da_sfShape_setRotation = void function(sfShape*,float);
+    alias da_sfShape_setScale = void function(sfShape*,sfVector2f);
+    alias da_sfShape_setOrigin = void function(sfShape*,sfVector2f);
+    alias da_sfShape_getPosition = sfVector2f function(const(sfShape)*);
+    alias da_sfShape_getRotation = float function(const(sfShape)*);
+    alias da_sfShape_getScale = sfVector2f function(const(sfShape)*);
+    alias da_sfShape_getOrigin = sfVector2f function(const(sfShape)*);
+    alias da_sfShape_move = void function(sfShape*,sfVector2f);
+    alias da_sfShape_rotate = void function(sfShape*,float);
+    alias da_sfShape_scale = void function(sfShape*,sfVector2f);
+    alias da_sfShape_getTransform = sfTransform function(const(sfShape)*);
+    alias da_sfShape_getInverseTransform = sfTransform function(const(sfShape)*);
+    alias da_sfShape_setTexture = void function(sfShape*,const(sfTexture)*,sfBool);
+    alias da_sfShape_setTextureRect = void function(sfShape*,sfIntRect);
+    alias da_sfShape_setFillColor = void function(sfShape*,sfColor);
+    alias da_sfShape_setOutlineColor = void function(sfShape*,sfColor);
+    alias da_sfShape_setOutlineThickness = void function(sfShape*,float);
+    alias da_sfShape_getTexture = const(sfTexture)* function(const(sfShape)*);
+    alias da_sfShape_getTextureRect = sfIntRect function(const(sfShape)*);
+    alias da_sfShape_getFillColor = sfColor function(const(sfShape)*);
+    alias da_sfShape_getOutlineColor = sfColor function(const(sfShape)*);
+    alias da_sfShape_getOutlineThickness = float function(const(sfShape)*);
+    alias da_sfShape_getPointCount = size_t function(const(sfShape)*);
+    alias da_sfShape_getPoint = sfVector2f function(const(sfShape)*,size_t);
+    alias da_sfShape_getLocalBounds = sfFloatRect function(const(sfShape)*);
+    alias da_sfShape_getGlobalBounds = sfFloatRect function(const(sfShape)*);
+    alias da_sfShape_update = void function(sfShape*);
 
     // Graphics/Sprite.h
     alias da_sfSprite_create = sfSprite* function();
-    alias da_sfSprite_copy = sfSprite* function( const( sfSprite )* );
-    alias da_sfSprite_destroy = void function( sfSprite* );
-    alias da_sfSprite_setPosition = void function( sfSprite*,sfVector2f );
-    alias da_sfSprite_setRotation = void function( sfSprite*,float );
-    alias da_sfSprite_setScale = void function( sfSprite*,sfVector2f );
-    alias da_sfSprite_setOrigin = void function( sfSprite*,sfVector2f );
-    alias da_sfSprite_getPosition = sfVector2f function( const( sfSprite )* );
-    alias da_sfSprite_getRotation = float function( const( sfSprite )* );
-    alias da_sfSprite_getScale = sfVector2f function( const( sfSprite )* );
-    alias da_sfSprite_getOrigin = sfVector2f function( const( sfSprite )* );
-    alias da_sfSprite_move = void function( sfSprite*,sfVector2f );
-    alias da_sfSprite_rotate = void function( sfSprite*,float );
-    alias da_sfSprite_scale = void function( sfSprite*,sfVector2f );
-    alias da_sfSprite_getTransform = sfTransform function( const( sfSprite )* );
-    alias da_sfSprite_getInverseTransform = sfTransform function( const( sfSprite )* );
-    alias da_sfSprite_setTexture = void function( sfSprite*,const( sfTexture )*,sfBool );
-    alias da_sfSprite_setTextureRect = void function( sfSprite*,sfIntRect );
-    alias da_sfSprite_setColor = void function( sfSprite*,sfColor );
-    alias da_sfSprite_getTexture = const( sfTexture )* function( const( sfSprite )* );
-    alias da_sfSprite_getTextureRect = sfIntRect function( const( sfSprite )* );
-    alias da_sfSprite_getColor = sfColor function( const( sfSprite )* );
-    alias da_sfSprite_getLocalBounds = sfFloatRect function( const( sfSprite )* );
-    alias da_sfSprite_getGlobalBounds = sfFloatRect function( const( sfSprite )* );
+    alias da_sfSprite_copy = sfSprite* function(const(sfSprite)*);
+    alias da_sfSprite_destroy = void function(sfSprite*);
+    alias da_sfSprite_setPosition = void function(sfSprite*,sfVector2f);
+    alias da_sfSprite_setRotation = void function(sfSprite*,float);
+    alias da_sfSprite_setScale = void function(sfSprite*,sfVector2f);
+    alias da_sfSprite_setOrigin = void function(sfSprite*,sfVector2f);
+    alias da_sfSprite_getPosition = sfVector2f function(const(sfSprite)*);
+    alias da_sfSprite_getRotation = float function(const(sfSprite)*);
+    alias da_sfSprite_getScale = sfVector2f function(const(sfSprite)*);
+    alias da_sfSprite_getOrigin = sfVector2f function(const(sfSprite)*);
+    alias da_sfSprite_move = void function(sfSprite*,sfVector2f);
+    alias da_sfSprite_rotate = void function(sfSprite*,float);
+    alias da_sfSprite_scale = void function(sfSprite*,sfVector2f);
+    alias da_sfSprite_getTransform = sfTransform function(const(sfSprite)*);
+    alias da_sfSprite_getInverseTransform = sfTransform function(const(sfSprite)*);
+    alias da_sfSprite_setTexture = void function(sfSprite*,const(sfTexture)*,sfBool);
+    alias da_sfSprite_setTextureRect = void function(sfSprite*,sfIntRect);
+    alias da_sfSprite_setColor = void function(sfSprite*,sfColor);
+    alias da_sfSprite_getTexture = const(sfTexture)* function(const(sfSprite)*);
+    alias da_sfSprite_getTextureRect = sfIntRect function(const(sfSprite)*);
+    alias da_sfSprite_getColor = sfColor function(const(sfSprite)*);
+    alias da_sfSprite_getLocalBounds = sfFloatRect function(const(sfSprite)*);
+    alias da_sfSprite_getGlobalBounds = sfFloatRect function(const(sfSprite)*);
 
     // Graphics/Text.h
     alias da_sfText_create = sfText* function();
-    alias da_sfText_copy = sfText* function( const( sfText )* );
-    alias da_sfText_destroy = void function( sfText* );
-    alias da_sfText_setPosition = void function( sfText*,sfVector2f );
-    alias da_sfText_setRotation = void function( sfText*,float );
-    alias da_sfText_setScale = void function( sfText*,sfVector2f );
-    alias da_sfText_setOrigin = void function( sfText*,sfVector2f );
-    alias da_sfText_getPosition = sfVector2f function( const( sfText )* );
-    alias da_sfText_getRotation = float function( const( sfText )* );
-    alias da_sfText_getScale = sfVector2f function( const( sfText )* );
-    alias da_sfText_getOrigin = sfVector2f function( const( sfText )* );
-    alias da_sfText_move = void function( sfText*,sfVector2f );
-    alias da_sfText_rotate = void function( sfText*,float );
-    alias da_sfText_scale = void function( sfText*,sfVector2f );
-    alias da_sfText_getTransform = sfTransform function( const( sfText )* );
-    alias da_sfText_getInverseTransform = sfTransform function( const( sfText )* );
-    alias da_sfText_setString = void function( sfText*,const( char )* );
-    alias da_sfText_setUnicodeString = void function( sfText*,const( dchar )* );
-    alias da_sfText_setFont = void function( sfText*,const( sfFont )* );
-    alias da_sfText_setCharacterSize = void function( sfText*,uint );
-    alias da_sfText_setStyle = void function( sfText*,sfUint32 );
-    alias da_sfText_setColor = void function( sfText*,sfColor );
-    alias da_sfText_getString = const( char )* function( const( sfText )* );
-    alias da_sfText_getUnicodeString = const( dchar )* function( const( sfText )* );
-    alias da_sfText_getFont = const( sfFont )* function( const( sfText )* );
-    alias da_sfText_getCharacterSize = uint function( const( sfText )* );
-    alias da_sfText_getStyle = sfUint32 function( const( sfText )* );
-    alias da_sfText_getColor = sfColor function( const( sfText )* );
-    alias da_sfText_findCharacterPos = sfVector2f function( const( sfText )*,size_t );
-    alias da_sfText_getLocalBounds = sfFloatRect function( const( sfText )* );
-    alias da_sfText_getGlobalBounds = sfFloatRect function( const( sfText )* );
+    alias da_sfText_copy = sfText* function(const(sfText)*);
+    alias da_sfText_destroy = void function(sfText*);
+    alias da_sfText_setPosition = void function(sfText*,sfVector2f);
+    alias da_sfText_setRotation = void function(sfText*,float);
+    alias da_sfText_setScale = void function(sfText*,sfVector2f);
+    alias da_sfText_setOrigin = void function(sfText*,sfVector2f);
+    alias da_sfText_getPosition = sfVector2f function(const(sfText)*);
+    alias da_sfText_getRotation = float function(const(sfText)*);
+    alias da_sfText_getScale = sfVector2f function(const(sfText)*);
+    alias da_sfText_getOrigin = sfVector2f function(const(sfText)*);
+    alias da_sfText_move = void function(sfText*,sfVector2f);
+    alias da_sfText_rotate = void function(sfText*,float);
+    alias da_sfText_scale = void function(sfText*,sfVector2f);
+    alias da_sfText_getTransform = sfTransform function(const(sfText)*);
+    alias da_sfText_getInverseTransform = sfTransform function(const(sfText)*);
+    alias da_sfText_setString = void function(sfText*,const(char)*);
+    alias da_sfText_setUnicodeString = void function(sfText*,const(dchar)*);
+    alias da_sfText_setFont = void function(sfText*,const(sfFont)*);
+    alias da_sfText_setCharacterSize = void function(sfText*,uint);
+    alias da_sfText_setStyle = void function(sfText*,sfUint32);
+    alias da_sfText_setColor = void function(sfText*,sfColor);
+    alias da_sfText_setFillColor = void function(sfText*,sfColor);
+    alias da_sfText_setOutlineColor = void function(sfText*,sfColor);
+    alias da_sfText_setOutlineThickness = void function(sfText*,float);
+    alias da_sfText_getString = const(char)* function(const(sfText)*);
+    alias da_sfText_getUnicodeString = const(dchar)* function(const(sfText)*);
+    alias da_sfText_getFont = const(sfFont)* function(const(sfText)*);
+    alias da_sfText_getCharacterSize = uint function(const(sfText)*);
+    alias da_sfText_getStyle = sfUint32 function(const(sfText)*);
+    alias da_sfText_getColor = sfColor function(const(sfText)*);
+    alias da_sfText_getFillColor = sfColor function(const(sfText)*);
+    alias da_sfText_getOutlineColor = sfColor function(const(sfText)*);
+    alias da_sfText_getOutlineThickness = float function(const(sfText)*);
+    alias da_sfText_findCharacterPos = sfVector2f function(const(sfText)*,size_t);
+    alias da_sfText_getLocalBounds = sfFloatRect function(const(sfText)*);
+    alias da_sfText_getGlobalBounds = sfFloatRect function(const(sfText)*);
 
     // Graphics/Texture.h
-    alias da_sfTexture_create = sfTexture* function( uint,uint );
-    alias da_sfTexture_createFromFile = sfTexture* function( const( char )*,const( sfIntRect )* );
-    alias da_sfTexture_createFromMemory = sfTexture* function( const( void )*,size_t,const( sfIntRect )* );
-    alias da_sfTexture_createFromStream = sfTexture* function( sfInputStream*,const( sfIntRect )* );
-    alias da_sfTexture_createFromImage = sfTexture* function( const( sfImage )*,const( sfIntRect )* );
-    alias da_sfTexture_copy = sfTexture* function( const( sfTexture )* );
-    alias da_sfTexture_destroy = void function( sfTexture* );
-    alias da_sfTexture_getSize = sfVector2u function( const( sfTexture )* );
-    alias da_sfTexture_copyToImage = sfImage* function( const( sfTexture )* );
-    alias da_sfTexture_updateFromPixels = void function( sfTexture*,const( sfUint8 )*,uint,uint,uint,uint );
-    alias da_sfTexture_updateFromImage = void function( sfTexture*,const( sfImage )*,uint,uint );
-    alias da_sfTexture_updateFromWindow = void function( sfTexture*,const( sfWindow )*,uint,uint );
-    alias da_sfTexture_updateFromRenderWindow = void function( sfTexture*,const( sfRenderWindow )* renderWindow,uint,uint );
-    alias da_sfTexture_bind = void function( const( sfTexture )* );
-    alias da_sfTexture_setSmooth = void function( sfTexture*,sfBool );
-    alias da_sfTexture_isSmooth = sfBool function( const( sfTexture )* );
-    alias da_sfTexture_setRepeated = void function( sfTexture*,sfBool );
-    alias da_sfTexture_isRepeated = sfBool function( const( sfTexture )* );
-    alias da_sfTexture_getNativeHandle = uint function( const(sfTexture)* );
+    alias da_sfTexture_create = sfTexture* function(uint,uint);
+    alias da_sfTexture_createFromFile = sfTexture* function(const(char)*,const(sfIntRect)*);
+    alias da_sfTexture_createFromMemory = sfTexture* function(const(void)*,size_t,const(sfIntRect)*);
+    alias da_sfTexture_createFromStream = sfTexture* function(sfInputStream*,const(sfIntRect)*);
+    alias da_sfTexture_createFromImage = sfTexture* function(const(sfImage)*,const(sfIntRect)*);
+    alias da_sfTexture_copy = sfTexture* function(const(sfTexture)*);
+    alias da_sfTexture_destroy = void function(sfTexture*);
+    alias da_sfTexture_getSize = sfVector2u function(const(sfTexture)*);
+    alias da_sfTexture_copyToImage = sfImage* function(const(sfTexture)*);
+    alias da_sfTexture_updateFromPixels = void function(sfTexture*,const(sfUint8)*,uint,uint,uint,uint);
+    alias da_sfTexture_updateFromImage = void function(sfTexture*,const(sfImage)*,uint,uint);
+    alias da_sfTexture_updateFromWindow = void function(sfTexture*,const(sfWindow)*,uint,uint);
+    alias da_sfTexture_updateFromRenderWindow = void function(sfTexture*,const(sfRenderWindow)* renderWindow,uint,uint);
+    alias da_sfTexture_bind = void function(const(sfTexture)*);
+    alias da_sfTexture_setSmooth = void function(sfTexture*,sfBool);
+    alias da_sfTexture_isSmooth = sfBool function(const(sfTexture)*);
+    alias da_sfTexture_setSrgb = void function(sfTexture*,sfBool);
+    alias da_sfTexture_isSrgb = sfBool function(const(sfTexture)*);
+    alias da_sfTexture_setRepeated = void function(sfTexture*,sfBool);
+    alias da_sfTexture_isRepeated = sfBool function(const(sfTexture)*);
+    alias da_sfTexture_generateMipmap = sfBool function(sfTexture*);
+    alias da_sfTexture_getNativeHandle = uint function(const(sfTexture)*);
     alias da_sfTexture_getMaximumSize = uint function();
 
     // Graphics/Transform.h
-    alias da_sfTransform_fromMatrix = sfTransform function( float,float,float,float,float,float,float,float,float );
-    alias da_sfTransform_getMatrix = void function( const( sfTransform )*, float* );
-    alias da_sfTransform_getInverse = sfTransform function( const( sfTransform )* );
-    alias da_sfTransform_transformPoint = sfVector2f function( const( sfTransform )*,sfVector2f );
-    alias da_sfTransform_transformRect = sfFloatRect function( const( sfTransform )*,sfFloatRect );
-    alias da_sfTransform_combine = void function( sfTransform*,const( sfTransform )* );
-    alias da_sfTransform_translate = void function( sfTransform*,float,float );
-    alias da_sfTransform_rotate = void function( sfTransform*,float );
-    alias da_sfTransform_rotateWithCenter = void function( sfTransform*,float,float,float );
-    alias da_sfTransform_scale = void function( sfTransform*,float,float );
-    alias da_sfTransform_scaleWithCenter = void function( sfTransform*,float,float,float,float );
+    alias da_sfTransform_fromMatrix = sfTransform function(float,float,float,float,float,float,float,float,float);
+    alias da_sfTransform_getMatrix = void function(const(sfTransform)*, float*);
+    alias da_sfTransform_getInverse = sfTransform function(const(sfTransform)*);
+    alias da_sfTransform_transformPoint = sfVector2f function(const(sfTransform)*,sfVector2f);
+    alias da_sfTransform_transformRect = sfFloatRect function(const(sfTransform)*,sfFloatRect);
+    alias da_sfTransform_combine = void function(sfTransform*,const(sfTransform)*);
+    alias da_sfTransform_translate = void function(sfTransform*,float,float);
+    alias da_sfTransform_rotate = void function(sfTransform*,float);
+    alias da_sfTransform_rotateWithCenter = void function(sfTransform*,float,float,float);
+    alias da_sfTransform_scale = void function(sfTransform*,float,float);
+    alias da_sfTransform_scaleWithCenter = void function(sfTransform*,float,float,float,float);
 
     // Graphics/Transformalble.h
     alias da_sfTransformable_create = sfTransformable* function();
-    alias da_sfTransformable_copy = sfTransformable* function( const( sfTransformable )* );
-    alias da_sfTransformable_destroy = void function( sfTransformable* );
-    alias da_sfTransformable_setPosition = void function( sfTransformable*,sfVector2f );
-    alias da_sfTransformable_setRotation = void function( sfTransformable*,float );
-    alias da_sfTransformable_setScale = void function( sfTransformable*,sfVector2f );
-    alias da_sfTransformable_setOrigin = void function( sfTransformable*,sfVector2f );
-    alias da_sfTransformable_getPosition = sfVector2f function( const( sfTransformable )* );
-    alias da_sfTransformable_getRotation = float function( const( sfTransformable )* );
-    alias da_sfTransformable_getScale = sfVector2f function( const( sfTransformable )* );
-    alias da_sfTransformable_getOrigin = sfVector2f function( const( sfTransformable )* );
-    alias da_sfTransformable_move = void function( sfTransformable*,sfVector2f );
-    alias da_sfTransformable_rotate = void function( sfTransformable*,float );
-    alias da_sfTransformable_scale = void function( sfTransformable*,sfVector2f );
-    alias da_sfTransformable_getTransform = sfTransform function( const( sfTransformable )* );
-    alias da_sfTransformable_getInverseTransform = sfTransform function( const( sfTransformable )* );
+    alias da_sfTransformable_copy = sfTransformable* function(const(sfTransformable)*);
+    alias da_sfTransformable_destroy = void function(sfTransformable*);
+    alias da_sfTransformable_setPosition = void function(sfTransformable*,sfVector2f);
+    alias da_sfTransformable_setRotation = void function(sfTransformable*,float);
+    alias da_sfTransformable_setScale = void function(sfTransformable*,sfVector2f);
+    alias da_sfTransformable_setOrigin = void function(sfTransformable*,sfVector2f);
+    alias da_sfTransformable_getPosition = sfVector2f function(const(sfTransformable)*);
+    alias da_sfTransformable_getRotation = float function(const(sfTransformable)*);
+    alias da_sfTransformable_getScale = sfVector2f function(const(sfTransformable)*);
+    alias da_sfTransformable_getOrigin = sfVector2f function(const(sfTransformable)*);
+    alias da_sfTransformable_move = void function(sfTransformable*,sfVector2f);
+    alias da_sfTransformable_rotate = void function(sfTransformable*,float);
+    alias da_sfTransformable_scale = void function(sfTransformable*,sfVector2f);
+    alias da_sfTransformable_getTransform = sfTransform function(const(sfTransformable)*);
+    alias da_sfTransformable_getInverseTransform = sfTransform function(const(sfTransformable)*);
 
     // Graphics/VertexArray.h
     alias da_sfVertexArray_create = sfVertexArray* function();
-    alias da_sfVertexArray_copy = sfVertexArray* function( const( sfVertexArray )* );
-    alias da_sfVertexArray_destroy = void function( sfVertexArray* );
-    alias da_sfVertexArray_getVertexCount = size_t function( const( sfVertexArray )* );
-    alias da_sfVertexArray_getVertex = sfVertex* function( sfVertexArray*,size_t );
-    alias da_sfVertexArray_clear = void function( sfVertexArray* );
-    alias da_sfVertexArray_resize = void function( sfVertexArray*,size_t );
-    alias da_sfVertexArray_append = void function( sfVertexArray*,sfVertex );
-    alias da_sfVertexArray_setPrimitiveType = void function( sfVertexArray*,sfPrimitiveType );
-    alias da_sfVertexArray_getPrimitiveType = sfPrimitiveType function( sfVertexArray* );
-    alias da_sfVertexArray_getBounds = sfFloatRect function( sfVertexArray* );
+    alias da_sfVertexArray_copy = sfVertexArray* function(const(sfVertexArray)*);
+    alias da_sfVertexArray_destroy = void function(sfVertexArray*);
+    alias da_sfVertexArray_getVertexCount = size_t function(const(sfVertexArray)*);
+    alias da_sfVertexArray_getVertex = sfVertex* function(sfVertexArray*,size_t);
+    alias da_sfVertexArray_clear = void function(sfVertexArray*);
+    alias da_sfVertexArray_resize = void function(sfVertexArray*,size_t);
+    alias da_sfVertexArray_append = void function(sfVertexArray*,sfVertex);
+    alias da_sfVertexArray_setPrimitiveType = void function(sfVertexArray*,sfPrimitiveType);
+    alias da_sfVertexArray_getPrimitiveType = sfPrimitiveType function(sfVertexArray*);
+    alias da_sfVertexArray_getBounds = sfFloatRect function(sfVertexArray*);
 
     // Graphics/View.h
     alias da_sfView_create = sfView* function();
-    alias da_sfView_createFromRect = sfView* function( sfFloatRect );
-    alias da_sfView_copy = sfView* function( const( sfView )* );
-    alias da_sfView_destroy = void function( sfView* );
-    alias da_sfView_setCenter = void function( sfView*,sfVector2f );
-    alias da_sfView_setSize = void function( sfView*,sfVector2f );
-    alias da_sfView_setRotation = void function( sfView*,float );
-    alias da_sfView_setViewport = void function( sfView*,sfFloatRect );
-    alias da_sfView_reset = void function( sfView*,sfFloatRect );
-    alias da_sfView_getCenter = sfVector2f function( const( sfView )* );
-    alias da_sfView_getSize = sfVector2f function( const( sfView )* );
-    alias da_sfView_getRotation = float function( const( sfView )* );
-    alias da_sfView_getViewport = sfFloatRect function( const( sfView )* );
-    alias da_sfView_move = void function( sfView*,sfVector2f );
-    alias da_sfView_rotate = void function( sfView*,float );
-    alias da_sfView_zoom = void function( sfView*,float );
+    alias da_sfView_createFromRect = sfView* function(sfFloatRect);
+    alias da_sfView_copy = sfView* function(const(sfView)*);
+    alias da_sfView_destroy = void function(sfView*);
+    alias da_sfView_setCenter = void function(sfView*,sfVector2f);
+    alias da_sfView_setSize = void function(sfView*,sfVector2f);
+    alias da_sfView_setRotation = void function(sfView*,float);
+    alias da_sfView_setViewport = void function(sfView*,sfFloatRect);
+    alias da_sfView_reset = void function(sfView*,sfFloatRect);
+    alias da_sfView_getCenter = sfVector2f function(const(sfView)*);
+    alias da_sfView_getSize = sfVector2f function(const(sfView)*);
+    alias da_sfView_getRotation = float function(const(sfView)*);
+    alias da_sfView_getViewport = sfFloatRect function(const(sfView)*);
+    alias da_sfView_move = void function(sfView*,sfVector2f);
+    alias da_sfView_rotate = void function(sfView*,float);
+    alias da_sfView_zoom = void function(sfView*,float);
 }
 
 __gshared {
@@ -812,6 +880,7 @@ __gshared {
     da_sfRenderTexture_isSmooth sfRenderTexture_isSmooth;
     da_sfRenderTexture_setRepeated sfRenderTexture_setRepeated;
     da_sfRenderTexture_isRepeated sfRenderTexture_isRepeated;
+    da_sfRenderTexture_generateMipmap sfRenderTexture_generateMipmap;
 
     da_sfRenderWindow_create sfRenderWindow_create;
     da_sfRenderWindow_createUnicode sfRenderWindow_createUnicode;
@@ -829,15 +898,16 @@ __gshared {
     da_sfRenderWindow_setTitle sfRenderWindow_setTitle;
     da_sfRenderWindow_setIcon sfRenderWindow_setIcon;
     da_sfRenderWindow_setVisible sfRenderWindow_setVisible;
-    da_sfRenderWindow_setMouseCursorVisible sfRenderWindow_setMouseCursorVisible;
     da_sfRenderWindow_setVerticalSyncEnabled sfRenderWindow_setVerticalSyncEnabled;
+    da_sfRenderWindow_setMouseCursorVisible sfRenderWindow_setMouseCursorVisible;
+    da_sfRenderWindow_setMouseCursorGrabbed sfRenderWindow_setMouseCursorGrabbed;
     da_sfRenderWindow_setKeyRepeatEnabled sfRenderWindow_setKeyRepeatEnabled;
+    da_sfRenderWindow_setFramerateLimit sfRenderWindow_setFramerateLimit;
+    da_sfRenderWindow_setJoystickThreshold sfRenderWindow_setJoystickThreshold;
     da_sfRenderWindow_setActive sfRenderWindow_setActive;
     da_sfRenderWindow_requestFocus sfRenderWindow_requestFocus;
     da_sfRenderWindow_hasFocus sfRenderWindow_hasFocus;
     da_sfRenderWindow_display sfRenderWindow_display;
-    da_sfRenderWindow_setFramerateLimit sfRenderWindow_setFramerateLimit;
-    da_sfRenderWindow_setJoystickThreshold sfRenderWindow_setJoystickThreshold;
     da_sfRenderWindow_getSystemHandle sfRenderWindow_getSystemHandle;
     da_sfRenderWindow_clear sfRenderWindow_clear;
     da_sfRenderWindow_setView sfRenderWindow_setView;
@@ -861,11 +931,33 @@ __gshared {
     da_sfMouse_getPositionRenderWindow sfMouse_getPositionRenderWindow;
     da_sfMouse_setPositionRenderWindow sfMouse_setPositionRenderWindow;
     da_sfTouch_getPositionRenderWindow sfTouch_getPositionRenderWindow;
-
     da_sfShader_createFromFile sfShader_createFromFile;
     da_sfShader_createFromMemory sfShader_createFromMemory;
     da_sfShader_createFromStream sfShader_createFromStream;
     da_sfShader_destroy sfShader_destroy;
+    da_sfShader_setFloatUniform sfShader_setFloatUniform;
+    da_sfShader_setVec2Uniform sfShader_setVec2Uniform;
+    da_sfShader_setVec3Uniform sfShader_setVec3Uniform;
+    da_sfShader_setVec4Uniform sfShader_setVec4Uniform;
+    da_sfShader_setColorUniform sfShader_setColorUniform;
+    da_sfShader_setIntUniform sfShader_setIntUniform;
+    da_sfShader_setIvec2Uniform sfShader_setIvec2Uniform;
+    da_sfShader_setIvec3Uniform sfShader_setIvec3Uniform;
+    da_sfShader_setIvec4Uniform sfShader_setIvec4Uniform;
+    da_sfShader_setIntColorUniform sfShader_setIntColorUniform;
+    da_sfShader_setBoolUniform sfShader_setBoolUniform;
+    da_sfShader_setBvec2Uniform sfShader_setBvec2Uniform;
+    da_sfShader_setBvec3Uniform sfShader_setBvec3Uniform;
+    da_sfShader_setBvec4Uniform sfShader_setBvec4Uniform;
+    da_sfShader_setMat3Uniform sfShader_setMat3Uniform;
+    da_sfShader_setMat4Uniform sfShader_setMat4Uniform;
+    da_sfShader_setTextureUniform sfShader_setTextureUniform;
+    da_sfShader_setCurrentTextureUniform sfShader_setCurrentTextureUniform;
+    da_sfShader_setVec2UniformArray sfShader_setVec2UniformArray;
+    da_sfShader_setVec3UniformArray sfShader_setVec3UniformArray;
+    da_sfShader_setVec4UniformArray sfShader_setVec4UniformArray;
+    da_sfShader_setMat3UniformArray sfShader_setMat3UniformArray;
+    da_sfShader_setMat4UniformArray sfShader_setMat4UniformArray;
     da_sfShader_setFloatParameter sfShader_setFloatParameter;
     da_sfShader_setFloat2Parameter sfShader_setFloat2Parameter;
     da_sfShader_setFloat3Parameter sfShader_setFloat3Parameter;
@@ -879,6 +971,7 @@ __gshared {
     da_sfShader_getNativeHandle sfShader_getNativeHandle;
     da_sfShader_bind sfShader_bind;
     da_sfShader_isAvailable sfShader_isAvailable;
+    da_sfShader_isGeometryAvailable sfShader_isGeometryAvailable;
 
     da_sfShape_create sfShape_create;
     da_sfShape_destroy sfShape_destroy;
@@ -958,12 +1051,18 @@ __gshared {
     da_sfText_setCharacterSize sfText_setCharacterSize;
     da_sfText_setStyle sfText_setStyle;
     da_sfText_setColor sfText_setColor;
+    da_sfText_setFillColor sfText_setFillColor;
+    da_sfText_setOutlineColor sfText_setOutlineColor;
+    da_sfText_setOutlineThickness sfText_setOutlineThickness;
     da_sfText_getString sfText_getString;
     da_sfText_getUnicodeString sfText_getUnicodeString;
     da_sfText_getFont sfText_getFont;
     da_sfText_getCharacterSize sfText_getCharacterSize;
     da_sfText_getStyle sfText_getStyle;
     da_sfText_getColor sfText_getColor;
+    da_sfText_getFillColor sfText_getFillColor;
+    da_sfText_getOutlineColor sfText_getOutlineColor;
+    da_sfText_getOutlineThickness sfText_getOutlineThickness;
     da_sfText_findCharacterPos sfText_findCharacterPos;
     da_sfText_getLocalBounds sfText_getLocalBounds;
     da_sfText_getGlobalBounds sfText_getGlobalBounds;
@@ -984,8 +1083,11 @@ __gshared {
     da_sfTexture_bind sfTexture_bind;
     da_sfTexture_setSmooth sfTexture_setSmooth;
     da_sfTexture_isSmooth sfTexture_isSmooth;
+    da_sfTexture_setSrgb sfTexture_setSrgb;
+    da_sfTexture_isSrgb sfTexture_isSrgb;
     da_sfTexture_setRepeated sfTexture_setRepeated;
     da_sfTexture_isRepeated sfTexture_isRepeated;
+    da_sfTexture_generateMipmap sfTexture_generateMipmap;
     da_sfTexture_getNativeHandle sfTexture_getNativeHandle;
     da_sfTexture_getMaximumSize sfTexture_getMaximumSize;
 
@@ -1050,405 +1152,453 @@ __gshared {
 
 
 class DerelictSFML2GraphicsLoader : SharedLibLoader {
-    public this() {
-        super( libNames );
+    this() 
+    {
+        super(libNames);
     }
 
-    protected override void loadSymbols() {
-        bindFunc( cast( void** )&sfCircleShape_create, "sfCircleShape_create" );
-        bindFunc( cast( void** )&sfCircleShape_copy, "sfCircleShape_copy" );
-        bindFunc( cast( void** )&sfCircleShape_destroy, "sfCircleShape_destroy" );
-        bindFunc( cast( void** )&sfCircleShape_setPosition, "sfCircleShape_setPosition" );
-        bindFunc( cast( void** )&sfCircleShape_setRotation, "sfCircleShape_setRotation" );
-        bindFunc( cast( void** )&sfCircleShape_setScale, "sfCircleShape_setScale" );
-        bindFunc( cast( void** )&sfCircleShape_setOrigin, "sfCircleShape_setOrigin" );
-        bindFunc( cast( void** )&sfCircleShape_getPosition, "sfCircleShape_getPosition" );
-        bindFunc( cast( void** )&sfCircleShape_getRotation, "sfCircleShape_getRotation" );
-        bindFunc( cast( void** )&sfCircleShape_getScale, "sfCircleShape_getScale" );
-        bindFunc( cast( void** )&sfCircleShape_getOrigin, "sfCircleShape_getOrigin" );
-        bindFunc( cast( void** )&sfCircleShape_move, "sfCircleShape_move" );
-        bindFunc( cast( void** )&sfCircleShape_rotate, "sfCircleShape_rotate" );
-        bindFunc( cast( void** )&sfCircleShape_scale, "sfCircleShape_scale" );
-        bindFunc( cast( void** )&sfCircleShape_getTransform, "sfCircleShape_getTransform" );
-        bindFunc( cast( void** )&sfCircleShape_getInverseTransform, "sfCircleShape_getInverseTransform" );
-        bindFunc( cast( void** )&sfCircleShape_setTexture, "sfCircleShape_setTexture" );
-        bindFunc( cast( void** )&sfCircleShape_setTextureRect, "sfCircleShape_setTextureRect" );
-        bindFunc( cast( void** )&sfCircleShape_setFillColor, "sfCircleShape_setFillColor" );
-        bindFunc( cast( void** )&sfCircleShape_setOutlineColor, "sfCircleShape_setOutlineColor" );
-        bindFunc( cast( void** )&sfCircleShape_setOutlineThickness, "sfCircleShape_setOutlineThickness" );
-        bindFunc( cast( void** )&sfCircleShape_getTexture, "sfCircleShape_getTexture" );
-        bindFunc( cast( void** )&sfCircleShape_getTextureRect, "sfCircleShape_getTextureRect" );
-        bindFunc( cast( void** )&sfCircleShape_getFillColor, "sfCircleShape_getFillColor" );
-        bindFunc( cast( void** )&sfCircleShape_getOutlineColor, "sfCircleShape_getOutlineColor" );
-        bindFunc( cast( void** )&sfCircleShape_getOutlineThickness, "sfCircleShape_getOutlineThickness" );
-        bindFunc( cast( void** )&sfCircleShape_getPointCount, "sfCircleShape_getPointCount" );
-        bindFunc( cast( void** )&sfCircleShape_getPoint, "sfCircleShape_getPoint" );
-        bindFunc( cast( void** )&sfCircleShape_setRadius, "sfCircleShape_setRadius" );
-        bindFunc( cast( void** )&sfCircleShape_getRadius, "sfCircleShape_getRadius" );
-        bindFunc( cast( void** )&sfCircleShape_setPointCount, "sfCircleShape_setPointCount" );
-        bindFunc( cast( void** )&sfCircleShape_getLocalBounds, "sfCircleShape_getLocalBounds" );
-        bindFunc( cast( void** )&sfCircleShape_getGlobalBounds, "sfCircleShape_getGlobalBounds" );
-        bindFunc( cast( void** )&sfColor_fromRGB, "sfColor_fromRGB" );
-        bindFunc( cast( void** )&sfColor_fromRGBA, "sfColor_fromRGBA" );
-        bindFunc( cast( void** )&sfColor_fromInteger, "sfColor_fromInteger" );
-        bindFunc( cast( void** )&sfColor_toInteger, "sfColor_toInteger" );
-        bindFunc( cast( void** )&sfColor_add, "sfColor_add" );
-        bindFunc( cast( void** )&sfColor_subtract, "sfColor_subtract" );
-        bindFunc( cast( void** )&sfColor_modulate, "sfColor_modulate" );
-        bindFunc( cast( void** )&sfConvexShape_create, "sfConvexShape_create" );
-        bindFunc( cast( void** )&sfConvexShape_copy, "sfConvexShape_copy" );
-        bindFunc( cast( void** )&sfConvexShape_destroy, "sfConvexShape_destroy" );
-        bindFunc( cast( void** )&sfConvexShape_setPosition, "sfConvexShape_setPosition" );
-        bindFunc( cast( void** )&sfConvexShape_setRotation, "sfConvexShape_setRotation" );
-        bindFunc( cast( void** )&sfConvexShape_setScale, "sfConvexShape_setScale" );
-        bindFunc( cast( void** )&sfConvexShape_setOrigin, "sfConvexShape_setOrigin" );
-        bindFunc( cast( void** )&sfConvexShape_getPosition, "sfConvexShape_getPosition" );
-        bindFunc( cast( void** )&sfConvexShape_getRotation, "sfConvexShape_getRotation" );
-        bindFunc( cast( void** )&sfConvexShape_getScale, "sfConvexShape_getScale" );
-        bindFunc( cast( void** )&sfConvexShape_getOrigin, "sfConvexShape_getOrigin" );
-        bindFunc( cast( void** )&sfConvexShape_move, "sfConvexShape_move" );
-        bindFunc( cast( void** )&sfConvexShape_rotate, "sfConvexShape_rotate" );
-        bindFunc( cast( void** )&sfConvexShape_scale, "sfConvexShape_scale" );
-        bindFunc( cast( void** )&sfConvexShape_getTransform, "sfConvexShape_getTransform" );
-        bindFunc( cast( void** )&sfConvexShape_getInverseTransform, "sfConvexShape_getInverseTransform" );
-        bindFunc( cast( void** )&sfConvexShape_setTexture, "sfConvexShape_setTexture" );
-        bindFunc( cast( void** )&sfConvexShape_setTextureRect, "sfConvexShape_setTextureRect" );
-        bindFunc( cast( void** )&sfConvexShape_setFillColor, "sfConvexShape_setFillColor" );
-        bindFunc( cast( void** )&sfConvexShape_setOutlineColor, "sfConvexShape_setOutlineColor" );
-        bindFunc( cast( void** )&sfConvexShape_setOutlineThickness, "sfConvexShape_setOutlineThickness" );
-        bindFunc( cast( void** )&sfConvexShape_getTexture, "sfConvexShape_getTexture" );
-        bindFunc( cast( void** )&sfConvexShape_getTextureRect, "sfConvexShape_getTextureRect" );
-        bindFunc( cast( void** )&sfConvexShape_getFillColor, "sfConvexShape_getFillColor" );
-        bindFunc( cast( void** )&sfConvexShape_getOutlineColor, "sfConvexShape_getOutlineColor" );
-        bindFunc( cast( void** )&sfConvexShape_getOutlineThickness, "sfConvexShape_getOutlineThickness" );
-        bindFunc( cast( void** )&sfConvexShape_getPointCount, "sfConvexShape_getPointCount" );
-        bindFunc( cast( void** )&sfConvexShape_getPoint, "sfConvexShape_getPoint" );
-        bindFunc( cast( void** )&sfConvexShape_setPointCount, "sfConvexShape_setPointCount" );
-        bindFunc( cast( void** )&sfConvexShape_setPoint, "sfConvexShape_setPoint" );
-        bindFunc( cast( void** )&sfConvexShape_getLocalBounds, "sfConvexShape_getLocalBounds" );
-        bindFunc( cast( void** )&sfConvexShape_getGlobalBounds, "sfConvexShape_getGlobalBounds" );
-        bindFunc( cast( void** )&sfFont_createFromFile, "sfFont_createFromFile" );
-        bindFunc( cast( void** )&sfFont_createFromMemory, "sfFont_createFromMemory" );
-        bindFunc( cast( void** )&sfFont_createFromStream, "sfFont_createFromStream" );
-        bindFunc( cast( void** )&sfFont_copy, "sfFont_copy" );
-        bindFunc( cast( void** )&sfFont_destroy, "sfFont_destroy" );
-        bindFunc( cast( void** )&sfFont_getGlyph, "sfFont_getGlyph" );
-        bindFunc( cast( void** )&sfFont_getKerning, "sfFont_getKerning" );
-        bindFunc( cast( void** )&sfFont_getLineSpacing, "sfFont_getLineSpacing" );
-        bindFunc( cast( void** )&sfFont_getUnderlinePosition, "sfFont_getUnderlinePosition" );
-        bindFunc( cast( void** )&sfFont_getUnderlineThickness, "sfFont_getUnderlineThickness" );
-        bindFunc( cast( void** )&sfFont_getTexture, "sfFont_getTexture" );
-        bindFunc( cast( void** )&sfFont_getInfo, "sfFont_getInfo" );
-        bindFunc( cast( void** )&sfImage_create, "sfImage_create" );
-        bindFunc( cast( void** )&sfImage_createFromColor, "sfImage_createFromColor" );
-        bindFunc( cast( void** )&sfImage_createFromPixels, "sfImage_createFromPixels" );
-        bindFunc( cast( void** )&sfImage_createFromFile, "sfImage_createFromFile" );
-        bindFunc( cast( void** )&sfImage_createFromMemory, "sfImage_createFromMemory" );
-        bindFunc( cast( void** )&sfImage_createFromStream, "sfImage_createFromStream" );
-        bindFunc( cast( void** )&sfImage_copy, "sfImage_copy" );
-        bindFunc( cast( void** )&sfImage_destroy, "sfImage_destroy" );
-        bindFunc( cast( void** )&sfImage_saveToFile, "sfImage_saveToFile" );
-        bindFunc( cast( void** )&sfImage_getSize, "sfImage_getSize" );
-        bindFunc( cast( void** )&sfImage_createMaskFromColor, "sfImage_createMaskFromColor" );
-        bindFunc( cast( void** )&sfImage_copyImage, "sfImage_copyImage" );
-        bindFunc( cast( void** )&sfImage_setPixel, "sfImage_setPixel" );
-        bindFunc( cast( void** )&sfImage_getPixel, "sfImage_getPixel" );
-        bindFunc( cast( void** )&sfImage_getPixelsPtr, "sfImage_getPixelsPtr" );
-        bindFunc( cast( void** )&sfImage_flipHorizontally, "sfImage_flipHorizontally" );
-        bindFunc( cast( void** )&sfImage_flipVertically, "sfImage_flipVertically" );
-        bindFunc( cast( void** )&sfFloatRect_contains, "sfFloatRect_contains" );
-        bindFunc( cast( void** )&sfIntRect_contains, "sfIntRect_contains" );
-        bindFunc( cast( void** )&sfFloatRect_intersects, "sfFloatRect_intersects" );
-        bindFunc( cast( void** )&sfIntRect_intersects, "sfIntRect_intersects" );
-        bindFunc( cast( void** )&sfRectangleShape_create, "sfRectangleShape_create" );
-        bindFunc( cast( void** )&sfRectangleShape_copy, "sfRectangleShape_copy" );
-        bindFunc( cast( void** )&sfRectangleShape_destroy, "sfRectangleShape_destroy" );
-        bindFunc( cast( void** )&sfRectangleShape_setPosition, "sfRectangleShape_setPosition" );
-        bindFunc( cast( void** )&sfRectangleShape_setRotation, "sfRectangleShape_setRotation" );
-        bindFunc( cast( void** )&sfRectangleShape_setScale, "sfRectangleShape_setScale" );
-        bindFunc( cast( void** )&sfRectangleShape_setOrigin, "sfRectangleShape_setOrigin" );
-        bindFunc( cast( void** )&sfRectangleShape_getPosition, "sfRectangleShape_getPosition" );
-        bindFunc( cast( void** )&sfRectangleShape_getRotation, "sfRectangleShape_getRotation" );
-        bindFunc( cast( void** )&sfRectangleShape_getScale, "sfRectangleShape_getScale" );
-        bindFunc( cast( void** )&sfRectangleShape_getOrigin, "sfRectangleShape_getOrigin" );
-        bindFunc( cast( void** )&sfRectangleShape_move, "sfRectangleShape_move" );
-        bindFunc( cast( void** )&sfRectangleShape_rotate, "sfRectangleShape_rotate" );
-        bindFunc( cast( void** )&sfRectangleShape_scale, "sfRectangleShape_scale" );
-        bindFunc( cast( void** )&sfRectangleShape_getTransform, "sfRectangleShape_getTransform" );
-        bindFunc( cast( void** )&sfRectangleShape_getInverseTransform, "sfRectangleShape_getInverseTransform" );
-        bindFunc( cast( void** )&sfRectangleShape_setTexture, "sfRectangleShape_setTexture" );
-        bindFunc( cast( void** )&sfRectangleShape_setTextureRect, "sfRectangleShape_setTextureRect" );
-        bindFunc( cast( void** )&sfRectangleShape_setFillColor, "sfRectangleShape_setFillColor" );
-        bindFunc( cast( void** )&sfRectangleShape_setOutlineColor, "sfRectangleShape_setOutlineColor" );
-        bindFunc( cast( void** )&sfRectangleShape_setOutlineThickness, "sfRectangleShape_setOutlineThickness" );
-        bindFunc( cast( void** )&sfRectangleShape_getTexture, "sfRectangleShape_getTexture" );
-        bindFunc( cast( void** )&sfRectangleShape_getTextureRect, "sfRectangleShape_getTextureRect" );
-        bindFunc( cast( void** )&sfRectangleShape_getFillColor, "sfRectangleShape_getFillColor" );
-        bindFunc( cast( void** )&sfRectangleShape_getOutlineColor, "sfRectangleShape_getOutlineColor" );
-        bindFunc( cast( void** )&sfRectangleShape_getOutlineThickness, "sfRectangleShape_getOutlineThickness" );
-        bindFunc( cast( void** )&sfRectangleShape_getPointCount, "sfRectangleShape_getPointCount" );
-        bindFunc( cast( void** )&sfRectangleShape_getPoint, "sfRectangleShape_getPoint" );
-        bindFunc( cast( void** )&sfRectangleShape_setSize, "sfRectangleShape_setSize" );
-        bindFunc( cast( void** )&sfRectangleShape_getSize, "sfRectangleShape_getSize" );
-        bindFunc( cast( void** )&sfRectangleShape_getLocalBounds, "sfRectangleShape_getLocalBounds" );
-        bindFunc( cast( void** )&sfRectangleShape_getGlobalBounds, "sfRectangleShape_getGlobalBounds" );
-        bindFunc( cast( void** )&sfRenderTexture_create, "sfRenderTexture_create" );
-        bindFunc( cast( void** )&sfRenderTexture_destroy, "sfRenderTexture_destroy" );
-        bindFunc( cast( void** )&sfRenderTexture_getSize, "sfRenderTexture_getSize" );
-        bindFunc( cast( void** )&sfRenderTexture_setActive, "sfRenderTexture_setActive" );
-        bindFunc( cast( void** )&sfRenderTexture_display, "sfRenderTexture_display" );
-        bindFunc( cast( void** )&sfRenderTexture_clear, "sfRenderTexture_clear" );
-        bindFunc( cast( void** )&sfRenderTexture_setView, "sfRenderTexture_setView" );
-        bindFunc( cast( void** )&sfRenderTexture_getView, "sfRenderTexture_getView" );
-        bindFunc( cast( void** )&sfRenderTexture_getDefaultView, "sfRenderTexture_getDefaultView" );
-        bindFunc( cast( void** )&sfRenderTexture_getViewport, "sfRenderTexture_getViewport" );
-        bindFunc( cast( void** )&sfRenderTexture_mapPixelToCoords, "sfRenderTexture_mapPixelToCoords" );
-        bindFunc( cast( void** )&sfRenderTexture_mapCoordsToPixel, "sfRenderTexture_mapCoordsToPixel" );
-        bindFunc( cast( void** )&sfRenderTexture_drawSprite, "sfRenderTexture_drawSprite" );
-        bindFunc( cast( void** )&sfRenderTexture_drawText, "sfRenderTexture_drawText" );
-        bindFunc( cast( void** )&sfRenderTexture_drawShape, "sfRenderTexture_drawShape" );
-        bindFunc( cast( void** )&sfRenderTexture_drawCircleShape, "sfRenderTexture_drawCircleShape" );
-        bindFunc( cast( void** )&sfRenderTexture_drawConvexShape, "sfRenderTexture_drawConvexShape" );
-        bindFunc( cast( void** )&sfRenderTexture_drawRectangleShape, "sfRenderTexture_drawRectangleShape" );
-        bindFunc( cast( void** )&sfRenderTexture_drawVertexArray, "sfRenderTexture_drawVertexArray" );
-        bindFunc( cast( void** )&sfRenderTexture_drawPrimitives, "sfRenderTexture_drawPrimitives" );
-        bindFunc( cast( void** )&sfRenderTexture_pushGLStates, "sfRenderTexture_pushGLStates" );
-        bindFunc( cast( void** )&sfRenderTexture_popGLStates, "sfRenderTexture_popGLStates" );
-        bindFunc( cast( void** )&sfRenderTexture_resetGLStates, "sfRenderTexture_resetGLStates" );
-        bindFunc( cast( void** )&sfRenderTexture_getTexture, "sfRenderTexture_getTexture" );
-        bindFunc( cast( void** )&sfRenderTexture_setSmooth, "sfRenderTexture_setSmooth" );
-        bindFunc( cast( void** )&sfRenderTexture_isSmooth, "sfRenderTexture_isSmooth" );
-        bindFunc( cast( void** )&sfRenderTexture_setRepeated, "sfRenderTexture_setRepeated" );
-        bindFunc( cast( void** )&sfRenderTexture_isRepeated, "sfRenderTexture_isRepeated" );
-        bindFunc( cast( void** )&sfRenderWindow_create, "sfRenderWindow_create" );
-        bindFunc( cast( void** )&sfRenderWindow_createUnicode, "sfRenderWindow_createUnicode" );
-        bindFunc( cast( void** )&sfRenderWindow_createFromHandle, "sfRenderWindow_createFromHandle" );
-        bindFunc( cast( void** )&sfRenderWindow_destroy, "sfRenderWindow_destroy" );
-        bindFunc( cast( void** )&sfRenderWindow_close, "sfRenderWindow_close" );
-        bindFunc( cast( void** )&sfRenderWindow_isOpen, "sfRenderWindow_isOpen" );
-        bindFunc( cast( void** )&sfRenderWindow_getSettings, "sfRenderWindow_getSettings" );
-        bindFunc( cast( void** )&sfRenderWindow_pollEvent, "sfRenderWindow_pollEvent" );
-        bindFunc( cast( void** )&sfRenderWindow_waitEvent, "sfRenderWindow_waitEvent" );
-        bindFunc( cast( void** )&sfRenderWindow_getPosition, "sfRenderWindow_getPosition" );
-        bindFunc( cast( void** )&sfRenderWindow_setPosition, "sfRenderWindow_setPosition" );
-        bindFunc( cast( void** )&sfRenderWindow_getSize, "sfRenderWindow_getSize" );
-        bindFunc( cast( void** )&sfRenderWindow_setSize, "sfRenderWindow_setSize" );
-        bindFunc( cast( void** )&sfRenderWindow_setTitle, "sfRenderWindow_setTitle" );
-        bindFunc( cast( void** )&sfRenderWindow_setIcon, "sfRenderWindow_setIcon" );
-        bindFunc( cast( void** )&sfRenderWindow_setVisible, "sfRenderWindow_setVisible" );
-        bindFunc( cast( void** )&sfRenderWindow_setMouseCursorVisible, "sfRenderWindow_setMouseCursorVisible" );
-        bindFunc( cast( void** )&sfRenderWindow_setVerticalSyncEnabled, "sfRenderWindow_setVerticalSyncEnabled" );
-        bindFunc( cast( void** )&sfRenderWindow_setKeyRepeatEnabled, "sfRenderWindow_setKeyRepeatEnabled" );
-        bindFunc( cast( void** )&sfRenderWindow_setActive, "sfRenderWindow_setActive" );
-        bindFunc( cast( void** )&sfRenderWindow_requestFocus, "sfRenderWindow_requestFocus" );
-        bindFunc( cast( void** )&sfRenderWindow_hasFocus, "sfRenderWindow_hasFocus" );
-        bindFunc( cast( void** )&sfRenderWindow_display, "sfRenderWindow_display" );
-        bindFunc( cast( void** )&sfRenderWindow_setFramerateLimit, "sfRenderWindow_setFramerateLimit" );
-        bindFunc( cast( void** )&sfRenderWindow_setJoystickThreshold, "sfRenderWindow_setJoystickThreshold" );
-        bindFunc( cast( void** )&sfRenderWindow_getSystemHandle, "sfRenderWindow_getSystemHandle" );
-        bindFunc( cast( void** )&sfRenderWindow_clear, "sfRenderWindow_clear" );
-        bindFunc( cast( void** )&sfRenderWindow_setView, "sfRenderWindow_setView" );
-        bindFunc( cast( void** )&sfRenderWindow_getView, "sfRenderWindow_getView" );
-        bindFunc( cast( void** )&sfRenderWindow_getDefaultView, "sfRenderWindow_getDefaultView" );
-        bindFunc( cast( void** )&sfRenderWindow_getViewport, "sfRenderWindow_getViewport" );
-        bindFunc( cast( void** )&sfRenderWindow_mapPixelToCoords, "sfRenderWindow_mapPixelToCoords" );
-        bindFunc( cast( void** )&sfRenderWindow_mapCoordsToPixel, "sfRenderWindow_mapCoordsToPixel" );
-        bindFunc( cast( void** )&sfRenderWindow_drawSprite, "sfRenderWindow_drawSprite" );
-        bindFunc( cast( void** )&sfRenderWindow_drawText, "sfRenderWindow_drawText" );
-        bindFunc( cast( void** )&sfRenderWindow_drawShape, "sfRenderWindow_drawShape" );
-        bindFunc( cast( void** )&sfRenderWindow_drawCircleShape, "sfRenderWindow_drawCircleShape" );
-        bindFunc( cast( void** )&sfRenderWindow_drawConvexShape, "sfRenderWindow_drawConvexShape" );
-        bindFunc( cast( void** )&sfRenderWindow_drawRectangleShape, "sfRenderWindow_drawRectangleShape" );
-        bindFunc( cast( void** )&sfRenderWindow_drawVertexArray, "sfRenderWindow_drawVertexArray" );
-        bindFunc( cast( void** )&sfRenderWindow_drawPrimitives, "sfRenderWindow_drawPrimitives" );
-        bindFunc( cast( void** )&sfRenderWindow_pushGLStates, "sfRenderWindow_pushGLStates" );
-        bindFunc( cast( void** )&sfRenderWindow_popGLStates, "sfRenderWindow_popGLStates" );
-        bindFunc( cast( void** )&sfRenderWindow_resetGLStates, "sfRenderWindow_resetGLStates" );
-        bindFunc( cast( void** )&sfRenderWindow_capture, "sfRenderWindow_capture" );
-        bindFunc( cast( void** )&sfMouse_getPositionRenderWindow, "sfMouse_getPositionRenderWindow" );
-        bindFunc( cast( void** )&sfMouse_setPositionRenderWindow, "sfMouse_setPositionRenderWindow" );
-        bindFunc( cast( void** )&sfTouch_getPositionRenderWindow, "sfTouch_getPositionRenderWindow" );
-        bindFunc( cast( void** )&sfShader_createFromFile, "sfShader_createFromFile" );
-        bindFunc( cast( void** )&sfShader_createFromMemory, "sfShader_createFromMemory" );
-        bindFunc( cast( void** )&sfShader_createFromStream, "sfShader_createFromStream" );
-        bindFunc( cast( void** )&sfShader_destroy, "sfShader_destroy" );
-        bindFunc( cast( void** )&sfShader_setFloatParameter, "sfShader_setFloatParameter" );
-        bindFunc( cast( void** )&sfShader_setFloat2Parameter, "sfShader_setFloat2Parameter" );
-        bindFunc( cast( void** )&sfShader_setFloat3Parameter, "sfShader_setFloat3Parameter" );
-        bindFunc( cast( void** )&sfShader_setFloat4Parameter, "sfShader_setFloat4Parameter" );
-        bindFunc( cast( void** )&sfShader_setVector2Parameter, "sfShader_setVector2Parameter" );
-        bindFunc( cast( void** )&sfShader_setVector3Parameter, "sfShader_setVector3Parameter" );
-        bindFunc( cast( void** )&sfShader_setColorParameter, "sfShader_setColorParameter" );
-        bindFunc( cast( void** )&sfShader_setTransformParameter, "sfShader_setTransformParameter" );
-        bindFunc( cast( void** )&sfShader_setTextureParameter, "sfShader_setTextureParameter" );
-        bindFunc( cast( void** )&sfShader_setCurrentTextureParameter, "sfShader_setCurrentTextureParameter" );
-        bindFunc( cast( void** )&sfShader_getNativeHandle, "sfShader_getNativeHandle" );
-        bindFunc( cast( void** )&sfShader_bind, "sfShader_bind" );
-        bindFunc( cast( void** )&sfShader_isAvailable, "sfShader_isAvailable" );
-        bindFunc( cast( void** )&sfShape_create, "sfShape_create" );
-        bindFunc( cast( void** )&sfShape_destroy, "sfShape_destroy" );
-        bindFunc( cast( void** )&sfShape_setPosition, "sfShape_setPosition" );
-        bindFunc( cast( void** )&sfShape_setRotation, "sfShape_setRotation" );
-        bindFunc( cast( void** )&sfShape_setScale, "sfShape_setScale" );
-        bindFunc( cast( void** )&sfShape_setOrigin, "sfShape_setOrigin" );
-        bindFunc( cast( void** )&sfShape_getPosition, "sfShape_getPosition" );
-        bindFunc( cast( void** )&sfShape_getRotation, "sfShape_getRotation" );
-        bindFunc( cast( void** )&sfShape_getScale, "sfShape_getScale" );
-        bindFunc( cast( void** )&sfShape_getOrigin, "sfShape_getOrigin" );
-        bindFunc( cast( void** )&sfShape_move, "sfShape_move" );
-        bindFunc( cast( void** )&sfShape_rotate, "sfShape_rotate" );
-        bindFunc( cast( void** )&sfShape_scale, "sfShape_scale" );
-        bindFunc( cast( void** )&sfShape_getTransform, "sfShape_getTransform" );
-        bindFunc( cast( void** )&sfShape_getInverseTransform, "sfShape_getInverseTransform" );
-        bindFunc( cast( void** )&sfShape_setTexture, "sfShape_setTexture" );
-        bindFunc( cast( void** )&sfShape_setTextureRect, "sfShape_setTextureRect" );
-        bindFunc( cast( void** )&sfShape_setFillColor, "sfShape_setFillColor" );
-        bindFunc( cast( void** )&sfShape_setOutlineColor, "sfShape_setOutlineColor" );
-        bindFunc( cast( void** )&sfShape_setOutlineThickness, "sfShape_setOutlineThickness" );
-        bindFunc( cast( void** )&sfShape_getTexture, "sfShape_getTexture" );
-        bindFunc( cast( void** )&sfShape_getTextureRect, "sfShape_getTextureRect" );
-        bindFunc( cast( void** )&sfShape_getFillColor, "sfShape_getFillColor" );
-        bindFunc( cast( void** )&sfShape_getOutlineColor, "sfShape_getOutlineColor" );
-        bindFunc( cast( void** )&sfShape_getOutlineThickness, "sfShape_getOutlineThickness" );
-        bindFunc( cast( void** )&sfShape_getPointCount, "sfShape_getPointCount" );
-        bindFunc( cast( void** )&sfShape_getPoint, "sfShape_getPoint" );
-        bindFunc( cast( void** )&sfShape_getLocalBounds, "sfShape_getLocalBounds" );
-        bindFunc( cast( void** )&sfShape_getGlobalBounds, "sfShape_getGlobalBounds" );
-        bindFunc( cast( void** )&sfShape_update, "sfShape_update" );
-        bindFunc( cast( void** )&sfSprite_create, "sfSprite_create" );
-        bindFunc( cast( void** )&sfSprite_copy, "sfSprite_copy" );
-        bindFunc( cast( void** )&sfSprite_destroy, "sfSprite_destroy" );
-        bindFunc( cast( void** )&sfSprite_setPosition, "sfSprite_setPosition" );
-        bindFunc( cast( void** )&sfSprite_setRotation, "sfSprite_setRotation" );
-        bindFunc( cast( void** )&sfSprite_setScale, "sfSprite_setScale" );
-        bindFunc( cast( void** )&sfSprite_setOrigin, "sfSprite_setOrigin" );
-        bindFunc( cast( void** )&sfSprite_getPosition, "sfSprite_getPosition" );
-        bindFunc( cast( void** )&sfSprite_getRotation, "sfSprite_getRotation" );
-        bindFunc( cast( void** )&sfSprite_getScale, "sfSprite_getScale" );
-        bindFunc( cast( void** )&sfSprite_getOrigin, "sfSprite_getOrigin" );
-        bindFunc( cast( void** )&sfSprite_move, "sfSprite_move" );
-        bindFunc( cast( void** )&sfSprite_rotate, "sfSprite_rotate" );
-        bindFunc( cast( void** )&sfSprite_scale, "sfSprite_scale" );
-        bindFunc( cast( void** )&sfSprite_getTransform, "sfSprite_getTransform" );
-        bindFunc( cast( void** )&sfSprite_getInverseTransform, "sfSprite_getInverseTransform" );
-        bindFunc( cast( void** )&sfSprite_setTexture, "sfSprite_setTexture" );
-        bindFunc( cast( void** )&sfSprite_setTextureRect, "sfSprite_setTextureRect" );
-        bindFunc( cast( void** )&sfSprite_setColor, "sfSprite_setColor" );
-        bindFunc( cast( void** )&sfSprite_getTexture, "sfSprite_getTexture" );
-        bindFunc( cast( void** )&sfSprite_getTextureRect, "sfSprite_getTextureRect" );
-        bindFunc( cast( void** )&sfSprite_getColor, "sfSprite_getColor" );
-        bindFunc( cast( void** )&sfSprite_getLocalBounds, "sfSprite_getLocalBounds" );
-        bindFunc( cast( void** )&sfSprite_getGlobalBounds, "sfSprite_getGlobalBounds" );
-        bindFunc( cast( void** )&sfText_create, "sfText_create" );
-        bindFunc( cast( void** )&sfText_copy, "sfText_copy" );
-        bindFunc( cast( void** )&sfText_destroy, "sfText_destroy" );
-        bindFunc( cast( void** )&sfText_setPosition, "sfText_setPosition" );
-        bindFunc( cast( void** )&sfText_setRotation, "sfText_setRotation" );
-        bindFunc( cast( void** )&sfText_setScale, "sfText_setScale" );
-        bindFunc( cast( void** )&sfText_setOrigin, "sfText_setOrigin" );
-        bindFunc( cast( void** )&sfText_getPosition, "sfText_getPosition" );
-        bindFunc( cast( void** )&sfText_getRotation, "sfText_getRotation" );
-        bindFunc( cast( void** )&sfText_getScale, "sfText_getScale" );
-        bindFunc( cast( void** )&sfText_getOrigin, "sfText_getOrigin" );
-        bindFunc( cast( void** )&sfText_move, "sfText_move" );
-        bindFunc( cast( void** )&sfText_rotate, "sfText_rotate" );
-        bindFunc( cast( void** )&sfText_scale, "sfText_scale" );
-        bindFunc( cast( void** )&sfText_getTransform, "sfText_getTransform" );
-        bindFunc( cast( void** )&sfText_getInverseTransform, "sfText_getInverseTransform" );
-        bindFunc( cast( void** )&sfText_setString, "sfText_setString" );
-        bindFunc( cast( void** )&sfText_setUnicodeString, "sfText_setUnicodeString" );
-        bindFunc( cast( void** )&sfText_setFont, "sfText_setFont" );
-        bindFunc( cast( void** )&sfText_setCharacterSize, "sfText_setCharacterSize" );
-        bindFunc( cast( void** )&sfText_setStyle, "sfText_setStyle" );
-        bindFunc( cast( void** )&sfText_setColor, "sfText_setColor" );
-        bindFunc( cast( void** )&sfText_getString, "sfText_getString" );
-        bindFunc( cast( void** )&sfText_getUnicodeString, "sfText_getUnicodeString" );
-        bindFunc( cast( void** )&sfText_getFont, "sfText_getFont" );
-        bindFunc( cast( void** )&sfText_getCharacterSize, "sfText_getCharacterSize" );
-        bindFunc( cast( void** )&sfText_getStyle, "sfText_getStyle" );
-        bindFunc( cast( void** )&sfText_getColor, "sfText_getColor" );
-        bindFunc( cast( void** )&sfText_findCharacterPos, "sfText_findCharacterPos" );
-        bindFunc( cast( void** )&sfText_getLocalBounds, "sfText_getLocalBounds" );
-        bindFunc( cast( void** )&sfText_getGlobalBounds, "sfText_getGlobalBounds" );
-        bindFunc( cast( void** )&sfTexture_create, "sfTexture_create" );
-        bindFunc( cast( void** )&sfTexture_createFromFile, "sfTexture_createFromFile" );
-        bindFunc( cast( void** )&sfTexture_createFromMemory, "sfTexture_createFromMemory" );
-        bindFunc( cast( void** )&sfTexture_createFromStream, "sfTexture_createFromStream" );
-        bindFunc( cast( void** )&sfTexture_createFromImage, "sfTexture_createFromImage" );
-        bindFunc( cast( void** )&sfTexture_copy, "sfTexture_copy" );
-        bindFunc( cast( void** )&sfTexture_destroy, "sfTexture_destroy" );
-        bindFunc( cast( void** )&sfTexture_getSize, "sfTexture_getSize" );
-        bindFunc( cast( void** )&sfTexture_copyToImage, "sfTexture_copyToImage" );
-        bindFunc( cast( void** )&sfTexture_updateFromPixels, "sfTexture_updateFromPixels" );
-        bindFunc( cast( void** )&sfTexture_updateFromImage, "sfTexture_updateFromImage" );
-        bindFunc( cast( void** )&sfTexture_updateFromWindow, "sfTexture_updateFromWindow" );
-        bindFunc( cast( void** )&sfTexture_updateFromRenderWindow, "sfTexture_updateFromRenderWindow" );
-        bindFunc( cast( void** )&sfTexture_bind, "sfTexture_bind" );
-        bindFunc( cast( void** )&sfTexture_setSmooth, "sfTexture_setSmooth" );
-        bindFunc( cast( void** )&sfTexture_isSmooth, "sfTexture_isSmooth" );
-        bindFunc( cast( void** )&sfTexture_setRepeated, "sfTexture_setRepeated" );
-        bindFunc( cast( void** )&sfTexture_isRepeated, "sfTexture_isRepeated" );
-        bindFunc( cast( void** )&sfTexture_getNativeHandle, "sfTexture_getNativeHandle" );
-        bindFunc( cast( void** )&sfTexture_getMaximumSize, "sfTexture_getMaximumSize" );
-        bindFunc( cast( void** )&sfTransform_fromMatrix, "sfTransform_fromMatrix" );
-        bindFunc( cast( void** )&sfTransform_getMatrix, "sfTransform_getMatrix" );
-        bindFunc( cast( void** )&sfTransform_getInverse, "sfTransform_getInverse" );
-        bindFunc( cast( void** )&sfTransform_transformPoint, "sfTransform_transformPoint" );
-        bindFunc( cast( void** )&sfTransform_transformRect, "sfTransform_transformRect" );
-        bindFunc( cast( void** )&sfTransform_combine, "sfTransform_combine" );
-        bindFunc( cast( void** )&sfTransform_translate, "sfTransform_translate" );
-        bindFunc( cast( void** )&sfTransform_rotate, "sfTransform_rotate" );
-        bindFunc( cast( void** )&sfTransform_rotateWithCenter, "sfTransform_rotateWithCenter" );
-        bindFunc( cast( void** )&sfTransform_scale, "sfTransform_scale" );
-        bindFunc( cast( void** )&sfTransform_scaleWithCenter, "sfTransform_scaleWithCenter" );
-        bindFunc( cast( void** )&sfTransformable_create, "sfTransformable_create" );
-        bindFunc( cast( void** )&sfTransformable_copy, "sfTransformable_copy" );
-        bindFunc( cast( void** )&sfTransformable_destroy, "sfTransformable_destroy" );
-        bindFunc( cast( void** )&sfTransformable_setPosition, "sfTransformable_setPosition" );
-        bindFunc( cast( void** )&sfTransformable_setRotation, "sfTransformable_setRotation" );
-        bindFunc( cast( void** )&sfTransformable_setScale, "sfTransformable_setScale" );
-        bindFunc( cast( void** )&sfTransformable_setOrigin, "sfTransformable_setOrigin" );
-        bindFunc( cast( void** )&sfTransformable_getPosition, "sfTransformable_getPosition" );
-        bindFunc( cast( void** )&sfTransformable_getRotation, "sfTransformable_getRotation" );
-        bindFunc( cast( void** )&sfTransformable_getScale, "sfTransformable_getScale" );
-        bindFunc( cast( void** )&sfTransformable_getOrigin, "sfTransformable_getOrigin" );
-        bindFunc( cast( void** )&sfTransformable_move, "sfTransformable_move" );
-        bindFunc( cast( void** )&sfTransformable_rotate, "sfTransformable_rotate" );
-        bindFunc( cast( void** )&sfTransformable_scale, "sfTransformable_scale" );
-        bindFunc( cast( void** )&sfTransformable_getTransform, "sfTransformable_getTransform" );
-        bindFunc( cast( void** )&sfTransformable_getInverseTransform, "sfTransformable_getInverseTransform" );
-        bindFunc( cast( void** )&sfVertexArray_create, "sfVertexArray_create" );
-        bindFunc( cast( void** )&sfVertexArray_copy, "sfVertexArray_copy" );
-        bindFunc( cast( void** )&sfVertexArray_destroy, "sfVertexArray_destroy" );
-        bindFunc( cast( void** )&sfVertexArray_getVertexCount, "sfVertexArray_getVertexCount" );
-        bindFunc( cast( void** )&sfVertexArray_getVertex, "sfVertexArray_getVertex" );
-        bindFunc( cast( void** )&sfVertexArray_clear, "sfVertexArray_clear" );
-        bindFunc( cast( void** )&sfVertexArray_resize, "sfVertexArray_resize" );
-        bindFunc( cast( void** )&sfVertexArray_append, "sfVertexArray_append" );
-        bindFunc( cast( void** )&sfVertexArray_setPrimitiveType, "sfVertexArray_setPrimitiveType" );
-        bindFunc( cast( void** )&sfVertexArray_getPrimitiveType, "sfVertexArray_getPrimitiveType" );
-        bindFunc( cast( void** )&sfVertexArray_getBounds, "sfVertexArray_getBounds" );
-        bindFunc( cast( void** )&sfView_create, "sfView_create" );
-        bindFunc( cast( void** )&sfView_createFromRect, "sfView_createFromRect" );
-        bindFunc( cast( void** )&sfView_copy, "sfView_copy" );
-        bindFunc( cast( void** )&sfView_destroy, "sfView_destroy" );
-        bindFunc( cast( void** )&sfView_setCenter, "sfView_setCenter" );
-        bindFunc( cast( void** )&sfView_setSize, "sfView_setSize" );
-        bindFunc( cast( void** )&sfView_setRotation, "sfView_setRotation" );
-        bindFunc( cast( void** )&sfView_setViewport, "sfView_setViewport" );
-        bindFunc( cast( void** )&sfView_reset, "sfView_reset" );
-        bindFunc( cast( void** )&sfView_getCenter, "sfView_getCenter" );
-        bindFunc( cast( void** )&sfView_getSize, "sfView_getSize" );
-        bindFunc( cast( void** )&sfView_getRotation, "sfView_getRotation" );
-        bindFunc( cast( void** )&sfView_getViewport, "sfView_getViewport" );
-        bindFunc( cast( void** )&sfView_move, "sfView_move" );
-        bindFunc( cast( void** )&sfView_rotate, "sfView_rotate" );
-        bindFunc( cast( void** )&sfView_zoom, "sfView_zoom" );
+    protected override void loadSymbols() 
+    {
+        bindFunc(cast(void**)&sfCircleShape_create, "sfCircleShape_create");
+        bindFunc(cast(void**)&sfCircleShape_copy, "sfCircleShape_copy");
+        bindFunc(cast(void**)&sfCircleShape_destroy, "sfCircleShape_destroy");
+        bindFunc(cast(void**)&sfCircleShape_setPosition, "sfCircleShape_setPosition");
+        bindFunc(cast(void**)&sfCircleShape_setRotation, "sfCircleShape_setRotation");
+        bindFunc(cast(void**)&sfCircleShape_setScale, "sfCircleShape_setScale");
+        bindFunc(cast(void**)&sfCircleShape_setOrigin, "sfCircleShape_setOrigin");
+        bindFunc(cast(void**)&sfCircleShape_getPosition, "sfCircleShape_getPosition");
+        bindFunc(cast(void**)&sfCircleShape_getRotation, "sfCircleShape_getRotation");
+        bindFunc(cast(void**)&sfCircleShape_getScale, "sfCircleShape_getScale");
+        bindFunc(cast(void**)&sfCircleShape_getOrigin, "sfCircleShape_getOrigin");
+        bindFunc(cast(void**)&sfCircleShape_move, "sfCircleShape_move");
+        bindFunc(cast(void**)&sfCircleShape_rotate, "sfCircleShape_rotate");
+        bindFunc(cast(void**)&sfCircleShape_scale, "sfCircleShape_scale");
+        bindFunc(cast(void**)&sfCircleShape_getTransform, "sfCircleShape_getTransform");
+        bindFunc(cast(void**)&sfCircleShape_getInverseTransform, "sfCircleShape_getInverseTransform");
+        bindFunc(cast(void**)&sfCircleShape_setTexture, "sfCircleShape_setTexture");
+        bindFunc(cast(void**)&sfCircleShape_setTextureRect, "sfCircleShape_setTextureRect");
+        bindFunc(cast(void**)&sfCircleShape_setFillColor, "sfCircleShape_setFillColor");
+        bindFunc(cast(void**)&sfCircleShape_setOutlineColor, "sfCircleShape_setOutlineColor");
+        bindFunc(cast(void**)&sfCircleShape_setOutlineThickness, "sfCircleShape_setOutlineThickness");
+        bindFunc(cast(void**)&sfCircleShape_getTexture, "sfCircleShape_getTexture");
+        bindFunc(cast(void**)&sfCircleShape_getTextureRect, "sfCircleShape_getTextureRect");
+        bindFunc(cast(void**)&sfCircleShape_getFillColor, "sfCircleShape_getFillColor");
+        bindFunc(cast(void**)&sfCircleShape_getOutlineColor, "sfCircleShape_getOutlineColor");
+        bindFunc(cast(void**)&sfCircleShape_getOutlineThickness, "sfCircleShape_getOutlineThickness");
+        bindFunc(cast(void**)&sfCircleShape_getPointCount, "sfCircleShape_getPointCount");
+        bindFunc(cast(void**)&sfCircleShape_getPoint, "sfCircleShape_getPoint");
+        bindFunc(cast(void**)&sfCircleShape_setRadius, "sfCircleShape_setRadius");
+        bindFunc(cast(void**)&sfCircleShape_getRadius, "sfCircleShape_getRadius");
+        bindFunc(cast(void**)&sfCircleShape_setPointCount, "sfCircleShape_setPointCount");
+        bindFunc(cast(void**)&sfCircleShape_getLocalBounds, "sfCircleShape_getLocalBounds");
+        bindFunc(cast(void**)&sfCircleShape_getGlobalBounds, "sfCircleShape_getGlobalBounds");
+        bindFunc(cast(void**)&sfColor_fromRGB, "sfColor_fromRGB");
+        bindFunc(cast(void**)&sfColor_fromRGBA, "sfColor_fromRGBA");
+        bindFunc(cast(void**)&sfColor_fromInteger, "sfColor_fromInteger");
+        bindFunc(cast(void**)&sfColor_toInteger, "sfColor_toInteger");
+        bindFunc(cast(void**)&sfColor_add, "sfColor_add");
+        bindFunc(cast(void**)&sfColor_subtract, "sfColor_subtract");
+        bindFunc(cast(void**)&sfColor_modulate, "sfColor_modulate");
+        bindFunc(cast(void**)&sfConvexShape_create, "sfConvexShape_create");
+        bindFunc(cast(void**)&sfConvexShape_copy, "sfConvexShape_copy");
+        bindFunc(cast(void**)&sfConvexShape_destroy, "sfConvexShape_destroy");
+        bindFunc(cast(void**)&sfConvexShape_setPosition, "sfConvexShape_setPosition");
+        bindFunc(cast(void**)&sfConvexShape_setRotation, "sfConvexShape_setRotation");
+        bindFunc(cast(void**)&sfConvexShape_setScale, "sfConvexShape_setScale");
+        bindFunc(cast(void**)&sfConvexShape_setOrigin, "sfConvexShape_setOrigin");
+        bindFunc(cast(void**)&sfConvexShape_getPosition, "sfConvexShape_getPosition");
+        bindFunc(cast(void**)&sfConvexShape_getRotation, "sfConvexShape_getRotation");
+        bindFunc(cast(void**)&sfConvexShape_getScale, "sfConvexShape_getScale");
+        bindFunc(cast(void**)&sfConvexShape_getOrigin, "sfConvexShape_getOrigin");
+        bindFunc(cast(void**)&sfConvexShape_move, "sfConvexShape_move");
+        bindFunc(cast(void**)&sfConvexShape_rotate, "sfConvexShape_rotate");
+        bindFunc(cast(void**)&sfConvexShape_scale, "sfConvexShape_scale");
+        bindFunc(cast(void**)&sfConvexShape_getTransform, "sfConvexShape_getTransform");
+        bindFunc(cast(void**)&sfConvexShape_getInverseTransform, "sfConvexShape_getInverseTransform");
+        bindFunc(cast(void**)&sfConvexShape_setTexture, "sfConvexShape_setTexture");
+        bindFunc(cast(void**)&sfConvexShape_setTextureRect, "sfConvexShape_setTextureRect");
+        bindFunc(cast(void**)&sfConvexShape_setFillColor, "sfConvexShape_setFillColor");
+        bindFunc(cast(void**)&sfConvexShape_setOutlineColor, "sfConvexShape_setOutlineColor");
+        bindFunc(cast(void**)&sfConvexShape_setOutlineThickness, "sfConvexShape_setOutlineThickness");
+        bindFunc(cast(void**)&sfConvexShape_getTexture, "sfConvexShape_getTexture");
+        bindFunc(cast(void**)&sfConvexShape_getTextureRect, "sfConvexShape_getTextureRect");
+        bindFunc(cast(void**)&sfConvexShape_getFillColor, "sfConvexShape_getFillColor");
+        bindFunc(cast(void**)&sfConvexShape_getOutlineColor, "sfConvexShape_getOutlineColor");
+        bindFunc(cast(void**)&sfConvexShape_getOutlineThickness, "sfConvexShape_getOutlineThickness");
+        bindFunc(cast(void**)&sfConvexShape_getPointCount, "sfConvexShape_getPointCount");
+        bindFunc(cast(void**)&sfConvexShape_getPoint, "sfConvexShape_getPoint");
+        bindFunc(cast(void**)&sfConvexShape_setPointCount, "sfConvexShape_setPointCount");
+        bindFunc(cast(void**)&sfConvexShape_setPoint, "sfConvexShape_setPoint");
+        bindFunc(cast(void**)&sfConvexShape_getLocalBounds, "sfConvexShape_getLocalBounds");
+        bindFunc(cast(void**)&sfConvexShape_getGlobalBounds, "sfConvexShape_getGlobalBounds");
+        bindFunc(cast(void**)&sfFont_createFromFile, "sfFont_createFromFile");
+        bindFunc(cast(void**)&sfFont_createFromMemory, "sfFont_createFromMemory");
+        bindFunc(cast(void**)&sfFont_createFromStream, "sfFont_createFromStream");
+        bindFunc(cast(void**)&sfFont_copy, "sfFont_copy");
+        bindFunc(cast(void**)&sfFont_destroy, "sfFont_destroy");
+        bindFunc(cast(void**)&sfFont_getGlyph, "sfFont_getGlyph");
+        bindFunc(cast(void**)&sfFont_getKerning, "sfFont_getKerning");
+        bindFunc(cast(void**)&sfFont_getLineSpacing, "sfFont_getLineSpacing");
+        bindFunc(cast(void**)&sfFont_getUnderlinePosition, "sfFont_getUnderlinePosition");
+        bindFunc(cast(void**)&sfFont_getUnderlineThickness, "sfFont_getUnderlineThickness");
+        bindFunc(cast(void**)&sfFont_getTexture, "sfFont_getTexture");
+        bindFunc(cast(void**)&sfFont_getInfo, "sfFont_getInfo");
+        bindFunc(cast(void**)&sfImage_create, "sfImage_create");
+        bindFunc(cast(void**)&sfImage_createFromColor, "sfImage_createFromColor");
+        bindFunc(cast(void**)&sfImage_createFromPixels, "sfImage_createFromPixels");
+        bindFunc(cast(void**)&sfImage_createFromFile, "sfImage_createFromFile");
+        bindFunc(cast(void**)&sfImage_createFromMemory, "sfImage_createFromMemory");
+        bindFunc(cast(void**)&sfImage_createFromStream, "sfImage_createFromStream");
+        bindFunc(cast(void**)&sfImage_copy, "sfImage_copy");
+        bindFunc(cast(void**)&sfImage_destroy, "sfImage_destroy");
+        bindFunc(cast(void**)&sfImage_saveToFile, "sfImage_saveToFile");
+        bindFunc(cast(void**)&sfImage_getSize, "sfImage_getSize");
+        bindFunc(cast(void**)&sfImage_createMaskFromColor, "sfImage_createMaskFromColor");
+        bindFunc(cast(void**)&sfImage_copyImage, "sfImage_copyImage");
+        bindFunc(cast(void**)&sfImage_setPixel, "sfImage_setPixel");
+        bindFunc(cast(void**)&sfImage_getPixel, "sfImage_getPixel");
+        bindFunc(cast(void**)&sfImage_getPixelsPtr, "sfImage_getPixelsPtr");
+        bindFunc(cast(void**)&sfImage_flipHorizontally, "sfImage_flipHorizontally");
+        bindFunc(cast(void**)&sfImage_flipVertically, "sfImage_flipVertically");
+        bindFunc(cast(void**)&sfFloatRect_contains, "sfFloatRect_contains");
+        bindFunc(cast(void**)&sfIntRect_contains, "sfIntRect_contains");
+        bindFunc(cast(void**)&sfFloatRect_intersects, "sfFloatRect_intersects");
+        bindFunc(cast(void**)&sfIntRect_intersects, "sfIntRect_intersects");
+        bindFunc(cast(void**)&sfRectangleShape_create, "sfRectangleShape_create");
+        bindFunc(cast(void**)&sfRectangleShape_copy, "sfRectangleShape_copy");
+        bindFunc(cast(void**)&sfRectangleShape_destroy, "sfRectangleShape_destroy");
+        bindFunc(cast(void**)&sfRectangleShape_setPosition, "sfRectangleShape_setPosition");
+        bindFunc(cast(void**)&sfRectangleShape_setRotation, "sfRectangleShape_setRotation");
+        bindFunc(cast(void**)&sfRectangleShape_setScale, "sfRectangleShape_setScale");
+        bindFunc(cast(void**)&sfRectangleShape_setOrigin, "sfRectangleShape_setOrigin");
+        bindFunc(cast(void**)&sfRectangleShape_getPosition, "sfRectangleShape_getPosition");
+        bindFunc(cast(void**)&sfRectangleShape_getRotation, "sfRectangleShape_getRotation");
+        bindFunc(cast(void**)&sfRectangleShape_getScale, "sfRectangleShape_getScale");
+        bindFunc(cast(void**)&sfRectangleShape_getOrigin, "sfRectangleShape_getOrigin");
+        bindFunc(cast(void**)&sfRectangleShape_move, "sfRectangleShape_move");
+        bindFunc(cast(void**)&sfRectangleShape_rotate, "sfRectangleShape_rotate");
+        bindFunc(cast(void**)&sfRectangleShape_scale, "sfRectangleShape_scale");
+        bindFunc(cast(void**)&sfRectangleShape_getTransform, "sfRectangleShape_getTransform");
+        bindFunc(cast(void**)&sfRectangleShape_getInverseTransform, "sfRectangleShape_getInverseTransform");
+        bindFunc(cast(void**)&sfRectangleShape_setTexture, "sfRectangleShape_setTexture");
+        bindFunc(cast(void**)&sfRectangleShape_setTextureRect, "sfRectangleShape_setTextureRect");
+        bindFunc(cast(void**)&sfRectangleShape_setFillColor, "sfRectangleShape_setFillColor");
+        bindFunc(cast(void**)&sfRectangleShape_setOutlineColor, "sfRectangleShape_setOutlineColor");
+        bindFunc(cast(void**)&sfRectangleShape_setOutlineThickness, "sfRectangleShape_setOutlineThickness");
+        bindFunc(cast(void**)&sfRectangleShape_getTexture, "sfRectangleShape_getTexture");
+        bindFunc(cast(void**)&sfRectangleShape_getTextureRect, "sfRectangleShape_getTextureRect");
+        bindFunc(cast(void**)&sfRectangleShape_getFillColor, "sfRectangleShape_getFillColor");
+        bindFunc(cast(void**)&sfRectangleShape_getOutlineColor, "sfRectangleShape_getOutlineColor");
+        bindFunc(cast(void**)&sfRectangleShape_getOutlineThickness, "sfRectangleShape_getOutlineThickness");
+        bindFunc(cast(void**)&sfRectangleShape_getPointCount, "sfRectangleShape_getPointCount");
+        bindFunc(cast(void**)&sfRectangleShape_getPoint, "sfRectangleShape_getPoint");
+        bindFunc(cast(void**)&sfRectangleShape_setSize, "sfRectangleShape_setSize");
+        bindFunc(cast(void**)&sfRectangleShape_getSize, "sfRectangleShape_getSize");
+        bindFunc(cast(void**)&sfRectangleShape_getLocalBounds, "sfRectangleShape_getLocalBounds");
+        bindFunc(cast(void**)&sfRectangleShape_getGlobalBounds, "sfRectangleShape_getGlobalBounds");
+        bindFunc(cast(void**)&sfRenderTexture_create, "sfRenderTexture_create");
+        bindFunc(cast(void**)&sfRenderTexture_destroy, "sfRenderTexture_destroy");
+        bindFunc(cast(void**)&sfRenderTexture_getSize, "sfRenderTexture_getSize");
+        bindFunc(cast(void**)&sfRenderTexture_setActive, "sfRenderTexture_setActive");
+        bindFunc(cast(void**)&sfRenderTexture_display, "sfRenderTexture_display");
+        bindFunc(cast(void**)&sfRenderTexture_clear, "sfRenderTexture_clear");
+        bindFunc(cast(void**)&sfRenderTexture_setView, "sfRenderTexture_setView");
+        bindFunc(cast(void**)&sfRenderTexture_getView, "sfRenderTexture_getView");
+        bindFunc(cast(void**)&sfRenderTexture_getDefaultView, "sfRenderTexture_getDefaultView");
+        bindFunc(cast(void**)&sfRenderTexture_getViewport, "sfRenderTexture_getViewport");
+        bindFunc(cast(void**)&sfRenderTexture_mapPixelToCoords, "sfRenderTexture_mapPixelToCoords");
+        bindFunc(cast(void**)&sfRenderTexture_mapCoordsToPixel, "sfRenderTexture_mapCoordsToPixel");
+        bindFunc(cast(void**)&sfRenderTexture_drawSprite, "sfRenderTexture_drawSprite");
+        bindFunc(cast(void**)&sfRenderTexture_drawText, "sfRenderTexture_drawText");
+        bindFunc(cast(void**)&sfRenderTexture_drawShape, "sfRenderTexture_drawShape");
+        bindFunc(cast(void**)&sfRenderTexture_drawCircleShape, "sfRenderTexture_drawCircleShape");
+        bindFunc(cast(void**)&sfRenderTexture_drawConvexShape, "sfRenderTexture_drawConvexShape");
+        bindFunc(cast(void**)&sfRenderTexture_drawRectangleShape, "sfRenderTexture_drawRectangleShape");
+        bindFunc(cast(void**)&sfRenderTexture_drawVertexArray, "sfRenderTexture_drawVertexArray");
+        bindFunc(cast(void**)&sfRenderTexture_drawPrimitives, "sfRenderTexture_drawPrimitives");
+        bindFunc(cast(void**)&sfRenderTexture_pushGLStates, "sfRenderTexture_pushGLStates");
+        bindFunc(cast(void**)&sfRenderTexture_popGLStates, "sfRenderTexture_popGLStates");
+        bindFunc(cast(void**)&sfRenderTexture_resetGLStates, "sfRenderTexture_resetGLStates");
+        bindFunc(cast(void**)&sfRenderTexture_getTexture, "sfRenderTexture_getTexture");
+        bindFunc(cast(void**)&sfRenderTexture_setSmooth, "sfRenderTexture_setSmooth");
+        bindFunc(cast(void**)&sfRenderTexture_isSmooth, "sfRenderTexture_isSmooth");
+        bindFunc(cast(void**)&sfRenderTexture_setRepeated, "sfRenderTexture_setRepeated");
+        bindFunc(cast(void**)&sfRenderTexture_isRepeated, "sfRenderTexture_isRepeated");
+        bindFunc(cast(void**)&sfRenderTexture_generateMipmap, "sfRenderTexture_generateMipmap");
+        bindFunc(cast(void**)&sfRenderWindow_create, "sfRenderWindow_create");
+        bindFunc(cast(void**)&sfRenderWindow_createUnicode, "sfRenderWindow_createUnicode");
+        bindFunc(cast(void**)&sfRenderWindow_createFromHandle, "sfRenderWindow_createFromHandle");
+        bindFunc(cast(void**)&sfRenderWindow_destroy, "sfRenderWindow_destroy");
+        bindFunc(cast(void**)&sfRenderWindow_close, "sfRenderWindow_close");
+        bindFunc(cast(void**)&sfRenderWindow_isOpen, "sfRenderWindow_isOpen");
+        bindFunc(cast(void**)&sfRenderWindow_getSettings, "sfRenderWindow_getSettings");
+        bindFunc(cast(void**)&sfRenderWindow_pollEvent, "sfRenderWindow_pollEvent");
+        bindFunc(cast(void**)&sfRenderWindow_waitEvent, "sfRenderWindow_waitEvent");
+        bindFunc(cast(void**)&sfRenderWindow_getPosition, "sfRenderWindow_getPosition");
+        bindFunc(cast(void**)&sfRenderWindow_setPosition, "sfRenderWindow_setPosition");
+        bindFunc(cast(void**)&sfRenderWindow_getSize, "sfRenderWindow_getSize");
+        bindFunc(cast(void**)&sfRenderWindow_setSize, "sfRenderWindow_setSize");
+        bindFunc(cast(void**)&sfRenderWindow_setTitle, "sfRenderWindow_setTitle");
+        bindFunc(cast(void**)&sfRenderWindow_setIcon, "sfRenderWindow_setIcon");
+        bindFunc(cast(void**)&sfRenderWindow_setVisible, "sfRenderWindow_setVisible");
+        bindFunc(cast(void**)&sfRenderWindow_setVerticalSyncEnabled, "sfRenderWindow_setVerticalSyncEnabled");
+        bindFunc(cast(void**)&sfRenderWindow_setMouseCursorVisible, "sfRenderWindow_setMouseCursorVisible");
+        bindFunc(cast(void**)&sfRenderWindow_setMouseCursorGrabbed, "sfRenderWindow_setMouseCursorGrabbed");
+        bindFunc(cast(void**)&sfRenderWindow_setKeyRepeatEnabled, "sfRenderWindow_setKeyRepeatEnabled");
+        bindFunc(cast(void**)&sfRenderWindow_setFramerateLimit, "sfRenderWindow_setFramerateLimit");
+        bindFunc(cast(void**)&sfRenderWindow_setJoystickThreshold, "sfRenderWindow_setJoystickThreshold");
+        bindFunc(cast(void**)&sfRenderWindow_setActive, "sfRenderWindow_setActive");
+        bindFunc(cast(void**)&sfRenderWindow_requestFocus, "sfRenderWindow_requestFocus");
+        bindFunc(cast(void**)&sfRenderWindow_hasFocus, "sfRenderWindow_hasFocus");
+        bindFunc(cast(void**)&sfRenderWindow_display, "sfRenderWindow_display");
+        bindFunc(cast(void**)&sfRenderWindow_getSystemHandle, "sfRenderWindow_getSystemHandle");
+        bindFunc(cast(void**)&sfRenderWindow_clear, "sfRenderWindow_clear");
+        bindFunc(cast(void**)&sfRenderWindow_setView, "sfRenderWindow_setView");
+        bindFunc(cast(void**)&sfRenderWindow_getView, "sfRenderWindow_getView");
+        bindFunc(cast(void**)&sfRenderWindow_getDefaultView, "sfRenderWindow_getDefaultView");
+        bindFunc(cast(void**)&sfRenderWindow_getViewport, "sfRenderWindow_getViewport");
+        bindFunc(cast(void**)&sfRenderWindow_mapPixelToCoords, "sfRenderWindow_mapPixelToCoords");
+        bindFunc(cast(void**)&sfRenderWindow_mapCoordsToPixel, "sfRenderWindow_mapCoordsToPixel");
+        bindFunc(cast(void**)&sfRenderWindow_drawSprite, "sfRenderWindow_drawSprite");
+        bindFunc(cast(void**)&sfRenderWindow_drawText, "sfRenderWindow_drawText");
+        bindFunc(cast(void**)&sfRenderWindow_drawShape, "sfRenderWindow_drawShape");
+        bindFunc(cast(void**)&sfRenderWindow_drawCircleShape, "sfRenderWindow_drawCircleShape");
+        bindFunc(cast(void**)&sfRenderWindow_drawConvexShape, "sfRenderWindow_drawConvexShape");
+        bindFunc(cast(void**)&sfRenderWindow_drawRectangleShape, "sfRenderWindow_drawRectangleShape");
+        bindFunc(cast(void**)&sfRenderWindow_drawVertexArray, "sfRenderWindow_drawVertexArray");
+        bindFunc(cast(void**)&sfRenderWindow_drawPrimitives, "sfRenderWindow_drawPrimitives");
+        bindFunc(cast(void**)&sfRenderWindow_pushGLStates, "sfRenderWindow_pushGLStates");
+        bindFunc(cast(void**)&sfRenderWindow_popGLStates, "sfRenderWindow_popGLStates");
+        bindFunc(cast(void**)&sfRenderWindow_resetGLStates, "sfRenderWindow_resetGLStates");
+        bindFunc(cast(void**)&sfRenderWindow_capture, "sfRenderWindow_capture");
+        bindFunc(cast(void**)&sfMouse_getPositionRenderWindow, "sfMouse_getPositionRenderWindow");
+        bindFunc(cast(void**)&sfMouse_setPositionRenderWindow, "sfMouse_setPositionRenderWindow");
+        bindFunc(cast(void**)&sfTouch_getPositionRenderWindow, "sfTouch_getPositionRenderWindow");
+        bindFunc(cast(void**)&sfShader_createFromFile, "sfShader_createFromFile");
+        bindFunc(cast(void**)&sfShader_createFromMemory, "sfShader_createFromMemory");
+        bindFunc(cast(void**)&sfShader_createFromStream, "sfShader_createFromStream");
+        bindFunc(cast(void**)&sfShader_setFloatUniform, "sfShader_setFloatUniform");
+        bindFunc(cast(void**)&sfShader_setVec2Uniform, "sfShader_setVec2Uniform");
+        bindFunc(cast(void**)&sfShader_destroy, "sfShader_destroy");        
+        bindFunc(cast(void**)&sfShader_setVec3Uniform, "sfShader_setVec3Uniform");
+        bindFunc(cast(void**)&sfShader_setVec4Uniform, "sfShader_setVec4Uniform");
+        bindFunc(cast(void**)&sfShader_setColorUniform, "sfShader_setColorUniform");
+        bindFunc(cast(void**)&sfShader_setIntUniform, "sfShader_setIntUniform");
+        bindFunc(cast(void**)&sfShader_setIvec2Uniform, "sfShader_setIvec2Uniform");
+        bindFunc(cast(void**)&sfShader_setIvec3Uniform, "sfShader_setIvec3Uniform");
+        bindFunc(cast(void**)&sfShader_setIvec4Uniform, "sfShader_setIvec4Uniform");
+        bindFunc(cast(void**)&sfShader_setIntColorUniform, "sfShader_setIntColorUniform");
+        bindFunc(cast(void**)&sfShader_setBoolUniform, "sfShader_setBoolUniform");
+        bindFunc(cast(void**)&sfShader_setBvec2Uniform, "sfShader_setBvec2Uniform");
+        bindFunc(cast(void**)&sfShader_setBvec3Uniform, "sfShader_setBvec3Uniform");
+        bindFunc(cast(void**)&sfShader_setBvec4Uniform, "sfShader_setBvec4Uniform");
+        bindFunc(cast(void**)&sfShader_setMat3Uniform, "sfShader_setMat3Uniform");
+        bindFunc(cast(void**)&sfShader_setMat4Uniform, "sfShader_setMat4Uniform");
+        bindFunc(cast(void**)&sfShader_setTextureUniform, "sfShader_setTextureUniform");
+        bindFunc(cast(void**)&sfShader_setCurrentTextureUniform, "sfShader_setCurrentTextureUniform");
+        bindFunc(cast(void**)&sfShader_setVec2UniformArray, "sfShader_setVec2UniformArray");
+        bindFunc(cast(void**)&sfShader_setVec3UniformArray, "sfShader_setVec3UniformArray");
+        bindFunc(cast(void**)&sfShader_setVec4UniformArray, "sfShader_setVec4UniformArray");
+        bindFunc(cast(void**)&sfShader_setMat3UniformArray, "sfShader_setMat3UniformArray");
+        bindFunc(cast(void**)&sfShader_setMat4UniformArray, "sfShader_setMat4UniformArray");
+        bindFunc(cast(void**)&sfShader_setFloatParameter, "sfShader_setFloatParameter");
+        bindFunc(cast(void**)&sfShader_setFloat2Parameter, "sfShader_setFloat2Parameter");
+        bindFunc(cast(void**)&sfShader_setFloat3Parameter, "sfShader_setFloat3Parameter");
+        bindFunc(cast(void**)&sfShader_setFloat4Parameter, "sfShader_setFloat4Parameter");
+        bindFunc(cast(void**)&sfShader_setVector2Parameter, "sfShader_setVector2Parameter");
+        bindFunc(cast(void**)&sfShader_setVector3Parameter, "sfShader_setVector3Parameter");
+        bindFunc(cast(void**)&sfShader_setColorParameter, "sfShader_setColorParameter");
+        bindFunc(cast(void**)&sfShader_setTransformParameter, "sfShader_setTransformParameter");
+        bindFunc(cast(void**)&sfShader_setTextureParameter, "sfShader_setTextureParameter");
+        bindFunc(cast(void**)&sfShader_setCurrentTextureParameter, "sfShader_setCurrentTextureParameter");
+        bindFunc(cast(void**)&sfShader_getNativeHandle, "sfShader_getNativeHandle");
+        bindFunc(cast(void**)&sfShader_bind, "sfShader_bind");
+        bindFunc(cast(void**)&sfShader_isAvailable, "sfShader_isAvailable");
+        bindFunc(cast(void**)&sfShader_isGeometryAvailable, "sfShader_isGeometryAvailable");
+        bindFunc(cast(void**)&sfShape_create, "sfShape_create");
+        bindFunc(cast(void**)&sfShape_destroy, "sfShape_destroy");
+        bindFunc(cast(void**)&sfShape_setPosition, "sfShape_setPosition");
+        bindFunc(cast(void**)&sfShape_setRotation, "sfShape_setRotation");
+        bindFunc(cast(void**)&sfShape_setScale, "sfShape_setScale");
+        bindFunc(cast(void**)&sfShape_setOrigin, "sfShape_setOrigin");
+        bindFunc(cast(void**)&sfShape_getPosition, "sfShape_getPosition");
+        bindFunc(cast(void**)&sfShape_getRotation, "sfShape_getRotation");
+        bindFunc(cast(void**)&sfShape_getScale, "sfShape_getScale");
+        bindFunc(cast(void**)&sfShape_getOrigin, "sfShape_getOrigin");
+        bindFunc(cast(void**)&sfShape_move, "sfShape_move");
+        bindFunc(cast(void**)&sfShape_rotate, "sfShape_rotate");
+        bindFunc(cast(void**)&sfShape_scale, "sfShape_scale");
+        bindFunc(cast(void**)&sfShape_getTransform, "sfShape_getTransform");
+        bindFunc(cast(void**)&sfShape_getInverseTransform, "sfShape_getInverseTransform");
+        bindFunc(cast(void**)&sfShape_setTexture, "sfShape_setTexture");
+        bindFunc(cast(void**)&sfShape_setTextureRect, "sfShape_setTextureRect");
+        bindFunc(cast(void**)&sfShape_setFillColor, "sfShape_setFillColor");
+        bindFunc(cast(void**)&sfShape_setOutlineColor, "sfShape_setOutlineColor");
+        bindFunc(cast(void**)&sfShape_setOutlineThickness, "sfShape_setOutlineThickness");
+        bindFunc(cast(void**)&sfShape_getTexture, "sfShape_getTexture");
+        bindFunc(cast(void**)&sfShape_getTextureRect, "sfShape_getTextureRect");
+        bindFunc(cast(void**)&sfShape_getFillColor, "sfShape_getFillColor");
+        bindFunc(cast(void**)&sfShape_getOutlineColor, "sfShape_getOutlineColor");
+        bindFunc(cast(void**)&sfShape_getOutlineThickness, "sfShape_getOutlineThickness");
+        bindFunc(cast(void**)&sfShape_getPointCount, "sfShape_getPointCount");
+        bindFunc(cast(void**)&sfShape_getPoint, "sfShape_getPoint");
+        bindFunc(cast(void**)&sfShape_getLocalBounds, "sfShape_getLocalBounds");
+        bindFunc(cast(void**)&sfShape_getGlobalBounds, "sfShape_getGlobalBounds");
+        bindFunc(cast(void**)&sfShape_update, "sfShape_update");
+        bindFunc(cast(void**)&sfSprite_create, "sfSprite_create");
+        bindFunc(cast(void**)&sfSprite_copy, "sfSprite_copy");
+        bindFunc(cast(void**)&sfSprite_destroy, "sfSprite_destroy");
+        bindFunc(cast(void**)&sfSprite_setPosition, "sfSprite_setPosition");
+        bindFunc(cast(void**)&sfSprite_setRotation, "sfSprite_setRotation");
+        bindFunc(cast(void**)&sfSprite_setScale, "sfSprite_setScale");
+        bindFunc(cast(void**)&sfSprite_setOrigin, "sfSprite_setOrigin");
+        bindFunc(cast(void**)&sfSprite_getPosition, "sfSprite_getPosition");
+        bindFunc(cast(void**)&sfSprite_getRotation, "sfSprite_getRotation");
+        bindFunc(cast(void**)&sfSprite_getScale, "sfSprite_getScale");
+        bindFunc(cast(void**)&sfSprite_getOrigin, "sfSprite_getOrigin");
+        bindFunc(cast(void**)&sfSprite_move, "sfSprite_move");
+        bindFunc(cast(void**)&sfSprite_rotate, "sfSprite_rotate");
+        bindFunc(cast(void**)&sfSprite_scale, "sfSprite_scale");
+        bindFunc(cast(void**)&sfSprite_getTransform, "sfSprite_getTransform");
+        bindFunc(cast(void**)&sfSprite_getInverseTransform, "sfSprite_getInverseTransform");
+        bindFunc(cast(void**)&sfSprite_setTexture, "sfSprite_setTexture");
+        bindFunc(cast(void**)&sfSprite_setTextureRect, "sfSprite_setTextureRect");
+        bindFunc(cast(void**)&sfSprite_setColor, "sfSprite_setColor");
+        bindFunc(cast(void**)&sfSprite_getTexture, "sfSprite_getTexture");
+        bindFunc(cast(void**)&sfSprite_getTextureRect, "sfSprite_getTextureRect");
+        bindFunc(cast(void**)&sfSprite_getColor, "sfSprite_getColor");
+        bindFunc(cast(void**)&sfSprite_getLocalBounds, "sfSprite_getLocalBounds");
+        bindFunc(cast(void**)&sfSprite_getGlobalBounds, "sfSprite_getGlobalBounds");
+        bindFunc(cast(void**)&sfText_create, "sfText_create");
+        bindFunc(cast(void**)&sfText_copy, "sfText_copy");
+        bindFunc(cast(void**)&sfText_destroy, "sfText_destroy");
+        bindFunc(cast(void**)&sfText_setPosition, "sfText_setPosition");
+        bindFunc(cast(void**)&sfText_setRotation, "sfText_setRotation");
+        bindFunc(cast(void**)&sfText_setScale, "sfText_setScale");
+        bindFunc(cast(void**)&sfText_setOrigin, "sfText_setOrigin");
+        bindFunc(cast(void**)&sfText_getPosition, "sfText_getPosition");
+        bindFunc(cast(void**)&sfText_getRotation, "sfText_getRotation");
+        bindFunc(cast(void**)&sfText_getScale, "sfText_getScale");
+        bindFunc(cast(void**)&sfText_getOrigin, "sfText_getOrigin");
+        bindFunc(cast(void**)&sfText_move, "sfText_move");
+        bindFunc(cast(void**)&sfText_rotate, "sfText_rotate");
+        bindFunc(cast(void**)&sfText_scale, "sfText_scale");
+        bindFunc(cast(void**)&sfText_getTransform, "sfText_getTransform");
+        bindFunc(cast(void**)&sfText_getInverseTransform, "sfText_getInverseTransform");
+        bindFunc(cast(void**)&sfText_setString, "sfText_setString");
+        bindFunc(cast(void**)&sfText_setUnicodeString, "sfText_setUnicodeString");
+        bindFunc(cast(void**)&sfText_setFont, "sfText_setFont");
+        bindFunc(cast(void**)&sfText_setCharacterSize, "sfText_setCharacterSize");
+        bindFunc(cast(void**)&sfText_setFillColor, "sfText_setFillColor");
+        bindFunc(cast(void**)&sfText_setColor, "sfText_setColor");
+        bindFunc(cast(void**)&sfText_setColor, "sfText_setColor");
+        bindFunc(cast(void**)&sfText_setOutlineColor, "sfText_setOutlineColor");
+        bindFunc(cast(void**)&sfText_setOutlineThickness, "sfText_setOutlineThickness");
+        bindFunc(cast(void**)&sfText_getString, "sfText_getString");
+        bindFunc(cast(void**)&sfText_getUnicodeString, "sfText_getUnicodeString");
+        bindFunc(cast(void**)&sfText_getFont, "sfText_getFont");
+        bindFunc(cast(void**)&sfText_getCharacterSize, "sfText_getCharacterSize");
+        bindFunc(cast(void**)&sfText_getFillColor, "sfText_getFillColor");
+        bindFunc(cast(void**)&sfText_getColor, "sfText_getColor");
+        bindFunc(cast(void**)&sfText_getColor, "sfText_getColor");
+        bindFunc(cast(void**)&sfText_getOutlineColor, "sfText_getOutlineColor");
+        bindFunc(cast(void**)&sfText_getOutlineThickness, "sfText_getOutlineThickness");
+        bindFunc(cast(void**)&sfText_findCharacterPos, "sfText_findCharacterPos");
+        bindFunc(cast(void**)&sfText_getLocalBounds, "sfText_getLocalBounds");
+        bindFunc(cast(void**)&sfText_getGlobalBounds, "sfText_getGlobalBounds");
+        bindFunc(cast(void**)&sfTexture_create, "sfTexture_create");
+        bindFunc(cast(void**)&sfTexture_createFromFile, "sfTexture_createFromFile");
+        bindFunc(cast(void**)&sfTexture_createFromMemory, "sfTexture_createFromMemory");
+        bindFunc(cast(void**)&sfTexture_createFromStream, "sfTexture_createFromStream");
+        bindFunc(cast(void**)&sfTexture_createFromImage, "sfTexture_createFromImage");
+        bindFunc(cast(void**)&sfTexture_copy, "sfTexture_copy");
+        bindFunc(cast(void**)&sfTexture_destroy, "sfTexture_destroy");
+        bindFunc(cast(void**)&sfTexture_getSize, "sfTexture_getSize");
+        bindFunc(cast(void**)&sfTexture_copyToImage, "sfTexture_copyToImage");
+        bindFunc(cast(void**)&sfTexture_updateFromPixels, "sfTexture_updateFromPixels");
+        bindFunc(cast(void**)&sfTexture_updateFromImage, "sfTexture_updateFromImage");
+        bindFunc(cast(void**)&sfTexture_updateFromWindow, "sfTexture_updateFromWindow");
+        bindFunc(cast(void**)&sfTexture_updateFromRenderWindow, "sfTexture_updateFromRenderWindow");
+        bindFunc(cast(void**)&sfTexture_bind, "sfTexture_bind");
+        bindFunc(cast(void**)&sfTexture_setSmooth, "sfTexture_setSmooth");
+        bindFunc(cast(void**)&sfTexture_isSmooth, "sfTexture_isSmooth");
+        bindFunc(cast(void**)&sfTexture_setSrgb, "sfTexture_setSrgb");
+        bindFunc(cast(void**)&sfTexture_isSrgb, "sfTexture_isSrgb");
+        bindFunc(cast(void**)&sfTexture_setRepeated, "sfTexture_setRepeated");
+        bindFunc(cast(void**)&sfTexture_isRepeated, "sfTexture_isRepeated");
+        bindFunc(cast(void**)&sfTexture_generateMipmap, "sfTexture_generateMipmap");
+        bindFunc(cast(void**)&sfTexture_getNativeHandle, "sfTexture_getNativeHandle");
+        bindFunc(cast(void**)&sfTexture_getMaximumSize, "sfTexture_getMaximumSize");
+        bindFunc(cast(void**)&sfTransform_fromMatrix, "sfTransform_fromMatrix");
+        bindFunc(cast(void**)&sfTransform_getMatrix, "sfTransform_getMatrix");
+        bindFunc(cast(void**)&sfTransform_getInverse, "sfTransform_getInverse");
+        bindFunc(cast(void**)&sfTransform_transformPoint, "sfTransform_transformPoint");
+        bindFunc(cast(void**)&sfTransform_transformRect, "sfTransform_transformRect");
+        bindFunc(cast(void**)&sfTransform_combine, "sfTransform_combine");
+        bindFunc(cast(void**)&sfTransform_translate, "sfTransform_translate");
+        bindFunc(cast(void**)&sfTransform_rotate, "sfTransform_rotate");
+        bindFunc(cast(void**)&sfTransform_rotateWithCenter, "sfTransform_rotateWithCenter");
+        bindFunc(cast(void**)&sfTransform_scale, "sfTransform_scale");
+        bindFunc(cast(void**)&sfTransform_scaleWithCenter, "sfTransform_scaleWithCenter");
+        bindFunc(cast(void**)&sfTransformable_create, "sfTransformable_create");
+        bindFunc(cast(void**)&sfTransformable_copy, "sfTransformable_copy");
+        bindFunc(cast(void**)&sfTransformable_destroy, "sfTransformable_destroy");
+        bindFunc(cast(void**)&sfTransformable_setPosition, "sfTransformable_setPosition");
+        bindFunc(cast(void**)&sfTransformable_setRotation, "sfTransformable_setRotation");
+        bindFunc(cast(void**)&sfTransformable_setScale, "sfTransformable_setScale");
+        bindFunc(cast(void**)&sfTransformable_setOrigin, "sfTransformable_setOrigin");
+        bindFunc(cast(void**)&sfTransformable_getPosition, "sfTransformable_getPosition");
+        bindFunc(cast(void**)&sfTransformable_getRotation, "sfTransformable_getRotation");
+        bindFunc(cast(void**)&sfTransformable_getScale, "sfTransformable_getScale");
+        bindFunc(cast(void**)&sfTransformable_getOrigin, "sfTransformable_getOrigin");
+        bindFunc(cast(void**)&sfTransformable_move, "sfTransformable_move");
+        bindFunc(cast(void**)&sfTransformable_rotate, "sfTransformable_rotate");
+        bindFunc(cast(void**)&sfTransformable_scale, "sfTransformable_scale");
+        bindFunc(cast(void**)&sfTransformable_getTransform, "sfTransformable_getTransform");
+        bindFunc(cast(void**)&sfTransformable_getInverseTransform, "sfTransformable_getInverseTransform");
+        bindFunc(cast(void**)&sfVertexArray_create, "sfVertexArray_create");
+        bindFunc(cast(void**)&sfVertexArray_copy, "sfVertexArray_copy");
+        bindFunc(cast(void**)&sfVertexArray_destroy, "sfVertexArray_destroy");
+        bindFunc(cast(void**)&sfVertexArray_getVertexCount, "sfVertexArray_getVertexCount");
+        bindFunc(cast(void**)&sfVertexArray_getVertex, "sfVertexArray_getVertex");
+        bindFunc(cast(void**)&sfVertexArray_clear, "sfVertexArray_clear");
+        bindFunc(cast(void**)&sfVertexArray_resize, "sfVertexArray_resize");
+        bindFunc(cast(void**)&sfVertexArray_append, "sfVertexArray_append");
+        bindFunc(cast(void**)&sfVertexArray_setPrimitiveType, "sfVertexArray_setPrimitiveType");
+        bindFunc(cast(void**)&sfVertexArray_getPrimitiveType, "sfVertexArray_getPrimitiveType");
+        bindFunc(cast(void**)&sfVertexArray_getBounds, "sfVertexArray_getBounds");
+        bindFunc(cast(void**)&sfView_create, "sfView_create");
+        bindFunc(cast(void**)&sfView_createFromRect, "sfView_createFromRect");
+        bindFunc(cast(void**)&sfView_copy, "sfView_copy");
+        bindFunc(cast(void**)&sfView_destroy, "sfView_destroy");
+        bindFunc(cast(void**)&sfView_setCenter, "sfView_setCenter");
+        bindFunc(cast(void**)&sfView_setSize, "sfView_setSize");
+        bindFunc(cast(void**)&sfView_setRotation, "sfView_setRotation");
+        bindFunc(cast(void**)&sfView_setViewport, "sfView_setViewport");
+        bindFunc(cast(void**)&sfView_reset, "sfView_reset");
+        bindFunc(cast(void**)&sfView_getCenter, "sfView_getCenter");
+        bindFunc(cast(void**)&sfView_getSize, "sfView_getSize");
+        bindFunc(cast(void**)&sfView_getRotation, "sfView_getRotation");
+        bindFunc(cast(void**)&sfView_getViewport, "sfView_getViewport");
+        bindFunc(cast(void**)&sfView_move, "sfView_move");
+        bindFunc(cast(void**)&sfView_rotate, "sfView_rotate");
+        bindFunc(cast(void**)&sfView_zoom, "sfView_zoom");
     }
 }
 
 __gshared DerelictSFML2GraphicsLoader DerelictSFML2Graphics;
 
-shared static this() {
+shared static this() 
+{
     DerelictSFML2Graphics = new DerelictSFML2GraphicsLoader();
 }
+
+private:
+    static if(Derelict_OS_Windows)
+        enum libNames = "csfml-graphics.dll,csfml-graphics-2.dll,csfml-graphics-2.4.dll";
+    else static if(Derelict_OS_Mac)
+        enum libNames = "libcsfml-graphics.dylib,libcsfml-graphics.2.dylib,libcsfml-graphics.2.4.dylib";
+    else static if(Derelict_OS_Posix)
+        enum libNames = "libcsfml-graphics.so,libcsfml-graphics.so.2,libcsfml-graphics.so.2.4";
+    else
+        static assert(0, "Need to implement SFML2 Graphics libNames for this operating system.");

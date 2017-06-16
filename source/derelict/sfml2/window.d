@@ -4,7 +4,7 @@ Boost Software License - Version 1.0 - August 17th, 2003
 
 Permission is hereby granted, free of charge, to any person or organization
 obtaining a copy of the software and accompanying documentation covered by
-this license ( the "Software" ) to use, reproduce, display, distribute,
+this license (the "Software") to use, reproduce, display, distribute,
 execute, and transmit the Software, and to prepare derivative works of the
 Software, and to permit third-parties to whom the Software is furnished to
 do so, all subject to the following:
@@ -27,22 +27,10 @@ DEALINGS IN THE SOFTWARE.
 */
 module derelict.sfml2.window;
 
-public import derelict.util.loader;
-
-private {
-    import derelict.util.exception,
-           derelict.util.system;
-    import derelict.sfml2.system;
-
-    static if( Derelict_OS_Windows )
-        enum libNames = "csfml-window.dll,csfml-window-2.dll,csfml-window-2.3.dll";
-    else static if( Derelict_OS_Mac )
-        enum libNames = "libcsfml-window.dylib,libcsfml-window.2.dylib,libcsfml-window.2.3.dylib";
-    else static if( Derelict_OS_Posix )
-        enum libNames = "libcsfml-window.so,libcsfml-window.so.2,libcsfml-window.so.2.3";
-    else
-        static assert( 0, "Need to implement SFML2 Window libNames for this operating system." );
-}
+import derelict.util.exception,
+       derelict.util.loader,
+       derelict.util.system;
+import derelict.sfml2.system;
 
 // Window/Types.h
 struct sfContext;
@@ -160,7 +148,7 @@ struct sfSensorEvent {
 }
 
 union sfEvent {
-    sfEventType type;
+    sfEventType type = -1;
     sfSizeEvent size;
     sfKeyEvent key;
     sfTextEvent text;
@@ -196,7 +184,7 @@ enum {
 
 // Window/JoystickIdentification.h
 struct sfJoystickIdentification {
-    const( char )* name;
+    const(char)* name;
     uint vendorId;
     uint productId;
 }
@@ -370,88 +358,93 @@ struct sfContextSettings {
     uint majorVersion;
     uint minorVersion;
     sfUint32 attributeFlags;
+    sfBool sRgbCapable;
 }
 
 // Window/WindowHandle.h
 private import derelict.util.system;
 
-static if( Derelict_OS_Windows || Derelict_OS_Mac ) {
+static if(Derelict_OS_Windows || Derelict_OS_Mac) {
     alias void* sfWindowHandle;
-} else static if( Derelict_OS_Posix ) {
+} else static if(Derelict_OS_Posix) {
     private import core.stdc.config;
     alias c_ulong sfWindowHandle;
 }
 
-extern( C ) @nogc nothrow {
+extern(C) @nogc nothrow {
     // Window/Contex.h
     alias da_sfContext_create = sfContext* function();
-    alias da_sfContext_destroy = void function( sfContext* );
-    alias da_sfContext_setActive = void function( sfContext*,sfBool );
+    alias da_sfContext_destroy = void function(sfContext*);
+    alias da_sfContext_setActive = sfBool function(sfContext*,sfBool);
+    alias da_sfContext_getSettings = sfContextSettings function(const(sfContext)*);
 
     // Window/Joystick.h
-    alias da_sfJoystick_isConnected = sfBool function( uint );
-    alias da_sfJoystick_getButtonCount = uint function( uint );
-    alias da_sfJoystick_hasAxis = sfBool function( uint, sfJoystickAxis );
-    alias da_sfJoystick_isButtonPressed = sfBool function( uint, uint );
-    alias da_sfJoystick_getAxisPosition = float function( uint, sfJoystickAxis );
-    alias da_sfJoystick_getIdentification = sfJoystickIdentification function( uint );
+    alias da_sfJoystick_isConnected = sfBool function(uint);
+    alias da_sfJoystick_getButtonCount = uint function(uint);
+    alias da_sfJoystick_hasAxis = sfBool function(uint, sfJoystickAxis);
+    alias da_sfJoystick_isButtonPressed = sfBool function(uint, uint);
+    alias da_sfJoystick_getAxisPosition = float function(uint, sfJoystickAxis);
+    alias da_sfJoystick_getIdentification = sfJoystickIdentification function(uint);
     alias da_sfJoystick_update = void function();
 
     // Window/Keyboard.h
-    alias da_sfKeyboard_isKeyPressed = sfBool function( sfKeyCode );
+    alias da_sfKeyboard_isKeyPressed = sfBool function(sfKeyCode);
+    alias da_sfKeyboard_setVirtualKeyboardVisible = void function(sfBool);
 
     // Window/Mouse.h
-    alias da_sfMouse_isButtonPressed = sfBool function( sfMouseButton );
-    alias da_sfMouse_getPosition = sfVector2i function( const( sfWindow )* );
-    alias da_sfMouse_setPosition = void function( sfVector2i,const( sfWindow )* );
+    alias da_sfMouse_isButtonPressed = sfBool function(sfMouseButton);
+    alias da_sfMouse_getPosition = sfVector2i function(const(sfWindow)*);
+    alias da_sfMouse_setPosition = void function(sfVector2i,const(sfWindow)*);
 
     // Window/Sensor.h
-    alias da_sfSensor_isAvailable = sfBool function( sfSensorType );
-    alias da_sfSensor_setEnabled = void function( sfSensorType,sfBool );
-    alias da_sfSensor_getValue = sfVector3f function( sfSensorType );
+    alias da_sfSensor_isAvailable = sfBool function(sfSensorType);
+    alias da_sfSensor_setEnabled = void function(sfSensorType,sfBool);
+    alias da_sfSensor_getValue = sfVector3f function(sfSensorType);
 
     // Window/Touch.h
-    alias da_sfTouch_isDown = sfBool function( uint );
-    alias da_sfTouch_getPosition = sfVector2i function( uint, const( sfWindow )* );
+    alias da_sfTouch_isDown = sfBool function(uint);
+    alias da_sfTouch_getPosition = sfVector2i function(uint, const(sfWindow)*);
 
     // Window/VideoMode.h
     alias da_sfVideoMode_getDesktopMode = sfVideoMode function();
-    alias da_sfVideoMode_getFullscreenModes = const( sfVideoMode )* function( size_t* );
-    alias da_sfVideoMode_isValid = sfBool function( sfVideoMode );
+    alias da_sfVideoMode_getFullscreenModes = const(sfVideoMode)* function(size_t*);
+    alias da_sfVideoMode_isValid = sfBool function(sfVideoMode);
 
     // Window/Window.h
-    alias da_sfWindow_create = sfWindow* function( sfVideoMode,const( char )*,sfUint32,const( sfContextSettings )* );
-    alias da_sfWindow_createUnicode = sfWindow* function(sfVideoMode,const( dchar )*,sfUint32,const( sfContextSettings )*);
-    alias da_sfWindow_createFromHandle = sfWindow* function( sfWindowHandle,const( sfContextSettings )* );
-    alias da_sfWindow_destroy = void function( sfWindow* );
-    alias da_sfWindow_close = void function( sfWindow* );
-    alias da_sfWindow_isOpen = sfBool function( const( sfWindow )* );
-    alias da_sfWindow_getSettings = sfContextSettings function( const( sfWindow )* );
-    alias da_sfWindow_pollEvent = sfBool function( sfWindow*,sfEvent* );
-    alias da_sfWindow_waitEvent = sfBool function( sfWindow*,sfEvent* );
-    alias da_sfWindow_getPosition = sfVector2i function( const( sfWindow )* );
-    alias da_sfWindow_setPosition = void function( sfWindow*,sfVector2i );
-    alias da_sfWindow_getSize = sfVector2u function( const( sfWindow )* );
-    alias da_sfWindow_setSize = void function( sfWindow*,sfVector2u );
-    alias da_sfWindow_setTitle = void function( sfWindow*,const( char )* );
-    alias da_sfWindow_setIcon = void function( sfWindow*,uint,uint,const( sfUint8 )* );
-    alias da_sfWindow_setVisible = void function( sfWindow*,sfBool );
-    alias da_sfWindow_setMouseCursorVisible = void function( sfWindow*,sfBool );
-    alias da_sfWindow_setVerticalSyncEnabled = void function( sfWindow*,sfBool );
-    alias da_sfWindow_setKeyRepeatEnabled = void function( sfWindow*,sfBool );
-    alias da_sfWindow_setActive = sfBool function( sfWindow*,sfBool );
-    alias da_sfWindow_requestFocus = void function( sfWindow* );
-    alias da_sfWindow_hasFocus = void function( const( sfWindow )* );
-    alias da_sfWindow_display = void function( sfWindow* );
-    alias da_sfWindow_setFramerateLimit = void function( sfWindow*,uint );
-    alias da_sfWindow_setJoystickThreshold = void function( sfWindow*,float );
-    alias da_sfWindow_getSystemHandle = sfWindowHandle function( const( sfWindow )* );
+    alias da_sfWindow_create = sfWindow* function(sfVideoMode,const(char)*,sfUint32,const(sfContextSettings)*);
+    alias da_sfWindow_createUnicode = sfWindow* function(sfVideoMode,const(dchar)*,sfUint32,const(sfContextSettings)*);
+    alias da_sfWindow_createFromHandle = sfWindow* function(sfWindowHandle,const(sfContextSettings)*);
+    alias da_sfWindow_destroy = void function(sfWindow*);
+    alias da_sfWindow_close = void function(sfWindow*);
+    alias da_sfWindow_isOpen = sfBool function(const(sfWindow)*);
+    alias da_sfWindow_getSettings = sfContextSettings function(const(sfWindow)*);
+    alias da_sfWindow_pollEvent = sfBool function(sfWindow*,sfEvent*);
+    alias da_sfWindow_waitEvent = sfBool function(sfWindow*,sfEvent*);
+    alias da_sfWindow_getPosition = sfVector2i function(const(sfWindow)*);
+    alias da_sfWindow_setPosition = void function(sfWindow*,sfVector2i);
+    alias da_sfWindow_getSize = sfVector2u function(const(sfWindow)*);
+    alias da_sfWindow_setSize = void function(sfWindow*,sfVector2u);
+    alias da_sfWindow_setTitle = void function(sfWindow*,const(char)*);
+    alias da_sfWindow_setIcon = void function(sfWindow*,uint,uint,const(sfUint8)*);
+    alias da_sfWindow_setVisible = void function(sfWindow*,sfBool);
+    alias da_sfWindow_setMouseCursorVisible = void function(sfWindow*,sfBool);
+    alias da_sfWindow_setVerticalSyncEnabled = void function(sfWindow*,sfBool);
+    alias da_sfWindow_setMouseCursorGrabbed = void function(sfWindow*,sfBool);
+    alias da_sfWindow_setKeyRepeatEnabled = void function(sfWindow*,sfBool);
+    alias da_sfWindow_setFramerateLimit = void function(sfWindow*,uint);
+    alias da_sfWindow_setJoystickThreshold = void function(sfWindow*,float);
+    alias da_sfWindow_setActive = sfBool function(sfWindow*,sfBool);
+    alias da_sfWindow_requestFocus = void function(sfWindow*);
+    alias da_sfWindow_hasFocus = void function(const(sfWindow)*);
+    alias da_sfWindow_display = void function(sfWindow*);
+    alias da_sfWindow_getSystemHandle = sfWindowHandle function(const(sfWindow)*);
 }
 
 __gshared {
     da_sfContext_create sfContext_create;
     da_sfContext_destroy sfContext_destroy;
     da_sfContext_setActive sfContext_setActive;
+    da_sfContext_getSettings sfContext_getSettings;
 
     da_sfJoystick_isConnected sfJoystick_isConnected;
     da_sfJoystick_getButtonCount sfJoystick_getButtonCount;
@@ -462,6 +455,7 @@ __gshared {
     da_sfJoystick_update sfJoystick_update;
 
     da_sfKeyboard_isKeyPressed sfKeyboard_isKeyPressed;
+    da_sfKeyboard_setVirtualKeyboardVisible sfKeyboard_setVirtualKeyboardVisible;
 
     da_sfMouse_isButtonPressed sfMouse_isButtonPressed;
     da_sfMouse_getPosition sfMouse_getPosition;
@@ -496,75 +490,91 @@ __gshared {
     da_sfWindow_setVisible sfWindow_setVisible;
     da_sfWindow_setMouseCursorVisible sfWindow_setMouseCursorVisible;
     da_sfWindow_setVerticalSyncEnabled sfWindow_setVerticalSyncEnabled;
+    da_sfWindow_setMouseCursorGrabbed sfWindow_setMouseCursorGrabbed;
     da_sfWindow_setKeyRepeatEnabled sfWindow_setKeyRepeatEnabled;
+    da_sfWindow_setFramerateLimit sfWindow_setFramerateLimit;
+    da_sfWindow_setJoystickThreshold sfWindow_setJoystickThreshold;
     da_sfWindow_setActive sfWindow_setActive;
     da_sfWindow_requestFocus sfWindow_requestFocus;
     da_sfWindow_hasFocus sfWindow_hasFocus;
     da_sfWindow_display sfWindow_display;
-    da_sfWindow_setFramerateLimit sfWindow_setFramerateLimit;
-    da_sfWindow_setJoystickThreshold sfWindow_setJoystickThreshold;
     da_sfWindow_getSystemHandle sfWindow_getSystemHandle;
 }
 
 class DerelictSFML2WindowLoader : SharedLibLoader {
-    public this() {
-        super( libNames );
+    this() {
+        super(libNames);
     }
 
-    protected override void loadSymbols() {
-        bindFunc( cast( void** )&sfContext_create, "sfContext_create" );
-        bindFunc( cast( void** )&sfContext_destroy, "sfContext_destroy" );
-        bindFunc( cast( void** )&sfContext_setActive, "sfContext_setActive" );
-        bindFunc( cast( void** )&sfJoystick_isConnected, "sfJoystick_isConnected" );
-        bindFunc( cast( void** )&sfJoystick_getButtonCount, "sfJoystick_getButtonCount" );
-        bindFunc( cast( void** )&sfJoystick_hasAxis, "sfJoystick_hasAxis" );
-        bindFunc( cast( void** )&sfJoystick_isButtonPressed, "sfJoystick_isButtonPressed" );
-        bindFunc( cast( void** )&sfJoystick_getAxisPosition, "sfJoystick_getAxisPosition" );
-        bindFunc( cast( void** )&sfJoystick_getIdentification, "sfJoystick_getIdentification" );
-        bindFunc( cast( void** )&sfJoystick_update, "sfJoystick_update" );
-        bindFunc( cast( void** )&sfKeyboard_isKeyPressed, "sfKeyboard_isKeyPressed" );
-        bindFunc( cast( void** )&sfMouse_isButtonPressed, "sfMouse_isButtonPressed" );
-        bindFunc( cast( void** )&sfMouse_getPosition, "sfMouse_getPosition" );
-        bindFunc( cast( void** )&sfMouse_setPosition, "sfMouse_setPosition" );
-        bindFunc( cast( void** )&sfSensor_isAvailable, "sfSensor_isAvailable" );
-        bindFunc( cast( void** )&sfSensor_setEnabled, "sfSensor_setEnabled" );
-        bindFunc( cast( void** )&sfSensor_getValue, "sfSensor_getValue" );
-        bindFunc( cast( void** )&sfTouch_isDown, "sfTouch_isDown" );
-        bindFunc( cast( void** )&sfTouch_getPosition, "sfTouch_getPosition" );
-        bindFunc( cast( void** )&sfVideoMode_getDesktopMode, "sfVideoMode_getDesktopMode" );
-        bindFunc( cast( void** )&sfVideoMode_getFullscreenModes, "sfVideoMode_getFullscreenModes" );
-        bindFunc( cast( void** )&sfVideoMode_isValid, "sfVideoMode_isValid" );
-        bindFunc( cast( void** )&sfWindow_create, "sfWindow_create" );
-        bindFunc( cast( void** )&sfWindow_createUnicode, "sfWindow_createUnicode" );
-        bindFunc( cast( void** )&sfWindow_createFromHandle, "sfWindow_createFromHandle" );
-        bindFunc( cast( void** )&sfWindow_destroy, "sfWindow_destroy" );
-        bindFunc( cast( void** )&sfWindow_close, "sfWindow_close" );
-        bindFunc( cast( void** )&sfWindow_isOpen, "sfWindow_isOpen" );
-        bindFunc( cast( void** )&sfWindow_getSettings, "sfWindow_getSettings" );
-        bindFunc( cast( void** )&sfWindow_pollEvent, "sfWindow_pollEvent" );
-        bindFunc( cast( void** )&sfWindow_waitEvent, "sfWindow_waitEvent" );
-        bindFunc( cast( void** )&sfWindow_getPosition, "sfWindow_getPosition" );
-        bindFunc( cast( void** )&sfWindow_setPosition, "sfWindow_setPosition" );
-        bindFunc( cast( void** )&sfWindow_getSize, "sfWindow_getSize" );
-        bindFunc( cast( void** )&sfWindow_setSize, "sfWindow_setSize" );
-        bindFunc( cast( void** )&sfWindow_setTitle, "sfWindow_setTitle" );
-        bindFunc( cast( void** )&sfWindow_setIcon, "sfWindow_setIcon" );
-        bindFunc( cast( void** )&sfWindow_setVisible, "sfWindow_setVisible" );
-        bindFunc( cast( void** )&sfWindow_setMouseCursorVisible, "sfWindow_setMouseCursorVisible" );
-        bindFunc( cast( void** )&sfWindow_setVerticalSyncEnabled, "sfWindow_setVerticalSyncEnabled" );
-        bindFunc( cast( void** )&sfWindow_setKeyRepeatEnabled, "sfWindow_setKeyRepeatEnabled" );
-        bindFunc( cast( void** )&sfWindow_setActive, "sfWindow_setActive" );
-        bindFunc( cast( void** )&sfWindow_requestFocus, "sfWindow_requestFocus" );
-        bindFunc( cast( void** )&sfWindow_hasFocus, "sfWindow_hasFocus" );
-        bindFunc( cast( void** )&sfWindow_display, "sfWindow_display" );
-        bindFunc( cast( void** )&sfWindow_setFramerateLimit, "sfWindow_setFramerateLimit" );
-        bindFunc( cast( void** )&sfWindow_setJoystickThreshold, "sfWindow_setJoystickThreshold" );
-        bindFunc( cast( void** )&sfWindow_getSystemHandle, "sfWindow_getSystemHandle" );
+    protected override void loadSymbols() 
+    {
+        bindFunc(cast(void**)&sfContext_create, "sfContext_create");
+        bindFunc(cast(void**)&sfContext_destroy, "sfContext_destroy");
+        bindFunc(cast(void**)&sfContext_setActive, "sfContext_setActive");
+        bindFunc(cast(void**)&sfContext_getSettings, "sfContext_getSettings");
+        bindFunc(cast(void**)&sfJoystick_isConnected, "sfJoystick_isConnected");
+        bindFunc(cast(void**)&sfJoystick_getButtonCount, "sfJoystick_getButtonCount");
+        bindFunc(cast(void**)&sfJoystick_hasAxis, "sfJoystick_hasAxis");
+        bindFunc(cast(void**)&sfJoystick_isButtonPressed, "sfJoystick_isButtonPressed");
+        bindFunc(cast(void**)&sfJoystick_getAxisPosition, "sfJoystick_getAxisPosition");
+        bindFunc(cast(void**)&sfJoystick_getIdentification, "sfJoystick_getIdentification");
+        bindFunc(cast(void**)&sfJoystick_update, "sfJoystick_update");
+        bindFunc(cast(void**)&sfKeyboard_isKeyPressed, "sfKeyboard_isKeyPressed");
+        bindFunc(cast(void**)&sfKeyboard_setVirtualKeyboardVisible, "sfKeyboard_setVirtualKeyboardVisible");
+        bindFunc(cast(void**)&sfMouse_isButtonPressed, "sfMouse_isButtonPressed");
+        bindFunc(cast(void**)&sfMouse_getPosition, "sfMouse_getPosition");
+        bindFunc(cast(void**)&sfMouse_setPosition, "sfMouse_setPosition");
+        bindFunc(cast(void**)&sfSensor_isAvailable, "sfSensor_isAvailable");
+        bindFunc(cast(void**)&sfSensor_setEnabled, "sfSensor_setEnabled");
+        bindFunc(cast(void**)&sfSensor_getValue, "sfSensor_getValue");
+        bindFunc(cast(void**)&sfTouch_isDown, "sfTouch_isDown");
+        bindFunc(cast(void**)&sfTouch_getPosition, "sfTouch_getPosition");
+        bindFunc(cast(void**)&sfVideoMode_getDesktopMode, "sfVideoMode_getDesktopMode");
+        bindFunc(cast(void**)&sfVideoMode_getFullscreenModes, "sfVideoMode_getFullscreenModes");
+        bindFunc(cast(void**)&sfVideoMode_isValid, "sfVideoMode_isValid");
+        bindFunc(cast(void**)&sfWindow_create, "sfWindow_create");
+        bindFunc(cast(void**)&sfWindow_createUnicode, "sfWindow_createUnicode");
+        bindFunc(cast(void**)&sfWindow_createFromHandle, "sfWindow_createFromHandle");
+        bindFunc(cast(void**)&sfWindow_destroy, "sfWindow_destroy");
+        bindFunc(cast(void**)&sfWindow_close, "sfWindow_close");
+        bindFunc(cast(void**)&sfWindow_isOpen, "sfWindow_isOpen");
+        bindFunc(cast(void**)&sfWindow_getSettings, "sfWindow_getSettings");
+        bindFunc(cast(void**)&sfWindow_pollEvent, "sfWindow_pollEvent");
+        bindFunc(cast(void**)&sfWindow_waitEvent, "sfWindow_waitEvent");
+        bindFunc(cast(void**)&sfWindow_getPosition, "sfWindow_getPosition");
+        bindFunc(cast(void**)&sfWindow_setPosition, "sfWindow_setPosition");
+        bindFunc(cast(void**)&sfWindow_getSize, "sfWindow_getSize");
+        bindFunc(cast(void**)&sfWindow_setSize, "sfWindow_setSize");
+        bindFunc(cast(void**)&sfWindow_setTitle, "sfWindow_setTitle");
+        bindFunc(cast(void**)&sfWindow_setIcon, "sfWindow_setIcon");
+        bindFunc(cast(void**)&sfWindow_setVisible, "sfWindow_setVisible");
+        bindFunc(cast(void**)&sfWindow_setMouseCursorVisible, "sfWindow_setMouseCursorVisible");
+        bindFunc(cast(void**)&sfWindow_setVerticalSyncEnabled, "sfWindow_setVerticalSyncEnabled");
+        bindFunc(cast(void**)&sfWindow_setMouseCursorGrabbed, "sfWindow_setMouseCursorGrabbed");
+        bindFunc(cast(void**)&sfWindow_setKeyRepeatEnabled, "sfWindow_setKeyRepeatEnabled");
+        bindFunc(cast(void**)&sfWindow_setFramerateLimit, "sfWindow_setFramerateLimit");
+        bindFunc(cast(void**)&sfWindow_setJoystickThreshold, "sfWindow_setJoystickThreshold");
+        bindFunc(cast(void**)&sfWindow_setActive, "sfWindow_setActive");
+        bindFunc(cast(void**)&sfWindow_requestFocus, "sfWindow_requestFocus");
+        bindFunc(cast(void**)&sfWindow_hasFocus, "sfWindow_hasFocus");
+        bindFunc(cast(void**)&sfWindow_display, "sfWindow_display");
+        bindFunc(cast(void**)&sfWindow_getSystemHandle, "sfWindow_getSystemHandle");
     }
 }
 
 __gshared DerelictSFML2WindowLoader DerelictSFML2Window;
 
-shared static this() {
+shared static this() 
+{
     DerelictSFML2Window = new DerelictSFML2WindowLoader();
 }
+
+private:
+    static if(Derelict_OS_Windows)
+        enum libNames = "csfml-window.dll,csfml-window-2.dll,csfml-window-2.3.dll";
+    else static if(Derelict_OS_Mac)
+        enum libNames = "libcsfml-window.dylib,libcsfml-window.2.dylib,libcsfml-window.2.3.dylib";
+    else static if(Derelict_OS_Posix)
+        enum libNames = "libcsfml-window.so,libcsfml-window.so.2,libcsfml-window.so.2.3";
+    else
+        static assert(0, "Need to implement SFML2 Window libNames for this operating system.");

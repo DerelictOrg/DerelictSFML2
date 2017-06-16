@@ -1,16 +1,21 @@
 DerelictSFML2
 ==========
 
-Dynamic bindings to version 2.3 of [the SFML libraries][1] for the D Programming Language.
+Dynamic bindings to version 2.4 of [the SFML libraries][1] for the D Programming Language.
 
 Please see the pages [Building and Linking Derelict][2] and [Using Derelict][3], in the Derelict documentation, for information on how to build DerelictSFML2 and load the SFML2 libraries at run time. In the meantime, here's some sample code.
 
 ```D
-import derelict.sfml2.system; // For the system library.
-import derelict.sfml2.window; // For the window library.
-import derelict.sfml2.audio; // For the audio library.
-import derelict.sfml2.graphics; // For the graphics library.
-import derelict.sfml2.network; // For the network library.
+import derelict.sfml2;  // For all libraries
+
+/+
+// Alternatively, import only the modules for the libraries you need:
+import derelict.sfml2.system; 
+import derelict.sfml2.window;
+import derelict.sfml2.audio;
+import derelict.sfml2.graphics;
+import derelict.sfml2.network;
++/
 
 void main() {
     // Load the SFML2 System libraries you need. Note that this sample imports
@@ -22,7 +27,7 @@ void main() {
     DerelictSFML2Graphics.load();
     DerelictSFML2Network.load();
 
-    // Now you can call functions from the all of the SFML2 libraries.
+    // Now you can call functions from the all of the SFML2 libraries that were loaded.
 }
 ```
 
