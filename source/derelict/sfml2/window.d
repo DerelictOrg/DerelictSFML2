@@ -435,7 +435,7 @@ extern(C) @nogc nothrow {
     alias da_sfWindow_setJoystickThreshold = void function(sfWindow*,float);
     alias da_sfWindow_setActive = sfBool function(sfWindow*,sfBool);
     alias da_sfWindow_requestFocus = void function(sfWindow*);
-    alias da_sfWindow_hasFocus = void function(const(sfWindow)*);
+    alias da_sfWindow_hasFocus = sfBool function(const(sfWindow)*);
     alias da_sfWindow_display = void function(sfWindow*);
     alias da_sfWindow_getSystemHandle = sfWindowHandle function(const(sfWindow)*);
 }
