@@ -464,7 +464,7 @@ shared static this()
 
 private:
     static if(Derelict_OS_Windows)
-        enum libNames = "csfml-audio.dll,csfml-audio-2.dll,csmfl-audio-2.4.dll";
+        enum libNames = "csfml-audio.dll,csfml-audio-2.dll,csfml-audio-2.4.dll";
     else static if(Derelict_OS_Mac)
         enum libNames = "libcsfml-audio.dylib,libcsfml-audio.2.dylib,libcsfml-audio.2.4.dylib";
     else static if(Derelict_OS_Posix)
