@@ -1,6 +1,8 @@
 DerelictSFML2
 ==========
 
+**This package is obsolete and no longer maintained. Please use [bindbc-sfml][4] instead.**
+
 Dynamic bindings to version 2.4 of [the SFML libraries][1] for the D Programming Language.
 
 Please see the pages [Building and Linking Derelict][2] and [Using Derelict][3], in the Derelict documentation, for information on how to build DerelictSFML2 and load the SFML2 libraries at run time. In the meantime, here's some sample code.
@@ -36,3 +38,4 @@ Finally, it should be noted that there are two versions of the SFML2 shared libr
 [1]: http://www.sfml-dev.org/
 [2]: http://derelictorg.github.io/compiling.html
 [3]: http://derelictorg.github.io/using.html
+[4]: https://github.com/BindBC/bindbc-sfml
